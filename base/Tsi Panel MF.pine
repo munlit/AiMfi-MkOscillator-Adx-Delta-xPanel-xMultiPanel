@@ -1,0 +1,174 @@
+/// ╔═══════════════════════════════════════╗
+/// ║	TSI Panel Multi Timeframe			║
+/// ║	@	Allen.							║
+/// ╚═══════════════════════════════════════╝
+
+//// ─────────────────────────────────────────────────────────────────────
+
+/// ─── RSI Instance
+// rsiOvORSI				= ta.rsi(vRsiOvOvRSISource, vTsiObsTSILength)
+
+
+//// ───────────────────────
+/// ─── TSI Obs MTF ───
+/// ─── TSI Box ───
+//// ───────────────────────
+
+colorRsiPnl_Buy				= PlatziGreen30
+colorRsiPnl_Sell			= AllenFucsia50
+colorRsiPnl_Neutral			= AmeTrBlueFrost
+colorRsiPnl_White			= MongoSky10
+colorRsiPnl_Black			= PlatziBlue70
+colorRsiPnl_Text			= PlatziBlue70
+colorRsiPnl_TiPnTx			= PlatziBlue70
+colorRsiPnl_TiPnBg			= BrLiYel30
+
+/// ─── Inputs
+rsiPnlLocatGroup			=				"Timeframe Panel"
+showRsiPanelTimeframes		= input.bool	(true,				title = "Panel Rsi",			group = rsiPnlLocatGroup)
+showRsiPanelTF15m			= input.bool	(true,				title = "15m",					group = rsiPnlLocatGroup,		inline = "timefr")
+showRsiPanelTF30m			= input.bool	(true,				title = "30m",					group = rsiPnlLocatGroup,		inline = "timefr")
+showRsiPanelTF1h			= input.bool	(true,				title = "1 H",					group = rsiPnlLocatGroup,		inline = "timefr")
+showRsiPanelTF2h			= input.bool	(true,				title = "2 H",					group = rsiPnlLocatGroup,		inline = "timefr2")
+showRsiPanelTF3h			= input.bool	(true,				title = "3 H",					group = rsiPnlLocatGroup,		inline = "timefr2")
+showRsiPanelTF4h			= input.bool	(true,				title = "4 H",					group = rsiPnlLocatGroup,		inline = "timefr2")
+
+rsiPnl_Length				= input.int		(defval = 14,		title = "RSI Longitud",			group = rsiPnlLocatGroup,		inline = "vars")
+rsiPnl_BuyThreshold			= input.int		(defval = 30,		title = "Sobrecompra",			group = rsiPnlLocatGroup,		inline = "vars")
+rsiPnl_SellThreshold		= input.int		(defval = 70,		title = "Sobreventa",			group = rsiPnlLocatGroup,		inline = "vars")
+
+rsiPnlPosiVert				= input.string	(defval = "arriba",	title = " Y: ",					group = rsiPnlLocatGroup,		inline = "vector",
+		  options			=				["arriba", "medio","abajo"])
+rsiPnlPosiHoriz				= input.string	(defval = "centro",	title = " X: ",					group = rsiPnlLocatGroup,		inline = "vector",
+		  options			=				["izquierda", "centro","derecha"])
+
+stTsiObsPanelTextSize		= input.string		(defval = "normal",	title = "Texto del Box",								group = tsiObsGroupTable,
+		  options			= ["auto","tiny","small","normal","large","huge"])
+
+/// ───────────────────────
+/// ─── Types
+/// ───────────────────────
+
+type srcOHL
+	float O					= open
+	float H					= high
+	float L					= low
+	float C					= close
+	float V					= volume
+	int   I					= bar_index
+
+/// ───────────────────────
+/// ─── Instances
+/// ───────────────────────
+
+sohl						= srcOHL.new()
+
+/// ───────────────────────
+/// ─── Functions
+/// ───────────────────────
+
+/// ─── function vertical
+FUNRsiPnlVertical(Vertic)	=>
+	switch Vertic
+		"arriba"			=> "top"
+		"medio"				=> "middle"
+		"abajo"				=> "bottom"
+
+/// ─── function horizontal
+FUNRsiPnlHorizontal(Horiz)	=>
+	switch Horiz
+
+		"izquierda"			=> "left"
+		"centro"			=> "center"
+		"derecha"			=> "right"
+
+tsiObsTSI							= tsiDiFuTsi_value
+tsiDbsEmaLine						= ta.ema(tsiDiFuTsi_value,	vTsiObsTSILength)
+
+FUNCrsiOvOvBBTxt(buy, sell) =>
+	buy ? "🟢⬈" : sell ? "🔴⬊" : "⚪➞"
+
+FUNCcolorTsiObsBB(buy, sell) =>
+	buy ? colorTsiObsBuy : sell ? colorTsiObsSell : colorTsiObsNOmatch
+
+FUNCrsiOvOvNewTC(tBox, col, row, txt, width, txtColor, bgColor, txtHA, txtSize) =>
+	table.cell(table_id			= tBox,
+				  column		= col,
+				  row			= row,
+				  text			= txt,
+				  width			= width,
+				  text_color	= txtColor,
+				  bgcolor		= bgColor,
+				  text_halign	= txtHA,
+				  text_size		= txtSize
+				  )
+
+
+
+/// ─── RSI
+insRsiPnlRSI				= ta.rsi(sohl.C, rsiPnl_Length)
+
+/// ─── function RSI calculate
+FunRsiPnlCalculateRSI(source, length) =>
+	vUpMove					= math.max	(source - source[1], 0)
+	vDownMove				= math.max	(source[1] - source, 0)
+	vUpAvg					= ta.rma	(vUpMove, length)
+	vDownAvg				= ta.rma	(vDownMove, length)
+	vRSI					= vDownAvg == 0 ? 100 : vUpAvg == 0 ? 0 : 100 - (100 / (1 + vUpAvg / vDownAvg))
+	vRSI
+
+/// ─── New table
+var 
+			= table.new(
+	  position				= FUNRsiPnlVertical(rsiPnlPosiVert) + "_" + FUNRsiPnlHorizontal(rsiPnlPosiHoriz),
+	  columns				= 8,
+	  rows					= 1,
+	  border_width			= 2,
+	  frame_color			= color.new(colorRsiPnl_Black, 15),
+	  force_overlay			= true)
+
+/// ─── Function table cells
+FunRsiPnlCalculateCell(col, row, tf, value) =>
+	vCellColor				= value >= rsiPnl_SellThreshold ? colorRsiPnl_Sell : value <= rsiPnl_BuyThreshold ? colorRsiPnl_Buy : colorRsiPnl_Neutral
+	vOpacity				= value >= 80 or value <= 20 ? 20 : value >= 70 or value <= 30 ? 40 : 60
+	vCellText				= tf + "\n" + str.tostring(value, "#.00")
+
+	table.cell				(vRsiPnlTable, col, row, vCellText,
+		  bgcolor			= color.new(vCellColor, vOpacity),
+		  text_color		= colorRsiPnl_Text,
+		  width				= 4)
+
+/// ─── Function table name
+FunRsiPnlCalculateCellNow(col, row) =>
+	vCellText				= "RSI"
+
+	table.cell				(vRsiPnlTable, col, row, vCellText,
+		  bgcolor			= color.new(colorRsiPnl_TiPnBg, 10),
+		  text_color		= color.new(colorRsiPnl_TiPnTx, 10),
+		  width				= 3)
+
+/// ─── RSI timeframes
+[vRsiPnlTF15m,	vRsiPnlTF15m_1,	vRsiPnlTF15m_2]	= request.security(syminfo.tickerid,	"15",	[insRsiPnlRSI,	insRsiPnlRSI[1],	insRsiPnlRSI[2]],	lookahead = barmerge.lookahead_on)
+[vRsiPnlTF30m,	vRsiPnlTF30m_1,	vRsiPnlTF30m_2]	= request.security(syminfo.tickerid,	"30",	[insRsiPnlRSI,	insRsiPnlRSI[1],	insRsiPnlRSI[2]],	lookahead = barmerge.lookahead_on)
+[vRsiPnlTF1h,	vRsiPnlTF1h_1,	vRsiPnlTF1h_2]	= request.security(syminfo.tickerid,	"60",	[insRsiPnlRSI,	insRsiPnlRSI[1],	insRsiPnlRSI[2]],	lookahead = barmerge.lookahead_on)
+[vRsiPnlTF2h,	vRsiPnlTF2h_1,	vRsiPnlTF2h_2]	= request.security(syminfo.tickerid,	"120",	[insRsiPnlRSI,	insRsiPnlRSI[1],	insRsiPnlRSI[2]],	lookahead = barmerge.lookahead_on)
+[vRsiPnlTF3h,	vRsiPnlTF3h_1,	vRsiPnlTF3h_2]	= request.security(syminfo.tickerid,	"180",	[insRsiPnlRSI,	insRsiPnlRSI[1],	insRsiPnlRSI[2]],	lookahead = barmerge.lookahead_on)
+[vRsiPnlTF4h,	vRsiPnlTF4h_1,	vRsiPnlTF4h_2]	= request.security(syminfo.tickerid,	"240",	[insRsiPnlRSI,	insRsiPnlRSI[1],	insRsiPnlRSI[2]],	lookahead = barmerge.lookahead_on)
+
+/// ─── Table
+if showRsiPanelTimeframes
+	FunRsiPnlCalculateCellNow		(0,	0)
+	FunRsiPnlCalculateCell			(1,	0,		"Actual",	insRsiPnlRSI)
+
+	if showRsiPanelTF15m
+		FunRsiPnlCalculateCell		(2,	0,		"15m",		vRsiPnlTF15m)
+	if showRsiPanelTF30m
+		FunRsiPnlCalculateCell		(3,	0,		"30m",		vRsiPnlTF30m)
+	if showRsiPanelTF1h
+		FunRsiPnlCalculateCell		(4,	0,		"1 H",		vRsiPnlTF1h)
+	if showRsiPanelTF2h
+		FunRsiPnlCalculateCell		(5,	0,		"2 H",		vRsiPnlTF2h)
+	if showRsiPanelTF3h
+		FunRsiPnlCalculateCell		(6,	0,		"3 H",		vRsiPnlTF3h)
+	if showRsiPanelTF4h
+		FunRsiPnlCalculateCell		(7,	0,		"4 H",		vRsiPnlTF4h)
