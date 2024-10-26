@@ -148,23 +148,25 @@ fill				(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 : ada
 //// ───────────────────────
 
 /// ─── Colors ───
-tsiDivColorBaseBull		= PlatziGreen30
-tsiDivColorBaseBear		= VictSecFucsia50
+tsiDivColorBaseBull			= PlatziGreen30
+tsiDivColorBaseBear			= VictSecFucsia50
 
-tsiDivColorBull			= color.new(PlatziGreen30,		0)
-tsiDivColorBear			= color.new(VictSecFucsia50,	0)
-tsiDivColorHiddenBull	= color.new(PlatziGreen40,		30)
-tsiDivColorHiddenBear	= color.new(WavBehFucsia50,		30)
-tsiDivColorText			= color.new(PlatziBlue70,		0)
-tsiDivColorNone			= color.new(AllenSky10,			100)
-tsiDivColorTSI			= color.new(AllenSky10,			20)
+tsiDivColorBull				= color.new(AllenMint60,		0)
+tsiDivColorBear				= color.new(AllenSky10,			0)
+tsiDivColorDiverBull		= color.new(PlatziGreen30,		0)
+tsiDivColorDiverBear		= color.new(VictSecFucsia50,	0)
+tsiDivColorHiddenBull		= color.new(AllenMint60,		55)
+tsiDivColorHiddenBear		= color.new(AllenSky10,			55)
+tsiDivColorText				= color.new(PlatziBlue70,		0)
+tsiDivColorNone				= color.new(AllenSky10,			100)
+tsiDivColorTSI				= color.new(AllenSky10,			20)
 
 /// ─── Inputs ───
-tsiDivInputLong			= input(defval = 6,		title = 'Longitud de Compra')
-tsiDivInputShort		= input(defval = 13,	title = 'Longitud de Venta')
-tsiDivInputSignal		= input(defval = 4,		title = 'Longitud de la SEÑAL')
+tsiDivInputLong				= input(defval = 6,		title = 'Longitud de Compra')
+tsiDivInputShort			= input(defval = 13,	title = 'Longitud de Venta')
+tsiDivInputSignal			= input(defval = 4,		title = 'Longitud de la SEÑAL')
 
-price					= close[0]
+price						= close[0]
 
 /// ─── divergences ───
 tsiDivDiverLBR				= input(defval = 5,		title = 'Corrección a la derecha')
@@ -191,16 +193,20 @@ double_smooth(src, tsiDivInputLong, tsiDivInputShort) =>
 tsiDiFuPC							= ta.change(price)
 tsiDiFuDouble_smoothed_price		= double_smooth(tsiDiFuPC, tsiDivInputLong, tsiDivInputShort)
 tsiDiFuDouble_smoothed_abs_price	= double_smooth(math.abs(tsiDiFuPC), tsiDivInputLong, tsiDivInputShort)
-tsiDiFuTsi_value					= 68 * (tsiDiFuDouble_smoothed_price / tsiDiFuDouble_smoothed_abs_price) + 50
+tsiDiFuTsi_value					= 125 * (tsiDiFuDouble_smoothed_price / tsiDiFuDouble_smoothed_abs_price) + 50
 // tsiDiFuTsi_value					= tsiDiFuDouble_smoothed_price / tsiDiFuDouble_smoothed_abs_price * 65 + 50
 tsiDiFuLagLine						= ta.ema(tsiDiFuTsi_value, tsiDivInputSignal)
 
 /// ─── Plot data ───
-tsiDiFuFillColor					= tsiDivShowCloudOn and tsiDiFuTsi_value > tsiDiFuLagLine ? tsiDivColorBull : tsiDivShowCloudOn and tsiDiFuTsi_value <= tsiDiFuLagLine ? tsiDivColorBear : na
+tsiDiFuFillColor					= tsiDivShowCloudOn and tsiDiFuTsi_value > tsiDiFuLagLine ? tsiDivColorDiverBull : tsiDivShowCloudOn and tsiDiFuTsi_value <= tsiDiFuLagLine ? tsiDivColorDiverBear : na
 
-tsiDiFuLine1						= plot(tsiDiFuTsi_value,	color = color.new(tsiDiFuFillColor, 50))
-tsiDiFuLine2						= plot(ta.ema(tsiDiFuTsi_value,	tsiDivInputSignal),	color = color.new(tsiDiFuFillColor, 50))
-hline(0,	title = 'Zero',	color = color.new(#000000, 50),	editable = true)
+plot(tsiDiFuTsi_value,				color = color.new(PlatziBlue70, 60),	linewidth = 6)
+plot(ta.ema(tsiDiFuTsi_value,		tsiDivInputSignal),	color = color.new(PlatziBlue70, 60),	linewidth = 6)
+
+tsiDiFuLine1						= plot(tsiDiFuTsi_value,	color = color.new(tsiDiFuFillColor, 30),	linewidth = 2)
+tsiDiFuLine2						= plot(ta.ema(tsiDiFuTsi_value,	tsiDivInputSignal),	color = color.new(tsiDiFuFillColor, 30),	linewidth = 2)
+
+// hline(0,	title = 'Zero',	color = color.new(#000000, 50),	editable = true)
 
 /// ─── Colour fill ───
 tsiDiFuCloudColor					= tsiDivShowCloudOn and tsiDiFuTsi_value > tsiDiFuLagLine ? tsiDivColorBaseBull : tsiDivShowCloudOn and tsiDiFuTsi_value <= tsiDiFuLagLine ? tsiDivColorBaseBear : na
@@ -239,8 +245,6 @@ plot(tsiDiFuPLFound ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR,
 
 plotshape(tsiDiInsBULLCond ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR, title = 'Etiqueta de Compra', text = ' Compra ', style = shape.labelup, location = location.absolute, color = tsiDivColorBull, textcolor = tsiDivColorText)
 
-alertcondition(tsiDiInsBULLCond, title = 'TSI ha encontrado una divergencia Alcista', message = 'Verifique en gráfico por confirmación de COMPRA por TSI')
-
 //// ───────────────────────
 /// ─── Hidden Bullish ───
 //// ───────────────────────
@@ -255,9 +259,7 @@ tsiDiInsHiddenBullCond				= tsiDivShowPlotHiddenBull and tsiDiInsPRICEHL and tsi
 
 plot(tsiDiFuPLFound ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR, title = 'Confirmación de Compra scalp', linewidth = 2, color = tsiDiInsHiddenBullCond ? tsiDivColorHiddenBull : tsiDivColorNone)
 
-plotshape(tsiDiInsHiddenBullCond ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR, title = 'Etiqueta de Compra scalp', text = ' Compra Scalp ', style = shape.labelup, location = location.absolute, color=tsiDivColorBull, textcolor = tsiDivColorText)
-
-alertcondition(tsiDiInsHiddenBullCond, title = 'TSI ha encontrado una divergencia Alcista oculta', message = 'Verifique en gráfico por confirmación de COMPRA scalp por TSI por TSI')
+plotshape(tsiDiInsHiddenBullCond ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR, title = 'Etiqueta de Compra scalp', text = ' △ scalp ', style = shape.labelup, location = location.absolute, color=tsiDivColorHiddenBull, textcolor = tsiDivColorText)
 
 //// ───────────────────────
 /// ─── Regular Bearish ───
@@ -275,8 +277,6 @@ plot(tsiDiFuPHFound ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR,
 
 plotshape(tsiDiInsBEARCond ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR, title = 'Etiqueta de Venta', text = ' Venta ', style = shape.labeldown, location = location.absolute, color = tsiDivColorBear, textcolor = tsiDivColorText)
 
-alertcondition(tsiDiInsBEARCond, title = 'TSI ha encontrado una divergencia Bajista', message = 'Verifique en gráfico por confirmación de VENTA por TSI')
-
 //// ───────────────────────
 /// ─── Hidden Bearish ───
 //// ───────────────────────
@@ -291,9 +291,6 @@ tsiDiInsHiddenBearCond				= tsiDivShowPlotHiddenBear and tsiDiInsPRICELH and tsi
 
 plot(tsiDiFuPHFound ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR, title = 'Confirmación de Venta scalp', linewidth = 2, color = tsiDiInsHiddenBearCond ? tsiDivColorHiddenBear : tsiDivColorNone)
 
-plotshape(tsiDiInsHiddenBearCond ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR, title = 'Etiqueta de Venta scalp', text = ' Venta Scalp ', style = shape.labeldown, location = location.absolute, color = tsiDivColorBear, textcolor = tsiDivColorText)
-
-alertcondition(tsiDiInsHiddenBearCond, title = 'TSI ha encontrado una divergencia Bajista oculta', message = 'Verifique en gráfico por confirmación de VENTA scalp por TSI')
-
+plotshape(tsiDiInsHiddenBearCond ? tsiDiFuOSC[tsiDivDiverLBR] : na, offset = -tsiDivDiverLBR, title = 'Etiqueta de Venta scalp', text = ' ▽ scalp ', style = shape.labeldown, location = location.absolute, color = tsiDivColorHiddenBear, textcolor = tsiDivColorText)
 
 //// ─────────────────────────────────────────────────────────────────────
