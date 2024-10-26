@@ -49,10 +49,11 @@ strGlobalOptionalTooltip				= "Lineas alternas con temporalidad modificada: 15 m
 /// ─── Variables
 /// ───────────────────────
 
-strGlobalTimeFrame						= input.string 	(defval = "Grafico",	title = "Timeframe",	group = "Global Timeframe",
+strGlobalTimeFrame						= input.string 	(defval = "Grafico",	title = "Timeframe gráfico",	group = "Global Timeframe",
 			  options					=				["Grafico", "5 min", "15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas"])
-insGlobalTFCoefficient					= input.int		(defval = 2,			title = "Coef",			group = "Global Timeframe",				minval = 1,	maxval = 5,			step = 1)
-strGlobalOptionTimeFrame				= input.string 	(defval = "1 Hora",		title = "Opcional",		group = "Global Timeframe",				inline = "OpcionaTF",			tooltip = strGlobalOptionalTooltip)
+insGlobalTFCoefficient					= input.int		(defval = 2,			title = "Coef",					group = "Global Timeframe",				minval = 1,	maxval = 5,			step = 1)
+strGlobalOptionTimeFrame				= input.string 	(defval = "2 Horas",	title = "Timegrame opcional",	group = "Global Timeframe",				inline = "OpcionaTF",
+			  options					=				["15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas", "1 Dia", "1 Semana", "1 Mes"])
 
 /// ───────────────────────
 /// ─── Types
@@ -326,47 +327,53 @@ double_smooth(src, vTsiMuDiLong, vTsiMuDiShort) =>
 	fist_smooth = ta.ema(src, vTsiMuDiLong)
 	ta.ema(fist_smooth, vTsiMuDiShort)
 
-insTsiMuDiPC						= ta.change(vTsiMuDiSource)
-insTsiMuDiDouble_smoothed_price		= double_smooth(insTsiMuDiPC, vTsiMuDiLong, vTsiMuDiShort)
-insTsiMuDiDouble_smoothed_abs_price	= double_smooth(math.abs(insTsiMuDiPC), vTsiMuDiLong, vTsiMuDiShort)
+/// visual function NOW
+insTsiMuDiPrice						= ta.change(vTsiMuDiSource)
+insTsiMuDiDouble_smoothed_price		= double_smooth(insTsiMuDiPrice, vTsiMuDiLong, vTsiMuDiShort)
+insTsiMuDiDouble_smoothed_abs_price	= double_smooth(math.abs(insTsiMuDiPrice), vTsiMuDiLong, vTsiMuDiShort)
 insTsiMuDiTsi_value					= 125 * (insTsiMuDiDouble_smoothed_price / insTsiMuDiDouble_smoothed_abs_price) + 50
 
+insTsiMuDiEmaLine					= ta.ema(insTsiMuDiTsi_value, vTsiMuDiSignal)
 
-insTsiMuDiLagLine					= ta.ema(insTsiMuDiTsi_value, vTsiMuDiSignal)
+/// ─── plot color now ───
+insTsiMuDiFillColor					= showTsiMuDiCloudOn	and insTsiMuDiTsi_value > insTsiMuDiEmaLine	? colorTsiMuDiLineFillLong	: showTsiMuDiCloudOn	and insTsiMuDiTsi_value <= insTsiMuDiEmaLine	? colorTsiMuDiLineFillShort	: na
+/// ─── fill color NOW ───
+insTsiMuDiCloudColor				= showTsiMuDiCloudOn	and insTsiMuDiTsi_value > insTsiMuDiEmaLine	? colorTsiMuDiBaseLong		: showTsiMuDiCloudOn	and insTsiMuDiTsi_value <= insTsiMuDiEmaLine	? colorTsiMuDiBaseShort		: na
 
-/// ─── Plot data ───
-insTsiMuDiFillColor					= showTsiMuDiCloudOn and insTsiMuDiTsi_value > insTsiMuDiLagLine ? colorTsiMuDiLineFillLong : showTsiMuDiCloudOn and insTsiMuDiTsi_value <= insTsiMuDiLagLine ? colorTsiMuDiLineFillShort : na
+/// ─── Plot NOW tsi blue ───
+plot(insTsiMuDiTsi_value,																	color = color.new(PlatziBlue70, 60),			linewidth = 6)
+plot(ta.ema(insTsiMuDiTsi_value,	vTsiMuDiSignal),										color = color.new(PlatziBlue70, 60),			linewidth = 6)
 
-plot(insTsiMuDiTsi_value,			color = color.new(PlatziBlue70, 60),	linewidth = 6)
-plot(ta.ema(insTsiMuDiTsi_value,	vTsiMuDiSignal),	color = color.new(PlatziBlue70, 60),	linewidth = 6)
+/// ─── Plot NOW tsi ───
+insTsiMuDiTsiPlotLine				= plot(insTsiMuDiTsi_value,								color = color.new(insTsiMuDiFillColor, 30),		linewidth = 2)
+insTsiMuDiEmaPlotLine				= plot(ta.ema(insTsiMuDiTsi_value,	vTsiMuDiSignal),	color = color.new(insTsiMuDiFillColor, 30),		linewidth = 2)
 
-insTsiMuDiLine1						= plot(insTsiMuDiTsi_value,	color = color.new(insTsiMuDiFillColor, 30),	linewidth = 2)
-insTsiMuDiLine2						= plot(ta.ema(insTsiMuDiTsi_value,	vTsiMuDiSignal),	color = color.new(insTsiMuDiFillColor, 30),	linewidth = 2)
-
-/// ─── Color fill ───
-insTsiMuDiCloudColor				= showTsiMuDiCloudOn and insTsiMuDiTsi_value > insTsiMuDiLagLine ? colorTsiMuDiBaseLong : showTsiMuDiCloudOn and insTsiMuDiTsi_value <= insTsiMuDiLagLine ? colorTsiMuDiBaseShort : na
-
-fill(insTsiMuDiLine1,	insTsiMuDiLine2,	color = color.new(insTsiMuDiCloudColor, 70))
-
-insTsiMuDiOSC						= insTsiMuDiTsi_value 
+/// ─── fill NOW ───
+fill(insTsiMuDiTsiPlotLine, insTsiMuDiEmaPlotLine,											color = color.new(insTsiMuDiCloudColor, 70))
 
 // /// ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/// Structure Timeframe * coefficient
-// insTsiMuDiTsi_value					= 125 * (insTsiMuDiDouble_smoothed_price / insTsiMuDiDouble_smoothed_abs_price) + 50
+/// visual function TIMEFRAME
+insTsiMuDiOSC						= insTsiMuDiTsi_value 
 
-iTsiMudiTfPeriod					= strGlobalTimeFrame == "Grafico" ? insGlobalTFCoefficient * (str.tonumber(timeframe.period)) : insGlobalTFCoefficient * (str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)))
+/// Structure Timeframe * coefficient
+iTsiMudiTfPeriod					= strGlobalOptionTimeFrame == "Grafico" ? insGlobalTFCoefficient * (str.tonumber(timeframe.period)) : insGlobalTFCoefficient * (str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)))
 iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) > 250 ? timeframe.period : (str.tostring(iTsiMudiTfPeriod))
 iTsiMudiTfPerMayor					= timeframe.period
 iTsiMudiTfPerString					= timeframe.isdwm ? iTsiMudiTfPerMayor : iTsiMudiTfPerMinor
 
-insTsiMuDiTsiLine					= request.security(syminfo.tickerid, iTsiMudiTfPerString, insTsiMuDiTsi_value, barmerge.gaps_on)
-insTsiMuDiEmaLine					= ta.ema(insTsiMuDiTsiLine, vTsiMuDiSignal)
+// insTsiMuDiTsiLine					= request.security(syminfo.tickerid, iTsiMudiTfPerString, insTsiMuDiTsi_value, barmerge.gaps_on)
+// insTsiMuDiEmaLine22					= ta.ema(insTsiMuDiTsiLine, vTsiMuDiSignal)
 
-vTsiMuDiTFModTSI					= insTsiMuDiTsiLine
+vTsiMuDiTFModTSI					= insTsiMuDiTsi_value
 
 /// ─── Multitimeframe Tsi ───
 [arrTsiMuDiTF,	arrTsiMuDiTF_1,	arrTsiMuDiTF_2]	= request.security(syminfo.tickerid,	iTsiMudiTfPerString,	[vTsiMuDiTFModTSI,	vTsiMuDiTFModTSI[1],	vTsiMuDiTFModTSI[2]],	barmerge.gaps_on)
+// insTsiMuDiEmaLine22					= ta.ema(arrTsiMuDiTF, vTsiMuDiSignal)
+
+/// ─── Plot Timeframe light ───
+plot(arrTsiMuDiTF,																			color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
+plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),												color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
 
 
 /// ─── Show TSI
