@@ -111,12 +111,13 @@ FunGlobalCalculateMA(_source, _length, _type) =>
 		"SMMA"							=> ta.rma	(_source, _length)
 		"WMA"							=> ta.wma	(_source, _length)
 		"VWMA"							=> ta.vwma	(_source, _length)
+		"MFI"							=> ta.mfi	(_source, _length)
 
 /// ───────────────────────
 /// ─── Instances
 /// ───────────────────────
 
-gblohl									= globalTypeOHL.new()
+globalOHL								= globalTypeOHL.new()
 
 /// Instance function timeframe
 // FunGlobalTimeFrame(strGlobalTimeFrame)

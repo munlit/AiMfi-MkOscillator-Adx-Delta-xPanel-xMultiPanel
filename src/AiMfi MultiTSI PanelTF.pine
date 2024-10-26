@@ -43,25 +43,28 @@ AllenFucsia50							= #EA1889
 
 //// ─────────────────────────────────────────────────────────────────────
 
+strGlobalOptionalTooltip				= "Lineas alternas con temporalidad modificada: 15 min, 30 min, 1 Hora, 2 Horas, 3 Horas, 4 Horas "
+
 /// ───────────────────────
-/// ─── Types
+/// ─── Variables
 /// ───────────────────────
 
 strGlobalTimeFrame						= input.string 	(defval = "Grafico",	title = "Timeframe",	group = "Global Timeframe",
 			  options					=				["Grafico", "5 min", "15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas"])
-insGlobalTFCoefficient					= input.int		(defval = "2",			title = "Coef",			group = "Global Timeframe",				minval = "1",	maxval = "5",	step = 1)
+insGlobalTFCoefficient					= input.int		(defval = 2,			title = "Coef",			group = "Global Timeframe",				minval = 1,	maxval = 5,			step = 1)
+strGlobalOptionTimeFrame				= input.string 	(defval = "1 Hora",		title = "Opcional",		group = "Global Timeframe",				inline = "OpcionaTF",			tooltip = strGlobalOptionalTooltip)
 
 /// ───────────────────────
 /// ─── Types
 /// ───────────────────────
 
 type globalTypeOHL
-		float O							= open
-		float H							= high
-		float L							= low
-		float C							= close
-		float V							= volume
-		int   I							= bar_index
+	float O								= open
+	float H								= high
+	float L								= low
+	float C								= close
+	float V								= volume
+	int   I								= bar_index
 
 /// ───────────────────────
 /// ─── Functions
@@ -150,12 +153,13 @@ FunGlobalCalculateMA(_source, _length, _type) =>
 		"SMMA"							=> ta.rma	(_source, _length)
 		"WMA"							=> ta.wma	(_source, _length)
 		"VWMA"							=> ta.vwma	(_source, _length)
+		"MFI"							=> ta.mfi	(_source, _length)
 
 /// ───────────────────────
 /// ─── Instances
 /// ───────────────────────
 
-gblohl									= globalTypeOHL.new()
+globalOHL								= globalTypeOHL.new()
 
 /// Instance function timeframe
 // FunGlobalTimeFrame(strGlobalTimeFrame)
@@ -280,48 +284,39 @@ fill				(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 : ada
 //// ───────────────────────
 
 /// ─── Colors ───
-colorTsiMuDiBaseBull		= PlatziGreen30
-colorTsiMuDiBaseBear		= VictSecFucsia50
+colorTsiMuDiBaseLong				= PlatziGreen30
+colorTsiMuDiBaseShort				= VictSecFucsia50
 
-colorTsiMuDiBull			= color.new(AllenMint60,		0)
-colorTsiMuDiBear			= color.new(AllenSky10,			0)
-colorTsiMuDiDiverBull		= color.new(PlatziGreen30,		0)
-colorTsiMuDiDiverBear		= color.new(VictSecFucsia50,	0)
-colorTsiMuDiHiddenBull		= color.new(AllenMint60,		55)
-colorTsiMuDiHiddenBear		= color.new(AllenSky10,			55)
-colorTsiMuDiText			= color.new(PlatziBlue70,		0)
-colorTsiMuDiNone			= color.new(AllenSky10,			100)
-colorTsiMuDiTSI				= color.new(AllenSky10,			20)
+colorTsiMuDiDivergLong				= AllenMint60
+colorTsiMuDiDivergShort				= AllenSky10
+colorTsiMuDiDivergNone				= color.new(PlatziBlue80,		100)
+
+colorTsiMuDiLineFillLong			= color.new(PlatziGreen30,		0)
+colorTsiMuDiLineFillShort			= color.new(VictSecFucsia50,	0)
+
+colorTsiMuDiText					= color.new(PlatziBlue70,		0)
+colorTsiMuDiTSI						= color.new(AllenSky10,			20)
 
 /// ─── Inputs ───
-vTsiMuDiLong				= input(defval = 6,		title = 'Longitud de Compra')
-vTsiMuDiShort				= input(defval = 13,	title = 'Longitud de Venta')
-vTsiMuDiSignal				= input(defval = 4,		title = 'Longitud de la SEÑAL')
+groupTsiMuDiTSIVars					= 'TSI & Divergences'
+showTsiMuDiTSIDivergs				= input.bool	(defval = false,	title = 'TSI & Divergences')
+showTsiMuDiTSIOptionalTF			= input.bool	(defval = true,		title = "Timeframe Opcional",			group = groupTsiMuDiTSIVars,		inline = "OpcionaTF")
 
-price						= close[0]
+vTsiMuDiLong						= input.int		(defval = 6,		title = 'Longitud de Compra',			group = groupTsiMuDiTSIVars)
+vTsiMuDiShort						= input.int		(defval = 13,		title = 'Longitud de Venta',			group = groupTsiMuDiTSIVars)
+vTsiMuDiSignal						= 5									//	Longitud de la SEÑAL
 
 /// ─── divergences ───
-vTsiMuDiLBR					= input(defval = 5,		title = 'Corrección a la derecha')
-vTsiMuDiLBL					= input(defval = 5,		title = 'Corrección a la izquierda')
-vTsiMuDiRangeUpper			= input(defval = 30,	title = 'Rango de corrección maximo')
-vTsiMuDiRangeLower			= input(defval = 2,		title = 'Rango de corrección minimo')
-
+vTsiMuDiLBR							= 5									//	Corrección a la derecha
+vTsiMuDiLBL							= 5									//	Corrección a la izquierda
+vTsiMuDiRangeUpper					= 30								//	Rango de corrección maximo
+vTsiMuDiRangeLower					= 2									//	Rango de corrección minimo
 /// ─── Show ───
-showTsiMuDiPlotBull			= input(defval = true,	title = 'Mostrar Divergencia Alcista')
-showTsiMuDiPlotHiddenBull	= input(defval = true,	title = 'Mostrar Divergencia scalp Alcista')
-showTsiMuDiPlotBear			= input(defval = true,	title = 'Mostrar Divergencia Bajista')
-showTsiMuDiPlotHiddenBear	= input(defval = true,	title = 'Mostrar Divergencia scalp Bajista')
-showTsiMuDiCloudOn			= input(defval = true,	title = 'TSI Cloud')
-showTsiMuDiTSI				= input(defval = false,	title = 'TSI')
+showTsiMuDiPlotDiverg				= input.bool	(defval = true,		title = 'Divergencias',					group = groupTsiMuDiTSIVars)
+showTsiMuDiPlotDivergScalp			= input.bool	(defval = true,		title = 'Divergencias scalp',			group = groupTsiMuDiTSIVars)
+showTsiMuDiCloudOn					= input.bool	(defval = true,		title = 'TSI Cloud',					group = groupTsiMuDiTSIVars)
 
-tsiMuDiMultiGroup			=				"Mostrar Multi Tsi"
-showTsiMuDiTSIPanelTimeF	= input.bool	(true,				title = "Tsi",					group = tsiMuDiMultiGroup)
-showTsiMuDiTSITF15			= input.bool	(true,				title = "15m",					group = tsiMuDiMultiGroup,		inline = "TF")
-showTsiMuDiTSITF30			= input.bool	(true,				title = "30m",					group = tsiMuDiMultiGroup,		inline = "TF")
-showTsiMuDiTSITF1h			= input.bool	(true,				title = "1 H",					group = tsiMuDiMultiGroup,		inline = "TF")
-showTsiMuDiTSITF2h			= input.bool	(true,				title = "2 H",					group = tsiMuDiMultiGroup,		inline = "tf2")
-showTsiMuDiTSITF3h			= input.bool	(true,				title = "3 H",					group = tsiMuDiMultiGroup,		inline = "tf2")
-showTsiMuDiTSITF4h			= input.bool	(true,				title = "4 H",					group = tsiMuDiMultiGroup,		inline = "tf2")
+vTsiMuDiSource						= globalOHL.C[0]
 
 //// ───────────────────────
 /// ─── Functions ───
@@ -331,7 +326,7 @@ double_smooth(src, vTsiMuDiLong, vTsiMuDiShort) =>
 	fist_smooth = ta.ema(src, vTsiMuDiLong)
 	ta.ema(fist_smooth, vTsiMuDiShort)
 
-insTsiMuDiPC						= ta.change(price)
+insTsiMuDiPC						= ta.change(vTsiMuDiSource)
 insTsiMuDiDouble_smoothed_price		= double_smooth(insTsiMuDiPC, vTsiMuDiLong, vTsiMuDiShort)
 insTsiMuDiDouble_smoothed_abs_price	= double_smooth(math.abs(insTsiMuDiPC), vTsiMuDiLong, vTsiMuDiShort)
 insTsiMuDiTsi_value					= 125 * (insTsiMuDiDouble_smoothed_price / insTsiMuDiDouble_smoothed_abs_price) + 50
@@ -340,7 +335,7 @@ insTsiMuDiTsi_value					= 125 * (insTsiMuDiDouble_smoothed_price / insTsiMuDiDou
 insTsiMuDiLagLine					= ta.ema(insTsiMuDiTsi_value, vTsiMuDiSignal)
 
 /// ─── Plot data ───
-insTsiMuDiFillColor					= showTsiMuDiCloudOn and insTsiMuDiTsi_value > insTsiMuDiLagLine ? colorTsiMuDiDiverBull : showTsiMuDiCloudOn and insTsiMuDiTsi_value <= insTsiMuDiLagLine ? colorTsiMuDiDiverBear : na
+insTsiMuDiFillColor					= showTsiMuDiCloudOn and insTsiMuDiTsi_value > insTsiMuDiLagLine ? colorTsiMuDiLineFillLong : showTsiMuDiCloudOn and insTsiMuDiTsi_value <= insTsiMuDiLagLine ? colorTsiMuDiLineFillShort : na
 
 plot(insTsiMuDiTsi_value,			color = color.new(PlatziBlue70, 60),	linewidth = 6)
 plot(ta.ema(insTsiMuDiTsi_value,	vTsiMuDiSignal),	color = color.new(PlatziBlue70, 60),	linewidth = 6)
@@ -349,7 +344,7 @@ insTsiMuDiLine1						= plot(insTsiMuDiTsi_value,	color = color.new(insTsiMuDiFil
 insTsiMuDiLine2						= plot(ta.ema(insTsiMuDiTsi_value,	vTsiMuDiSignal),	color = color.new(insTsiMuDiFillColor, 30),	linewidth = 2)
 
 /// ─── Color fill ───
-insTsiMuDiCloudColor				= showTsiMuDiCloudOn and insTsiMuDiTsi_value > insTsiMuDiLagLine ? colorTsiMuDiBaseBull : showTsiMuDiCloudOn and insTsiMuDiTsi_value <= insTsiMuDiLagLine ? colorTsiMuDiBaseBear : na
+insTsiMuDiCloudColor				= showTsiMuDiCloudOn and insTsiMuDiTsi_value > insTsiMuDiLagLine ? colorTsiMuDiBaseLong : showTsiMuDiCloudOn and insTsiMuDiTsi_value <= insTsiMuDiLagLine ? colorTsiMuDiBaseShort : na
 
 fill(insTsiMuDiLine1,	insTsiMuDiLine2,	color = color.new(insTsiMuDiCloudColor, 70))
 
@@ -357,62 +352,27 @@ insTsiMuDiOSC						= insTsiMuDiTsi_value
 
 // /// ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// strTsiMuDiTimeFrame					= input.string 	(defval = "Grafico",	title = "Timeframe",	options = ["Grafico", "5 min", "15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas"])
-// insTsiMuDiTFCoef					= input.int		(defval = "2", title = "Coef", minval = "1", maxval = "5", step = 1)
-
-// FunTsiMuDiTimeFrame(timeframe)	=>
-// 	switch timeframe
-// 		"Grafico"					=> "Chart"
-// 		"5 min"						=> "5"
-// 		"15 min"					=> "15"
-// 		"30 min"					=> "30"
-// 		"1 Hora"					=> "60"
-// 		"2 Horas"					=> "120"
-// 		"3 Horas"					=> "180"
-// 		"4 Horas"					=> "240"
-
-// /// Instance function
-// // FunTsiMuDiTimeFrame(strTsiMuDiTimeFrame)
-
-// /// Structure Timeframe * coefficient
+/// Structure Timeframe * coefficient
 // insTsiMuDiTsi_value					= 125 * (insTsiMuDiDouble_smoothed_price / insTsiMuDiDouble_smoothed_abs_price) + 50
 
-// iTsiMudiTfPeriod					= strTsiMuDiTimeFrame == "Grafico" ? insTsiMuDiTFCoef * (str.tonumber(timeframe.period)) : insTsiMuDiTFCoef * (str.tonumber(FunTsiMuDiTimeFrame(strTsiMuDiTimeFrame)))
-// iTsiMudiTfPerMinor					= str.tonumber(FunTsiMuDiTimeFrame(strTsiMuDiTimeFrame)) > 250 ? timeframe.period : (str.tostring(iTsiMudiTfPeriod))
-// iTsiMudiTfPerMayor					= timeframe.period
-// iTsiMudiTfPerString					= timeframe.isdwm ? iTsiMudiTfPerMayor : iTsiMudiTfPerMinor
+iTsiMudiTfPeriod					= strGlobalTimeFrame == "Grafico" ? insGlobalTFCoefficient * (str.tonumber(timeframe.period)) : insGlobalTFCoefficient * (str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)))
+iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) > 250 ? timeframe.period : (str.tostring(iTsiMudiTfPeriod))
+iTsiMudiTfPerMayor					= timeframe.period
+iTsiMudiTfPerString					= timeframe.isdwm ? iTsiMudiTfPerMayor : iTsiMudiTfPerMinor
 
-// insTsiMuDiTsiLine					= request.security(syminfo.tickerid, iTsiMudiTfPerString, insTsiMuDiTsi_value, barmerge.gaps_on)
-// insTsiMuDiEmaLine					= ta.ema(insTsiMuDiTsiLine, vTsiMuDiSignal)
+insTsiMuDiTsiLine					= request.security(syminfo.tickerid, iTsiMudiTfPerString, insTsiMuDiTsi_value, barmerge.gaps_on)
+insTsiMuDiEmaLine					= ta.ema(insTsiMuDiTsiLine, vTsiMuDiSignal)
 
-// vTsiMuDiTFModTSI					= insTsiMuDiTsiLine
-
-// [arrTsiMuDiTF,	arrTsiMuDiTF_1,	arrTsiMuDiTF_2]	= request.security(syminfo.tickerid,	iTsiMudiTfPerString,	[vTsiMuDiTFModTSI,	vTsiMuDiTFModTSI[1],	vTsiMuDiTFModTSI[2]],	barmerge.gaps_on)
-
-// /// ────────────────────────────────────────────────────────────────────────────────────────────────────────
+vTsiMuDiTFModTSI					= insTsiMuDiTsiLine
 
 /// ─── Multitimeframe Tsi ───
+[arrTsiMuDiTF,	arrTsiMuDiTF_1,	arrTsiMuDiTF_2]	= request.security(syminfo.tickerid,	iTsiMudiTfPerString,	[vTsiMuDiTFModTSI,	vTsiMuDiTFModTSI[1],	vTsiMuDiTFModTSI[2]],	barmerge.gaps_on)
 
-vTsiMuDiTSI							= insTsiMuDiTsi_value 
-
-/// ─── TSI timeframes
-[arrTsiMuDiTF15,	arrTsiMuDiTF15m_1,	arrTsiMuDiTF15m_2]	= request.security(syminfo.tickerid,	"15",	[vTsiMuDiTSI,	vTsiMuDiTSI[1],	vTsiMuDiTSI[2]],	barmerge.gaps_on)
-[arrTsiMuDiTF30,	arrTsiMuDiTF30m_1,	arrTsiMuDiTF30m_2]	= request.security(syminfo.tickerid,	"30",	[vTsiMuDiTSI,	vTsiMuDiTSI[1],	vTsiMuDiTSI[2]],	barmerge.gaps_on)
-[arrTsiMuDiTF1h,	arrTsiMuDiTF1h_1,	arrTsiMuDiTF1h_2]	= request.security(syminfo.tickerid,	"60",	[vTsiMuDiTSI,	vTsiMuDiTSI[1],	vTsiMuDiTSI[2]],	barmerge.gaps_on)
-[arrTsiMuDiTF2h,	arrTsiMuDiTF2h_1,	arrTsiMuDiTF2h_2]	= request.security(syminfo.tickerid,	"120",	[vTsiMuDiTSI,	vTsiMuDiTSI[1],	vTsiMuDiTSI[2]],	barmerge.gaps_on)
-[arrTsiMuDiTF3h,	arrTsiMuDiTF3h_1,	arrTsiMuDiTF3h_2]	= request.security(syminfo.tickerid,	"180",	[vTsiMuDiTSI,	vTsiMuDiTSI[1],	vTsiMuDiTSI[2]],	barmerge.gaps_on)
-[arrTsiMuDiTF4h,	arrTsiMuDiTF4h_1,	arrTsiMuDiTF4h_2]	= request.security(syminfo.tickerid,	"240",	[vTsiMuDiTSI,	vTsiMuDiTSI[1],	vTsiMuDiTSI[2]],	barmerge.gaps_on)
 
 /// ─── Show TSI
-// if showTsiMuDiTSIPanelTimeF
-swTsiMuDiTSITF						= plot(showTsiMuDiTSIPanelTimeF	? vTsiMuDiTSI	: na,	title = '',	linewidth = 2,	color = colorTsiMuDiTSI)
+// swTsiMuDiTSITF15					= plot(showTsiMuDiTSIPanelTimeF and showTsiMuDiTSITF15	? arrTsiMuDiTF15	: na,	linewidth = 2,	color = colorTsiMuDiTSI)
 
-swTsiMuDiTSITF15					= plot(showTsiMuDiTSIPanelTimeF and showTsiMuDiTSITF15	? arrTsiMuDiTF15	: na,	title = '',	linewidth = 2,	color = colorTsiMuDiTSI)
-swTsiMuDiTSITF30					= plot(showTsiMuDiTSIPanelTimeF and showTsiMuDiTSITF30	? arrTsiMuDiTF30	: na,	title = '',	linewidth = 2,	color = colorTsiMuDiTSI)
-swTsiMuDiTSITF1h					= plot(showTsiMuDiTSIPanelTimeF and showTsiMuDiTSITF1h	? arrTsiMuDiTF1h	: na,	title = '',	linewidth = 2,	color = colorTsiMuDiTSI)
-swTsiMuDiTSITF2h					= plot(showTsiMuDiTSIPanelTimeF and showTsiMuDiTSITF2h	? arrTsiMuDiTF2h	: na,	title = '',	linewidth = 2,	color = colorTsiMuDiTSI)
-swTsiMuDiTSITF3h					= plot(showTsiMuDiTSIPanelTimeF and showTsiMuDiTSITF3h	? arrTsiMuDiTF3h	: na,	title = '',	linewidth = 2,	color = colorTsiMuDiTSI)
-swTsiMuDiTSITF4h					= plot(showTsiMuDiTSIPanelTimeF and showTsiMuDiTSITF4h	? arrTsiMuDiTF4h	: na,	title = '',	linewidth = 2,	color = colorTsiMuDiTSI)
+// /// ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 //// ───────────────────────
 /// ─── Divergences ───
@@ -434,13 +394,13 @@ tsiDiInsOSCHL						= insTsiMuDiOSC[vTsiMuDiLBR]	> ta.valuewhen(insTsiMuDiPLFound
 /// ─── Price: Lower Low ───
 tsiDiInsPRICELL						= low[vTsiMuDiLBR]				< ta.valuewhen(insTsiMuDiPLFound, low[vTsiMuDiLBR], 1)
 
-tsiDiInsBULLCond					= showTsiMuDiPlotBull	and tsiDiInsPRICELL	and tsiDiInsOSCHL	and insTsiMuDiPLFound
+tsiDiInsBULLCond					= showTsiMuDiPlotDiverg	and tsiDiInsPRICELL	and tsiDiInsOSCHL	and insTsiMuDiPLFound
 
 plot(insTsiMuDiPLFound ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmacion de Compra',
 			  linewidth				= 2,
-			  color					= tsiDiInsBULLCond ? colorTsiMuDiBull : colorTsiMuDiNone)
+			  color					= tsiDiInsBULLCond ? color.new(colorTsiMuDiDivergLong, 10) : colorTsiMuDiDivergNone)
 
 plotshape(tsiDiInsBULLCond ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
@@ -448,7 +408,7 @@ plotshape(tsiDiInsBULLCond ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  text					= ' Compra ',
 			  style					= shape.labelup,
 			  location				= location.absolute,
-			  color					= colorTsiMuDiBull,
+			  color					= color.new(colorTsiMuDiDivergLong, 10),
 			  textcolor				= colorTsiMuDiText)
 
 //// ───────────────────────
@@ -460,13 +420,13 @@ tsiDiInsOSCLL						= insTsiMuDiOSC[vTsiMuDiLBR]	< ta.valuewhen(insTsiMuDiPLFound
 /// ─── Price: Higher Low ───
 tsiDiInsPRICEHL						= low[vTsiMuDiLBR]				> ta.valuewhen(insTsiMuDiPLFound, low[vTsiMuDiLBR], 1)
 
-tsiDiInsHiddenBullCond				= showTsiMuDiPlotHiddenBull	and tsiDiInsPRICEHL	and tsiDiInsOSCLL	and insTsiMuDiPLFound
+tsiDiInsHiddenBullCond				= showTsiMuDiPlotDivergScalp	and tsiDiInsPRICEHL	and tsiDiInsOSCLL	and insTsiMuDiPLFound
 
 plot(insTsiMuDiPLFound ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Compra scalp',
 			  linewidth				= 2,
-			  color					= tsiDiInsHiddenBullCond ? colorTsiMuDiHiddenBull : colorTsiMuDiNone)
+			  color					= tsiDiInsHiddenBullCond ? color.new(colorTsiMuDiDivergLong, 40) : colorTsiMuDiDivergNone)
 
 plotshape(tsiDiInsHiddenBullCond ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
@@ -474,7 +434,7 @@ plotshape(tsiDiInsHiddenBullCond ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  text					= ' △ scalp ',
 			  style					= shape.labelup,
 			  location				= location.absolute,
-			  color					= colorTsiMuDiHiddenBull,
+			  color					= color.new(colorTsiMuDiDivergLong, 40),
 			  textcolor				= colorTsiMuDiText)
 
 //// ───────────────────────
@@ -486,13 +446,13 @@ tsiDiInsOSCLH						= insTsiMuDiOSC[vTsiMuDiLBR]	< ta.valuewhen(insTsiMuDiPHFound
 /// ─── Price: Higher High ───
 tsiDiInsPRICEHH						= high[vTsiMuDiLBR]				> ta.valuewhen(insTsiMuDiPHFound, high[vTsiMuDiLBR], 1)
 
-tsiDiInsBEARCond					= showTsiMuDiPlotBear	and tsiDiInsPRICEHH	and tsiDiInsOSCLH	and insTsiMuDiPHFound
+tsiDiInsBEARCond					= showTsiMuDiPlotDiverg	and tsiDiInsPRICEHH	and tsiDiInsOSCLH	and insTsiMuDiPHFound
 
 plot(insTsiMuDiPHFound ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Venta',
 			  linewidth				= 2,
-			  color					= tsiDiInsBEARCond ? colorTsiMuDiBear : colorTsiMuDiNone)
+			  color					= tsiDiInsBEARCond ? color.new(colorTsiMuDiDivergShort, 10) : colorTsiMuDiDivergNone)
 
 plotshape(tsiDiInsBEARCond ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
@@ -500,7 +460,7 @@ plotshape(tsiDiInsBEARCond ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  text					= ' Venta ',
 			  style					= shape.labeldown,
 			  location				= location.absolute,
-			  color					= colorTsiMuDiBear,
+			  color					= color.new(colorTsiMuDiDivergShort, 10),
 			  textcolor				= colorTsiMuDiText)
 
 //// ───────────────────────
@@ -512,13 +472,13 @@ tsiDiInsOSCHH						= insTsiMuDiOSC[vTsiMuDiLBR]	> ta.valuewhen(insTsiMuDiPHFound
 /// ─── Price: Lower High ───
 tsiDiInsPRICELH						= high[vTsiMuDiLBR]				< ta.valuewhen(insTsiMuDiPHFound, high[vTsiMuDiLBR], 1)
 
-tsiDiInsHiddenBearCond				= showTsiMuDiPlotHiddenBear	and tsiDiInsPRICELH	and tsiDiInsOSCHH	and insTsiMuDiPHFound
+tsiDiInsHiddenBearCond				= showTsiMuDiPlotDivergScalp	and tsiDiInsPRICELH	and tsiDiInsOSCHH	and insTsiMuDiPHFound
 
 plot(insTsiMuDiPHFound ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Venta scalp',
 			  linewidth				= 2,
-			  color					= tsiDiInsHiddenBearCond ? colorTsiMuDiHiddenBear : colorTsiMuDiNone)
+			  color					= tsiDiInsHiddenBearCond ? color.new(colorTsiMuDiDivergShort, 40) : colorTsiMuDiDivergNone)
 
 plotshape(tsiDiInsHiddenBearCond ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
@@ -526,7 +486,7 @@ plotshape(tsiDiInsHiddenBearCond ? insTsiMuDiOSC[vTsiMuDiLBR] : na,
 			  text					= ' ▽ scalp ',
 			  style					= shape.labeldown,
 			  location				= location.absolute,
-			  color					= colorTsiMuDiHiddenBear,
+			  color					= color.new(colorTsiMuDiDivergShort, 40),
 			  textcolor				= colorTsiMuDiText)
 
 //// ─────────────────────────────────────────────────────────────────────
