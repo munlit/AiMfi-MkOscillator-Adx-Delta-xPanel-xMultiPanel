@@ -1,4 +1,7 @@
 /// ╔═══════════════════════════════════╗
+/// ║	Globals							║
+/// ╚═══════════════════════════════════╝
+/// ╔═══════════════════════════════════╗
 /// ║	AI Adaptive Money Flow Index	║
 /// ╔═══════════════════════════════════╗
 /// ║	Tsi & Divergences				║
@@ -37,6 +40,125 @@ UltrRose20								= #FFA3E3
 AllenSky10								= #CCF8FF
 AllenMint60								= #33FFAC
 AllenFucsia50							= #EA1889
+
+//// ─────────────────────────────────────────────────────────────────────
+
+/// ───────────────────────
+/// ─── Types
+/// ───────────────────────
+
+strGlobalTimeFrame						= input.string 	(defval = "Grafico",	title = "Timeframe",	group = "Global Timeframe",
+			  options					=				["Grafico", "5 min", "15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas"])
+insGlobalTFCoefficient					= input.int		(defval = "2",			title = "Coef",			group = "Global Timeframe",				minval = "1",	maxval = "5",	step = 1)
+
+/// ───────────────────────
+/// ─── Types
+/// ───────────────────────
+
+type globalTypeOHL
+		float O							= open
+		float H							= high
+		float L							= low
+		float C							= close
+		float V							= volume
+		int   I							= bar_index
+
+/// ───────────────────────
+/// ─── Functions
+/// ───────────────────────
+
+/// ─── function timeframe
+FunGlobalTimeFrame(_timeframe) =>
+	switch _timeframe
+		"Grafico"						=> "Chart"
+		"5 min"							=> "5"
+		"15 min"						=> "15"
+		"30 min"						=> "30"
+		"1 Hora"						=> "60"
+		"2 Horas"						=> "120"
+		"3 Horas"						=> "180"
+		"4 Horas"						=> "240"
+
+/// ─── function location vertical
+FunGlobalVertical(_vertical) =>
+	switch _vertical
+		"arriba"						=> "top"
+		"medio"							=> "middle"
+		"abajo"							=> "bottom"
+
+/// ─── function location horizontal
+FunGlobalHorizontal(_horizontal) =>
+	switch _horizontal
+
+		"izquierda"						=> "left"
+		"centro"						=> "center"
+		"derecha"						=> "right"
+
+/// ─── function position
+FunGlobalPosition(_position) =>
+	switch _position
+		"Externo"						=> "outside"
+		"Interno"						=> "inside"
+
+/// ─── function text size
+FunGlobalTextSize(_textsize) =>
+	switch _textsize
+		"Mini"							=> size.tiny
+		"Pequeño"						=> size.small
+		"Normal"						=> size.normal
+		"Grande"						=> size.large
+		"Enorme"						=> size.huge
+		"Auto"							=> size.auto
+
+/// ─── function line style
+FunGlobalLineStyle(_linestyle) =>
+	switch _linestyle
+		'⎯⎯⎯⎯'							=> line.style_solid
+		'----'							=> line.style_dashed
+		'····'							=> line.style_dotted
+
+/// ─── function Days of Week
+FunGlobalDayofWeek(_days) =>
+	switch _days
+		1								=> 'Domingo'
+		2								=> 'Lunes'
+		3								=> 'Martes'
+		4								=> 'Miercoles'
+		5								=> 'Jueves'
+		6								=> 'Viernes'
+		7								=> 'Sabado'
+
+/// ─── function Timezone
+FunGlobalTimeZone(_timezone) =>
+	switch _timezone
+		"NYSE"							=> "UTC-5"
+		"New York"						=> "America/New_York"
+		"Chicago"						=> "America/Chicago"
+		"Londres"						=> "Europe/London"
+		"Tokyo"							=> "Asia/Tokyo"
+		"Shanghai"						=> "Asia/Shanghai"
+		"Sydney"						=> "Australia/Sydney"
+		"Argentina"						=> "America/Argentina/Buenos_Aires"
+
+
+/// ─── function calculate MA
+FunGlobalCalculateMA(_source, _length, _type) =>
+	switch _type
+		"SMA"							=> ta.sma	(_source, _length)
+		"HMA"							=> ta.hma	(_source, _length)
+		"EMA"							=> ta.ema	(_source, _length)
+		"SMMA"							=> ta.rma	(_source, _length)
+		"WMA"							=> ta.wma	(_source, _length)
+		"VWMA"							=> ta.vwma	(_source, _length)
+
+/// ───────────────────────
+/// ─── Instances
+/// ───────────────────────
+
+gblohl									= globalTypeOHL.new()
+
+/// Instance function timeframe
+// FunGlobalTimeFrame(strGlobalTimeFrame)
 
 //// ─────────────────────────────────────────────────────────────────────
 
