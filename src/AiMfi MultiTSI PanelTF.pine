@@ -49,10 +49,8 @@ strGlobalOptionalTooltip				= "Lineas alternas con temporalidad modificada: 15 m
 /// ─── Variables
 /// ───────────────────────
 
-strGlobalTimeFrame						= input.string 	(defval = "Grafico",	title = "Timeframe gráfico",	group = "Global Timeframe",
-			  options					=				["Grafico", "5 min", "15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas"])
-insGlobalTFCoefficient					= input.int		(defval = 2,			title = "Coef",					group = "Global Timeframe",				minval = 1,	maxval = 5,			step = 1)
-strGlobalOptionTimeFrame				= input.string 	(defval = "2 Horas",	title = "Timegrame opcional",	group = "Global Timeframe",				inline = "OpcionaTF",
+insGlobalTFCoefficient					= input.int		(defval = 2,			title = "Coeficiente timeframe",	minval = 1,	maxval = 5,	step = 1)
+strGlobalOptionalTimeFrame				= input.string 	(defval = "2 Horas",	title = "Timegrame opcional",		group = "Global Timeframe",		inline = "OpcionaTF",
 			  options					=				["15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas", "1 Dia", "1 Semana", "1 Mes"])
 
 /// ───────────────────────
@@ -75,6 +73,13 @@ type globalTypeOHL
 FunGlobalTimeFrame(_timeframe) =>
 	switch _timeframe
 		"Grafico"						=> timeframe.period
+		"1 seg"							=> "S"	
+		"5 seg"							=> "5S"
+		"10 seg"						=> "10S"
+		"15 seg"						=> "15S"
+		"30 seg"						=> "30S"
+		"1 min"							=> "1"	
+		"3 min"							=> "3"	
 		"5 min"							=> "5"
 		"15 min"						=> "15"
 		"30 min"						=> "30"
@@ -82,6 +87,13 @@ FunGlobalTimeFrame(_timeframe) =>
 		"2 Horas"						=> "120"
 		"3 Horas"						=> "180"
 		"4 Horas"						=> "240"
+		"8 horas"						=> "480"
+		"1 Dia"							=> "D"
+		"1 Dia"							=> "1D"
+		"1 Semana"						=> "W"
+		"1 Semana"						=> "1W"
+		"1 Mes"							=> "M"
+		"1 Mes"							=> "1M"
 
 /// ─── function location vertical
 FunGlobalVertical(_vertical) =>
@@ -156,6 +168,18 @@ FunGlobalCalculateMA(_source, _length, _type) =>
 		"VWMA"							=> ta.vwma	(_source, _length)
 		"MFI"							=> ta.mfi	(_source, _length)
 
+/// ─── Function calculate timeframe
+FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
+	_x									= 3
+	_mayor								= 500
+	_minor								= 15
+	_operat_coeff						= _tonumber * _coefficient
+	_operat_minor						= _tonumber * _x
+	_tonumber							= str.tonumber(_timeframe)
+	_conditional						= _tonumber > _mayor ? _tonumber <= _minor ? _operat_minor : _operat_coeff
+	// _tostring							= str.tostring(_conditional)
+	str.tostring(_conditional)
+
 /// ───────────────────────
 /// ─── Instances
 /// ───────────────────────
@@ -195,6 +219,7 @@ adapMonVarOversold			= input.float	(defval = 20.0,	title = "Inicio de Sobre Vent
 
 adapMonVarADJ				= input.bool	(defval = true,	title = "Usar MFI ajustado",								group = adapMonGrpApar,		tooltip = adapMonToolAdj)
 adapMonVarMLT				= input.float	(defval = 1.0,	title = "Multiplicador",									group = adapMonGrpApar,		tooltip = adapMonToolMlt)
+
 adapMonColorLong			= input.color	(AllenMint60,	title = "Compra",											group = adapMonGrpApar)
 adapMonColorShort			= input.color	(AllenSky10,	title = "Venta",											group = adapMonGrpApar)
 
@@ -259,10 +284,6 @@ adapMonPlotMID		= plot	(adapMonVarADJ ? adapMonVarNeutral : adapMonArrNE_NEW,		c
 plot				(adapMonVarADJ ? 100 : adapMonArrOB_NEW,	color =  color.from_gradient(adapMonVarOSC, adapMonArrNE_NEW, adapMonVarADJ ? 100 : adapMonArrOB_NEW, color.new(color.gray, 70), color.new(adapMonColorShort, 0)), linewidth = 6)
 plot				(adapMonVarADJ ? 0 : adapMonArrOS_NEW,		color = color.from_gradient(adapMonVarOSC, adapMonVarADJ ? 0 : adapMonArrOS_NEW, adapMonArrNE_NEW, color.new(adapMonColorLong, 0), color.new(color.gray, 70)), linewidth = 6)
 
-// plotchar			(math.abs(adapMonVarOSC - adapMonArrNE_NEW) < math.abs(adapMonVarOSC - adapMonArrOB_NEW) and math.abs(adapMonVarOSC - adapMonArrNE_NEW) < math.abs(adapMonVarOSC - adapMonArrOS_NEW) ? adapMonIfVAL + (adapMonVarOSC > adapMonArrNE_NEW ? adapMonFuncST*adapMonVarMLT : -adapMonFuncST*adapMonVarMLT) : na, "Lateral", "══", location.absolute, adapMonIfCOLOR0)
-// plotchar			(math.abs(adapMonVarOSC - adapMonArrOB_NEW) < math.abs(adapMonVarOSC - adapMonArrNE_NEW) and math.abs(adapMonVarOSC - adapMonArrOB_NEW) < math.abs(adapMonVarOSC - adapMonArrOS_NEW) ? adapMonIfVAL + (adapMonVarOSC > adapMonArrNE_NEW ? adapMonFuncST*adapMonVarMLT : -adapMonFuncST*adapMonVarMLT) : na, "Tendencia Alcista", "──", location.absolute, adapMonIfCOLOR0)
-// plotchar			(math.abs(adapMonVarOSC - adapMonArrOS_NEW) < math.abs(adapMonVarOSC - adapMonArrOB_NEW) and math.abs(adapMonVarOSC - adapMonArrOS_NEW) < math.abs(adapMonVarOSC - adapMonArrNE_NEW) ? adapMonIfVAL + (adapMonVarOSC > adapMonArrNE_NEW ? adapMonFuncST*adapMonVarMLT : -adapMonFuncST*adapMonVarMLT) : na, "Tendencia Bajista", "──", location.absolute, adapMonIfCOLOR0)
-
 plotchar			(ta.crossunder(adapMonVarOSC, adapMonArrOB_NEW) ? (adapMonVarADJ ? 100 : adapMonArrOB_NEW) + 10 : na,	"Corrección Venta",		"▼",	location.absolute, adapMonColorShort, size = size.tiny)
 plotchar			(ta.crossover(adapMonVarOSC, adapMonArrOS_NEW) ? (adapMonVarADJ ? 0 : adapMonArrOS_NEW) - 10 : na,		"Corrección Compra",	"▲",	location.absolute, adapMonColorLong, size = size.tiny)
 
@@ -324,8 +345,8 @@ vTsiMuDiSource						= globalOHL.C[0]
 //// ───────────────────────
 
 
-double_smooth(src, vTsiMuDiLong, vTsiMuDiShort) =>
-	fist_smooth = ta.ema(src, vTsiMuDiLong)
+double_smooth(_source, vTsiMuDiLong, vTsiMuDiShort) =>
+	fist_smooth = ta.ema(_source, vTsiMuDiLong)
 	ta.ema(fist_smooth, vTsiMuDiShort)
 
 /// visual function NOW
@@ -335,6 +356,45 @@ insTsiMuDiDouble_smoothed_abs_price	= double_smooth(math.abs(insTsiMuDiPrice), v
 insTsiMuDiTsi_value					= 125 * (insTsiMuDiDouble_smoothed_price / insTsiMuDiDouble_smoothed_abs_price) + 50
 
 insTsiMuDiEmaLine					= ta.ema(insTsiMuDiTsi_value, vTsiMuDiSignal)
+
+
+
+
+
+
+
+FunTsiMuDiCalculateTSI(_source, _long, _short) =>
+	_x									= 125
+	_plus								= 50
+	_change								= ta.change(_source)
+
+	_F_double_smooth(_source, _long, _short) =>
+		fist_smooth						= ta.ema(_source, _long)
+		ta.ema(fist_smooth, _short)
+
+	_smooth								= _F_double_smooth(_change, _long, _short)
+	_smooth_abs							= _F_double_smooth(math.abs(_change), _long, _short)
+	// _value								= _x * (_smooth, _smooth_abs) + _plus.
+	_x * (_smooth / _smooth_abs) + _plus.
+
+// FunTsiMuDiCalculateTSI(_double_smooth, _source, _long, _short) =>
+// 	_x									= 125
+// 	_plus								= 50
+// 	_change								= ta.change(_source)
+// 	_smooth								= double_smooth(_change, _long, _short)
+// 	_smooth_abs							= double_smooth(math.abs(_change), _long, _short)
+// 	// _value								= _x * (_smooth, _smooth_abs) + _plus.
+// 	_x * (_smooth, _smooth_abs) + _plus.
+
+
+iTsiMuDiCalculateTSI					= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
+insTsiMuDiEmaLine						= ta.ema(iTsiMuDiCalculateTSI, vTsiMuDiSignal)
+
+
+
+
+
+
 
 /// ─── plot color now ───
 insTsiMuDiFillColor					= showTsiMuDiCloudOn	and insTsiMuDiTsi_value > insTsiMuDiEmaLine	? colorTsiMuDiLineFillLong	: showTsiMuDiCloudOn	and insTsiMuDiTsi_value <= insTsiMuDiEmaLine	? colorTsiMuDiLineFillShort	: na
@@ -369,71 +429,11 @@ insTsiMuDiEmaPlotLine				= plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),	color = co
 /// ─── fill NOW ───
 fill(insTsiMuDiTsiPlotLine, insTsiMuDiEmaPlotLine,									color = color.new(insTsiMuDiCloudColor, 70))
 
-// /// ────────────────────────────────────────────────────────────────────────────────────────────────────────
-// iTsiMudiTfPeriodNumber				= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame))
-// iTsiMudiTfPerMinor					= iTsiMudiTfPeriodNumber * 3
-// iTsiMudiTfPerMedium					= iTsiMudiTfPeriodNumber * insGlobalTFCoefficient
-// iTsiMudiTfPerMayor					= timeframe.period
-// iTsiMudiTfPeriodIf					= iTsiMudiTfPeriodNumber > 250 ? iTsiMudiTfPerMayor : iTsiMudiTfPeriodNumber < 15 ? iTsiMudiTfPerMinor : iTsiMudiTfPerMedium
-// iTsiMudiTfPerString					= str.tostring(iTsiMudiTfPeriodIf)
-
-
-
-// iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * 3
-// iTsiMudiTfPerMedium					= strGlobalOptionTimeFrame == "Grafico" ? str.tonumber(timeframe.period) * insGlobalTFCoefficient : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * insGlobalTFCoefficient
-// iTsiMudiTfPerMayor					= timeframe.period
-// iTsiMudiTfPerString					= timeframe.isdwm ? iTsiMudiTfPerMayor : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15 ? iTsiMudiTfPerMinor : iTsiMudiTfPerMedium
-
-
-// timeframe.isdwm ?
-
-
-// iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * 3
-// iTsiMudiTfPerMedium					= strGlobalOptionTimeFrame == "Grafico" ? str.tonumber(timeframe.period) * insGlobalTFCoefficient : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * insGlobalTFCoefficient
-// iTsiMudiTfPerMayor					= timeframe.period
-// iTsiMudiTfPerString					= timeframe.isdwm ? iTsiMudiTfPerMayor : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15 ? iTsiMudiTfPerMinor : iTsiMudiTfPerMedium
 
 
 
 
-
-// strGlobalTimeFrame						
-// insGlobalTFCoefficient					
-// strGlobalOptionTimeFrame				
-
-
-// iTsiMudiTfPeriod					= strGlobalOptionTimeFrame == "Grafico" ? str.tonumber(timeframe.period) * insGlobalTFCoefficient : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * insGlobalTFCoefficient
-// // iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) > 250 ? timeframe.period : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15 ? (str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * 3 : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * insGlobalTFCoefficient
-// iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) > 250 ? timeframe.period : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15 ? (str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * 3 : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * insGlobalTFCoefficient
-
-
-
-// /// visual function TIMEFRAME
-// insTsiMuDiOSC						= insTsiMuDiTsi_value 
-
-// /// Structure Timeframe * coefficient
-// iTsiMudiTfPeriod					= strGlobalOptionTimeFrame == "Grafico" ? str.tonumber(timeframe.period) * insGlobalTFCoefficient : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * insGlobalTFCoefficient
-// // iTsiMudiTfPerMinor000				= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) > 250 ? timeframe.period : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15 ? (str.tostring(iTsiMudiTfPeriod * 3)) : (str.tostring(iTsiMudiTfPeriod))
-// // iTsiMudiTfPerMedium000				= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15  ? (str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * 3 : (str.tostring(iTsiMudiTfPeriod))
-
-// iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) > 250 ? timeframe.period : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15 ? (str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * 3 : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * insGlobalTFCoefficient
-// // iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) > 250 ? timeframe.period : str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15 ? (str.tostring(iTsiMudiTfPeriod)
-// // iTsiMudiTfPerMinor					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) > 250 ? timeframe.period : (str.tostring(iTsiMudiTfPeriod)
-// // iTsiMudiTfPerMedium					= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) < 15  ? (str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame)) * 3 : (str.tostring(iTsiMudiTfPeriod))
-	
-// ))
-
-// iTsiMudiTfPerMayor					= timeframe.period
-// iTsiMudiTfPerString					= timeframe.isdwm ? iTsiMudiTfPerMayor : iTsiMudiTfPerMedium
-// // insTsiMuDiTsiLine					= request.security(syminfo.tickerid, iTsiMudiTfPerString, insTsiMuDiTsi_value, barmerge.gaps_on)
-// // insTsiMuDiEmaLine22					= ta.ema(insTsiMuDiTsiLine, vTsiMuDiSignal)
-
-// vTsiMuDiTFModTSI					= insTsiMuDiTsi_value
-
-/// ─── Multitimeframe Tsi ───
-// [arrTsiMuDiTF,	arrTsiMuDiTF_1,	arrTsiMuDiTF_2]	= request.security(syminfo.tickerid,	iTsiMudiTfPerString,	[vTsiMuDiTFModTSI,	vTsiMuDiTFModTSI[1],	vTsiMuDiTFModTSI[2]],	barmerge.gaps_on)
-// insTsiMuDiEmaLine22					= ta.ema(arrTsiMuDiTF, vTsiMuDiSignal)
-
+ 
 /// ─── Plot Timeframe light ───
 plot(arrTsiMuDiTF,																			color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
 plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),												color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
