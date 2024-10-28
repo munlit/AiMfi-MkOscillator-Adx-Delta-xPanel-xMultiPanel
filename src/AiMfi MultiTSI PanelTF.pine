@@ -173,12 +173,15 @@ FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 	_x									= 3
 	_mayor								= 500
 	_minor								= 15
+	_tonumber							= str.tonumber(_timeframe)
 	_operat_coeff						= _tonumber * _coefficient
 	_operat_minor						= _tonumber * _x
-	_tonumber							= str.tonumber(_timeframe)
-	_conditional						= _tonumber > _mayor ? _tonumber <= _minor ? _operat_minor : _operat_coeff
+	// _if_mayor							= _tonumber > _mayor ? _tonumber : _if_minor
+	// _if_minor							= _tonumber <= _minor ? _operat_minor : _operat_coeff
+	_conditional						= _tonumber > _mayor ? _tonumber <= _minor ? _operat_minor : _operat_coeff : _tonumber
 	// _tostring							= str.tostring(_conditional)
 	str.tostring(_conditional)
+	// str.tostring(_conditional)
 
 /// ───────────────────────
 /// ─── Instances
@@ -284,11 +287,11 @@ adapMonPlotMID		= plot	(adapMonVarADJ ? adapMonVarNeutral : adapMonArrNE_NEW,		c
 plot				(adapMonVarADJ ? 100 : adapMonArrOB_NEW,	color =  color.from_gradient(adapMonVarOSC, adapMonArrNE_NEW, adapMonVarADJ ? 100 : adapMonArrOB_NEW, color.new(color.gray, 70), color.new(adapMonColorShort, 0)), linewidth = 6)
 plot				(adapMonVarADJ ? 0 : adapMonArrOS_NEW,		color = color.from_gradient(adapMonVarOSC, adapMonVarADJ ? 0 : adapMonArrOS_NEW, adapMonArrNE_NEW, color.new(adapMonColorLong, 0), color.new(color.gray, 70)), linewidth = 6)
 
-plotchar			(ta.crossunder(adapMonVarOSC, adapMonArrOB_NEW) ? (adapMonVarADJ ? 100 : adapMonArrOB_NEW) + 10 : na,	"Corrección Venta",		"▼",	location.absolute, adapMonColorShort, size = size.tiny)
-plotchar			(ta.crossover(adapMonVarOSC, adapMonArrOS_NEW) ? (adapMonVarADJ ? 0 : adapMonArrOS_NEW) - 10 : na,		"Corrección Compra",	"▲",	location.absolute, adapMonColorLong, size = size.tiny)
-
 fill				(adapMonPlotMID, adapMonPlotMAIN, color = adapMonIfCOLOR100, title = "Area de Tendencia")
 fill				(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 : adapMonArrNE_NEW, color.new(chart.bg_color, 1000), adapMonVarOSC > adapMonArrNE_NEW ? adapMonColorLong : adapMonColorShort)
+
+// plotchar			(ta.crossunder(adapMonVarOSC, adapMonArrOB_NEW) ? (adapMonVarADJ ? 100 : adapMonArrOB_NEW) + 10 : na,	"Corrección Venta",		"▼",	location.absolute, adapMonColorShort, size = size.tiny)
+// plotchar			(ta.crossover(adapMonVarOSC, adapMonArrOS_NEW) ? (adapMonVarADJ ? 0 : adapMonArrOS_NEW) - 10 : na,		"Corrección Compra",	"▲",	location.absolute, adapMonColorLong, size = size.tiny)
 
 //// ─────────────────────────────────────────────────────────────────────
 //// ─────────────────────────────────────────────────────────────────────
@@ -344,79 +347,50 @@ vTsiMuDiSource						= globalOHL.C[0]
 /// ─── Functions ───
 //// ───────────────────────
 
+/// function calculate TSI
 
-double_smooth(_source, vTsiMuDiLong, vTsiMuDiShort) =>
-	fist_smooth = ta.ema(_source, vTsiMuDiLong)
-	ta.ema(fist_smooth, vTsiMuDiShort)
+FunTsiMuDiCalculateDoubleSmooth(_source, _long, _short) =>
+	fist_smooth						= ta.ema(_source, _long)
+	ta.ema(fist_smooth, _short)
 
-/// visual function NOW
-insTsiMuDiPrice						= ta.change(vTsiMuDiSource)
-insTsiMuDiDouble_smoothed_price		= double_smooth(insTsiMuDiPrice, vTsiMuDiLong, vTsiMuDiShort)
-insTsiMuDiDouble_smoothed_abs_price	= double_smooth(math.abs(insTsiMuDiPrice), vTsiMuDiLong, vTsiMuDiShort)
-insTsiMuDiTsi_value					= 125 * (insTsiMuDiDouble_smoothed_price / insTsiMuDiDouble_smoothed_abs_price) + 50
-
-insTsiMuDiEmaLine					= ta.ema(insTsiMuDiTsi_value, vTsiMuDiSignal)
-
-
-
-
-
+// iTsiMuDiCalculateDoubleSmooth		= FunTsiMuDiCalculateDoubleSmooth(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
 
 
 FunTsiMuDiCalculateTSI(_source, _long, _short) =>
-	_x									= 125
-	_plus								= 50
-	_change								= ta.change(_source)
+	_change							= ta.change(_source)
+	_smooth							= FunTsiMuDiCalculateDoubleSmooth(_change, _long, _short)
+	_smooth_abs						= FunTsiMuDiCalculateDoubleSmooth(math.abs(_change), _long, _short)
+	_x								= 125
+	_plus							= 50
+	_x * (_smooth / _smooth_abs) + _plus
 
-	_F_double_smooth(_source, _long, _short) =>
-		fist_smooth						= ta.ema(_source, _long)
-		ta.ema(fist_smooth, _short)
+// FunTsiMuDiCalculateTSI(_source, _long, _short) =>
+// 	_F_double_smooth(_source, _long, _short) =>
+// 		fist_smooth					= ta.ema(_source, _long)
+// 		ta.ema(fist_smooth, _short)
 
-	_smooth								= _F_double_smooth(_change, _long, _short)
-	_smooth_abs							= _F_double_smooth(math.abs(_change), _long, _short)
-	// _value								= _x * (_smooth, _smooth_abs) + _plus.
-	_x * (_smooth / _smooth_abs) + _plus.
+// 	_x								= 125
+// 	_plus							= 50
+// 	_change							= ta.change(_source)
+// 	_smooth							= _F_double_smooth(_change, _long, _short)
+// 	_smooth_abs						= _F_double_smooth(math.abs(_change), _long, _short)
+// 	_x * (_smooth / _smooth_abs) + _plus.
 
-// FunTsiMuDiCalculateTSI(_double_smooth, _source, _long, _short) =>
-// 	_x									= 125
-// 	_plus								= 50
-// 	_change								= ta.change(_source)
-// 	_smooth								= double_smooth(_change, _long, _short)
-// 	_smooth_abs							= double_smooth(math.abs(_change), _long, _short)
-// 	// _value								= _x * (_smooth, _smooth_abs) + _plus.
-// 	_x * (_smooth, _smooth_abs) + _plus.
+/// instance function calculate Tsi
+iTsiMuDiCalculateTSI				= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
+iTsiMuDiCalculateEma				= ta.ema(iTsiMuDiCalculateTSI, vTsiMuDiSignal)
 
-
-iTsiMuDiCalculateTSI					= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
-insTsiMuDiEmaLine						= ta.ema(iTsiMuDiCalculateTSI, vTsiMuDiSignal)
-
-
-
-
-
-
-
-/// ─── plot color now ───
-insTsiMuDiFillColor					= showTsiMuDiCloudOn	and insTsiMuDiTsi_value > insTsiMuDiEmaLine	? colorTsiMuDiLineFillLong	: showTsiMuDiCloudOn	and insTsiMuDiTsi_value <= insTsiMuDiEmaLine	? colorTsiMuDiLineFillShort	: na
-/// ─── fill color NOW ───
-insTsiMuDiCloudColor				= showTsiMuDiCloudOn	and insTsiMuDiTsi_value > insTsiMuDiEmaLine	? colorTsiMuDiBaseLong		: showTsiMuDiCloudOn	and insTsiMuDiTsi_value <= insTsiMuDiEmaLine	? colorTsiMuDiBaseShort		: na
-
-iTsiMudiTfPeriodNumber				= str.tonumber(FunGlobalTimeFrame(strGlobalTimeFrame))
-iTsiMudiTfPerMinor					= iTsiMudiTfPeriodNumber * 3
-iTsiMudiTfPerMedium					= iTsiMudiTfPeriodNumber * insGlobalTFCoefficient
-iTsiMudiTfPerMayor					= str.tonumber(timeframe.period)
-iTsiMudiTfPeriodIf					= iTsiMudiTfPeriodNumber > 500 ? iTsiMudiTfPerMayor : iTsiMudiTfPeriodNumber <= 15 ? iTsiMudiTfPerMinor : iTsiMudiTfPerMedium
-iTsiMudiTfPerString					= str.tostring(iTsiMudiTfPeriodIf)
-
-
-
-
-
-vTsiMuDiTFModTSI					= insTsiMuDiTsi_value
+/// instance function global timeframe
+iTsiMuDiCalculateTSIRange			= FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, timeframe.period)
 
 /// ─── Multitimeframe Tsi ───
-arrTsiMuDiTF	= request.security(syminfo.tickerid,	iTsiMudiTfPerString,	vTsiMuDiTFModTSI,	barmerge.gaps_on)
-// [arrTsiMuDiTF,	arrTsiMuDiTF_1,	arrTsiMuDiTF_2]	= request.security(syminfo.tickerid,	iTsiMudiTfPerString,	[vTsiMuDiTFModTSI,	vTsiMuDiTFModTSI[1],	vTsiMuDiTFModTSI[2]],	barmerge.gaps_on)
+arrTsiMuDiTF	= request.security(syminfo.tickerid,	iTsiMuDiCalculateTSIRange,	iTsiMuDiCalculateTSI,	barmerge.gaps_on)
+
+/// ─── plot color now ───
+insTsiMuDiFillColor					= showTsiMuDiCloudOn and iTsiMuDiCalculateTSI > iTsiMuDiCalculateEma		? colorTsiMuDiLineFillLong	: showTsiMuDiCloudOn	and iTsiMuDiCalculateTSI <= iTsiMuDiCalculateEma	? colorTsiMuDiLineFillShort	: na
+/// ─── fill color NOW ───
+insTsiMuDiCloudColor				= showTsiMuDiCloudOn and iTsiMuDiCalculateTSI > iTsiMuDiCalculateEma		? colorTsiMuDiBaseLong		: showTsiMuDiCloudOn	and iTsiMuDiCalculateTSI <= iTsiMuDiCalculateEma	? colorTsiMuDiBaseShort		: na
+
 
 /// ─── Plot NOW tsi blue ───
 plot(arrTsiMuDiTF,																	color = color.new(PlatziBlue70, 60),			linewidth = 6)
@@ -434,13 +408,9 @@ fill(insTsiMuDiTsiPlotLine, insTsiMuDiEmaPlotLine,									color = color.new(ins
 
 
  
-/// ─── Plot Timeframe light ───
-plot(arrTsiMuDiTF,																			color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
-plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),												color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
-
-
-/// ─── Show TSI
-// swTsiMuDiTSITF15					= plot(showTsiMuDiTSIPanelTimeF and showTsiMuDiTSITF15	? arrTsiMuDiTF15	: na,	linewidth = 2,	color = colorTsiMuDiTSI)
+// /// ─── plot timeframe optional
+// plot(arrTsiMuDiTF,																			color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
+// plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),												color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
 
 // /// ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -448,8 +418,8 @@ plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),												color = color.new(AmeTrBlu
 /// ─── Divergences ───
 //// ───────────────────────
 
-insTsiMuDiPLFound					= na(ta.pivotlow(vTsiMuDiTFModTSI, vTsiMuDiLBL, vTsiMuDiLBR)) ? false : true
-insTsiMuDiPHFound					= na(ta.pivothigh(vTsiMuDiTFModTSI, vTsiMuDiLBL, vTsiMuDiLBR)) ? false : true
+insTsiMuDiPLFound					= na(ta.pivotlow(iTsiMuDiCalculateTSI, vTsiMuDiLBL, vTsiMuDiLBR)) ? false : true
+insTsiMuDiPHFound					= na(ta.pivothigh(iTsiMuDiCalculateTSI, vTsiMuDiLBL, vTsiMuDiLBR)) ? false : true
 
 FunTsiMuDi_inRange(cond) =>
 	insTsiMuDiBars					= ta.barssince(cond == true)
@@ -460,19 +430,19 @@ FunTsiMuDi_inRange(cond) =>
 //// ───────────────────────
 
 /// ─── Osc: Higher Low ───
-tsiDiInsOSCHL						= vTsiMuDiTFModTSI[vTsiMuDiLBR]	> ta.valuewhen(insTsiMuDiPLFound, vTsiMuDiTFModTSI[vTsiMuDiLBR], 1)	and FunTsiMuDi_inRange(insTsiMuDiPLFound[1])
+tsiDiInsOSCHL						= iTsiMuDiCalculateTSI[vTsiMuDiLBR]	> ta.valuewhen(insTsiMuDiPLFound, iTsiMuDiCalculateTSI[vTsiMuDiLBR], 1)	and FunTsiMuDi_inRange(insTsiMuDiPLFound[1])
 /// ─── Price: Lower Low ───
 tsiDiInsPRICELL						= low[vTsiMuDiLBR]				< ta.valuewhen(insTsiMuDiPLFound, low[vTsiMuDiLBR], 1)
 
 tsiDiInsBULLCond					= showTsiMuDiPlotDiverg	and tsiDiInsPRICELL	and tsiDiInsOSCHL	and insTsiMuDiPLFound
 
-plot(insTsiMuDiPLFound ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
+plot(insTsiMuDiPLFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmacion de Compra',
 			  linewidth				= 2,
 			  color					= tsiDiInsBULLCond ? color.new(colorTsiMuDiDivergLong, 10) : colorTsiMuDiDivergNone)
 
-plotshape(tsiDiInsBULLCond ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
+plotshape(tsiDiInsBULLCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Etiqueta de Compra',
 			  text					= ' Compra ',
@@ -486,19 +456,19 @@ plotshape(tsiDiInsBULLCond ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
 //// ───────────────────────
 
 /// ─── Osc: Lower Low ───
-tsiDiInsOSCLL						= vTsiMuDiTFModTSI[vTsiMuDiLBR]	< ta.valuewhen(insTsiMuDiPLFound, vTsiMuDiTFModTSI[vTsiMuDiLBR], 1)	and FunTsiMuDi_inRange(insTsiMuDiPLFound[1])
+tsiDiInsOSCLL						= iTsiMuDiCalculateTSI[vTsiMuDiLBR]	< ta.valuewhen(insTsiMuDiPLFound, iTsiMuDiCalculateTSI[vTsiMuDiLBR], 1)	and FunTsiMuDi_inRange(insTsiMuDiPLFound[1])
 /// ─── Price: Higher Low ───
 tsiDiInsPRICEHL						= low[vTsiMuDiLBR]				> ta.valuewhen(insTsiMuDiPLFound, low[vTsiMuDiLBR], 1)
 
 tsiDiInsHiddenBullCond				= showTsiMuDiPlotDivergScalp	and tsiDiInsPRICEHL	and tsiDiInsOSCLL	and insTsiMuDiPLFound
 
-plot(insTsiMuDiPLFound ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
+plot(insTsiMuDiPLFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Compra scalp',
 			  linewidth				= 2,
 			  color					= tsiDiInsHiddenBullCond ? color.new(colorTsiMuDiDivergLong, 40) : colorTsiMuDiDivergNone)
 
-plotshape(tsiDiInsHiddenBullCond ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
+plotshape(tsiDiInsHiddenBullCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Etiqueta de Compra scalp',
 			  text					= ' △ scalp ',
@@ -512,19 +482,19 @@ plotshape(tsiDiInsHiddenBullCond ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
 //// ───────────────────────
 
 /// ─── Osc: Lower High ───
-tsiDiInsOSCLH						= vTsiMuDiTFModTSI[vTsiMuDiLBR]	< ta.valuewhen(insTsiMuDiPHFound, vTsiMuDiTFModTSI[vTsiMuDiLBR], 1) and FunTsiMuDi_inRange(insTsiMuDiPHFound[1])
+tsiDiInsOSCLH						= iTsiMuDiCalculateTSI[vTsiMuDiLBR]	< ta.valuewhen(insTsiMuDiPHFound, iTsiMuDiCalculateTSI[vTsiMuDiLBR], 1) and FunTsiMuDi_inRange(insTsiMuDiPHFound[1])
 /// ─── Price: Higher High ───
 tsiDiInsPRICEHH						= high[vTsiMuDiLBR]				> ta.valuewhen(insTsiMuDiPHFound, high[vTsiMuDiLBR], 1)
 
 tsiDiInsBEARCond					= showTsiMuDiPlotDiverg	and tsiDiInsPRICEHH	and tsiDiInsOSCLH	and insTsiMuDiPHFound
 
-plot(insTsiMuDiPHFound ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
+plot(insTsiMuDiPHFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Venta',
 			  linewidth				= 2,
 			  color					= tsiDiInsBEARCond ? color.new(colorTsiMuDiDivergShort, 10) : colorTsiMuDiDivergNone)
 
-plotshape(tsiDiInsBEARCond ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
+plotshape(tsiDiInsBEARCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Etiqueta de Venta',
 			  text					= ' Venta ',
@@ -538,19 +508,19 @@ plotshape(tsiDiInsBEARCond ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
 //// ───────────────────────
 
 /// ─── Osc: Higher High ───
-tsiDiInsOSCHH						= vTsiMuDiTFModTSI[vTsiMuDiLBR]	> ta.valuewhen(insTsiMuDiPHFound, vTsiMuDiTFModTSI[vTsiMuDiLBR], 1) and FunTsiMuDi_inRange(insTsiMuDiPHFound[1])
+tsiDiInsOSCHH						= iTsiMuDiCalculateTSI[vTsiMuDiLBR]	> ta.valuewhen(insTsiMuDiPHFound, iTsiMuDiCalculateTSI[vTsiMuDiLBR], 1) and FunTsiMuDi_inRange(insTsiMuDiPHFound[1])
 /// ─── Price: Lower High ───
 tsiDiInsPRICELH						= high[vTsiMuDiLBR]				< ta.valuewhen(insTsiMuDiPHFound, high[vTsiMuDiLBR], 1)
 
 tsiDiInsHiddenBearCond				= showTsiMuDiPlotDivergScalp	and tsiDiInsPRICELH	and tsiDiInsOSCHH	and insTsiMuDiPHFound
 
-plot(insTsiMuDiPHFound ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
+plot(insTsiMuDiPHFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Venta scalp',
 			  linewidth				= 2,
 			  color					= tsiDiInsHiddenBearCond ? color.new(colorTsiMuDiDivergShort, 40) : colorTsiMuDiDivergNone)
 
-plotshape(tsiDiInsHiddenBearCond ? vTsiMuDiTFModTSI[vTsiMuDiLBR] : na,
+plotshape(tsiDiInsHiddenBearCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Etiqueta de Venta scalp',
 			  text					= ' ▽ scalp ',
