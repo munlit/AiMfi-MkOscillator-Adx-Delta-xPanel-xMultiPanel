@@ -43,15 +43,21 @@ AllenFucsia50							= #EA1889
 
 //// ─────────────────────────────────────────────────────────────────────
 
-strGlobalOptionalTooltip				= "Lineas alternas con temporalidad modificada: 15 min, 30 min, 1 Hora, 2 Horas, 3 Horas, 4 Horas "
+strGlobalExtendTooltip					= "Indicador TSI basado en tendencia"
+strGlobalOptionalTooltip				= "Configuración de temporalidad adicional"
 
 /// ───────────────────────
 /// ─── Variables
 /// ───────────────────────
 
-insGlobalTFCoefficient					= input.int		(defval = 2,			title = "Coeficiente timeframe",	minval = 1,	maxval = 5,	step = 1)
-strGlobalOptionalTimeFrame				= input.string 	(defval = "2 Horas",	title = "Timegrame opcional",		group = "Global Timeframe",		inline = "OpcionaTF",
+globalTSIGroupTimeframe					= "Tsi & Divergences"
+// globalTSIGroupTimeframe					= "Temporalidad Global"
+showTsiMuDiTSIDivergs					= input.bool	(defval = true,			title = 'TSI & Divergences',			group = globalTSIGroupTimeframe)
+showTsiMuDiTSIExtend					= input.bool	(defval = true,			title = "Tsi Extend",					group = globalTSIGroupTimeframe,		tooltip = strGlobalOptionalTooltip)
+showTsiMuDiTSIOptionalTF				= input.bool	(defval = false,		title = "Tsi Opcional",					group = globalTSIGroupTimeframe,		tooltip = strGlobalOptionalTooltip)
+strGlobalOptionalTimeFrame				= input.string 	(defval = "2 Horas",	title = "Timeframe opcional",			group = globalTSIGroupTimeframe,
 			  options					=				["15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas", "1 Dia", "1 Semana", "1 Mes"])
+insGlobalTFCoefficient					= input.int		(defval = 2,			title = "Coeficiente timeframe",		group = globalTSIGroupTimeframe,		minval = 1,	maxval = 5,	step = 1)
 
 /// ───────────────────────
 /// ─── Types
@@ -168,7 +174,7 @@ FunGlobalCalculateMA(_source, _length, _type) =>
 		"VWMA"							=> ta.vwma	(_source, _length)
 		"MFI"							=> ta.mfi	(_source, _length)
 
-/// ─── Function calculate timeframe
+/// ─── Function calculate timeframe range
 FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 	_x									= 3
 	_mayor								= 500
@@ -203,7 +209,7 @@ globalOHL								= globalTypeOHL.new()
 adapMonToolAdj				= "Ajusta el MFI en su lugar para que los niveles de Sobrecompra, Sobreventa y Neutral permanezcan fijos"
 adapMonToolMlt				= "Aumente esto para que los números de clasificación aparezcan más lejos del gráfico del oscilador"
 
-adapMonGrpSet				= "Configuracion FMI"
+adapMonGrpSet				= "Adaptative MFI"
 adapMonGrpLim				= "Clustering Setting"
 adapMonGrpApar				= "Apariencia"
 
@@ -324,12 +330,9 @@ colorTsiMuDiTSI						= color.new(AllenSky10,			20)
 
 /// ─── Inputs ───
 groupTsiMuDiTSIVars					= 'TSI & Divergences'
-showTsiMuDiTSIDivergs				= input.bool	(defval = false,	title = 'TSI & Divergences')
-showTsiMuDiTSIOptionalTF			= input.bool	(defval = true,		title = "Timeframe Opcional",			group = groupTsiMuDiTSIVars,		inline = "OpcionaTF")
-
-vTsiMuDiLong						= input.int		(defval = 6,		title = 'Longitud de Compra',			group = groupTsiMuDiTSIVars)
-vTsiMuDiShort						= input.int		(defval = 13,		title = 'Longitud de Venta',			group = groupTsiMuDiTSIVars)
-vTsiMuDiSignal						= 5									//	Longitud de la SEÑAL
+vTsiMuDiLong						= input.int		(defval = 6,		title = 'Longitud de Compra',			group = globalTSIGroupTimeframe)
+vTsiMuDiShort						= input.int		(defval = 13,		title = 'Longitud de Venta',			group = globalTSIGroupTimeframe)
+vTsiMuDiSignal						= input.int		(defval = 5,		title = 'Longitud de Señal',			group = globalTSIGroupTimeframe)
 
 /// ─── divergences ───
 vTsiMuDiLBR							= 5									//	Corrección a la derecha
@@ -337,9 +340,9 @@ vTsiMuDiLBL							= 5									//	Corrección a la izquierda
 vTsiMuDiRangeUpper					= 30								//	Rango de corrección maximo
 vTsiMuDiRangeLower					= 2									//	Rango de corrección minimo
 /// ─── Show ───
-showTsiMuDiPlotDiverg				= input.bool	(defval = true,		title = 'Divergencias',					group = groupTsiMuDiTSIVars)
-showTsiMuDiPlotDivergScalp			= input.bool	(defval = true,		title = 'Divergencias scalp',			group = groupTsiMuDiTSIVars)
-showTsiMuDiCloudOn					= input.bool	(defval = true,		title = 'TSI Cloud',					group = groupTsiMuDiTSIVars)
+showTsiMuDiPlotDiverg				= input.bool	(defval = true,		title = 'Divergencias',					group = globalTSIGroupTimeframe			,inline = "diverg show")
+showTsiMuDiPlotDivergScalp			= input.bool	(defval = true,		title = 'Scalp',						group = globalTSIGroupTimeframe			,inline = "diverg show")
+showTsiMuDiCloudOn					= input.bool	(defval = true,		title = 'TSI Cloud',					group = globalTSIGroupTimeframe)
 
 vTsiMuDiSource						= globalOHL.C[0]
 
@@ -347,72 +350,90 @@ vTsiMuDiSource						= globalOHL.C[0]
 /// ─── Functions ───
 //// ───────────────────────
 
-/// function calculate TSI
+/// function extend (smooth & tsi calculate)
+FunTsiMuDiCalculateExtendTSI(_source, _long, _short) =>
+	_change							= ta.change(_source)
+	_smooth_single					= ta.ema(_change, _long)
+	_smooth_double					= ta.ema(_smooth_single, _short)
+	_x								= 80
+	_plus							= 50
+	_smooth							= _smooth_double
+	_smooth_abs						= math.abs(_smooth_double)
+	_x * (_smooth / _smooth_abs) + _plus
 
+
+//// ───────────────────────
+
+/// function calculate TSI
 FunTsiMuDiCalculateDoubleSmooth(_source, _long, _short) =>
 	fist_smooth						= ta.ema(_source, _long)
 	ta.ema(fist_smooth, _short)
 
 // iTsiMuDiCalculateDoubleSmooth		= FunTsiMuDiCalculateDoubleSmooth(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
 
-
 FunTsiMuDiCalculateTSI(_source, _long, _short) =>
 	_change							= ta.change(_source)
-	_smooth							= FunTsiMuDiCalculateDoubleSmooth(_change, _long, _short)
-	_smooth_abs						= FunTsiMuDiCalculateDoubleSmooth(math.abs(_change), _long, _short)
 	_x								= 125
 	_plus							= 50
+	_smooth							= FunTsiMuDiCalculateDoubleSmooth(_change, _long, _short)
+	_smooth_abs						= FunTsiMuDiCalculateDoubleSmooth(math.abs(_change), _long, _short)
 	_x * (_smooth / _smooth_abs) + _plus
 
-// FunTsiMuDiCalculateTSI(_source, _long, _short) =>
-// 	_F_double_smooth(_source, _long, _short) =>
-// 		fist_smooth					= ta.ema(_source, _long)
-// 		ta.ema(fist_smooth, _short)
+//// ───────────────────────
+/// ─── Instances ───
+//// ───────────────────────
 
-// 	_x								= 125
-// 	_plus							= 50
-// 	_change							= ta.change(_source)
-// 	_smooth							= _F_double_smooth(_change, _long, _short)
-// 	_smooth_abs						= _F_double_smooth(math.abs(_change), _long, _short)
-// 	_x * (_smooth / _smooth_abs) + _plus.
-
-/// instance function calculate Tsi
+/// PRESENT
+/// instance function calculate present Tsi
 iTsiMuDiCalculateTSI				= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
 iTsiMuDiCalculateEma				= ta.ema(iTsiMuDiCalculateTSI, vTsiMuDiSignal)
 
 /// instance function global timeframe
 iTsiMuDiCalculateTSIRange			= FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, timeframe.period)
-
-/// ─── Multitimeframe Tsi ───
+/// ─── Timeframe present Tsi
 arrTsiMuDiTF	= request.security(syminfo.tickerid,	iTsiMuDiCalculateTSIRange,	iTsiMuDiCalculateTSI,	barmerge.gaps_on)
+/// ─── plot color
+insTsiMuDiFillColor					= iTsiMuDiCalculateTSI > iTsiMuDiCalculateEma				? colorTsiMuDiLineFillLong	: iTsiMuDiCalculateTSI <= iTsiMuDiCalculateEma				? colorTsiMuDiLineFillShort	: na
+/// ─── fill color
+insTsiMuDiCloudColor				= iTsiMuDiCalculateTSI > iTsiMuDiCalculateEma				? colorTsiMuDiBaseLong		: iTsiMuDiCalculateTSI <= iTsiMuDiCalculateEma				? colorTsiMuDiBaseShort		: na
 
-/// ─── plot color now ───
-insTsiMuDiFillColor					= showTsiMuDiCloudOn and iTsiMuDiCalculateTSI > iTsiMuDiCalculateEma		? colorTsiMuDiLineFillLong	: showTsiMuDiCloudOn	and iTsiMuDiCalculateTSI <= iTsiMuDiCalculateEma	? colorTsiMuDiLineFillShort	: na
-/// ─── fill color NOW ───
-insTsiMuDiCloudColor				= showTsiMuDiCloudOn and iTsiMuDiCalculateTSI > iTsiMuDiCalculateEma		? colorTsiMuDiBaseLong		: showTsiMuDiCloudOn	and iTsiMuDiCalculateTSI <= iTsiMuDiCalculateEma	? colorTsiMuDiBaseShort		: na
+/// EXTEND
+/// instances function calculate extend  Tsi
+iTsiMuDiCalculateExtendTSI			= FunTsiMuDiCalculateExtendTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
+iTsiMuDiCalculateExtendEma			= ta.ema(iTsiMuDiCalculateExtendTSI, vTsiMuDiSignal)
+/// instance function global timeframe
+iTsiMuDiCalculateExtendTSIRange		= FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, timeframe.period)
+/// timeframe extend Tsi
+arrTsiMuDiTFExtend	= request.security(syminfo.tickerid,	iTsiMuDiCalculateExtendTSIRange,	iTsiMuDiCalculateExtendTSI,	barmerge.gaps_on)
+/// fill color extend
+insTsiMuDiCloudColorExtend			= showTsiMuDiCloudOn and iTsiMuDiCalculateExtendTSI > iTsiMuDiCalculateExtendEma	? colorTsiMuDiBaseLong		: showTsiMuDiCloudOn	and iTsiMuDiCalculateExtendTSI <= iTsiMuDiCalculateExtendEma	? colorTsiMuDiBaseShort		: na
 
+//// ───────────────────────
+/// ─── Display ───
+//// ───────────────────────
 
-/// ─── Plot NOW tsi blue ───
-plot(arrTsiMuDiTF,																	color = color.new(PlatziBlue70, 60),			linewidth = 6)
-plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),										color = color.new(PlatziBlue70, 60),			linewidth = 6)
+/// ─── Plot
 
-/// ─── Plot NOW tsi ───
-insTsiMuDiTsiPlotLine				= plot(arrTsiMuDiTF,							color = color.new(insTsiMuDiFillColor, 30),		linewidth = 2)
-insTsiMuDiEmaPlotLine				= plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),	color = color.new(insTsiMuDiFillColor, 30),		linewidth = 2)
-
-/// ─── fill NOW ───
-fill(insTsiMuDiTsiPlotLine, insTsiMuDiEmaPlotLine,									color = color.new(insTsiMuDiCloudColor, 70))
-
-
-
-
-
- 
-// /// ─── plot timeframe optional
+ // /// ─── plot timeframe optional
 // plot(arrTsiMuDiTF,																			color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
 // plot(ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal),												color = color.new(AmeTrBlueFrost, 60),			linewidth = 1)
 
-// /// ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+/// plot extend TSI
+insTsiMuDiTsiExtendPlotLine			= plot(showTsiMuDiTSIExtend ? arrTsiMuDiTFExtend : na,								color = color.new(MongoSky10, 70),		linewidth = 1)
+insTsiMuDiEmaExtendPlotLine			= plot(showTsiMuDiTSIExtend ? ta.ema(arrTsiMuDiTFExtend,	vTsiMuDiSignal) : na,	color = color.new(MongoSky10, 70),		linewidth = 1)
+
+/// fill extend
+fill(insTsiMuDiTsiExtendPlotLine, insTsiMuDiEmaExtendPlotLine,															color = color.new(insTsiMuDiCloudColorExtend, 85))
+
+/// ─── Plot present TSI
+plot(showTsiMuDiTSIDivergs ? arrTsiMuDiTF	: na,																		color = color.new(PlatziBlue70, 60),			linewidth = 6)		//	plot TSI blue
+plot(showTsiMuDiTSIDivergs ? ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal)	: na,												color = color.new(PlatziBlue70, 60),			linewidth = 6)		//	plot EMA blue
+insTsiMuDiTsiPlotLine				= plot(showTsiMuDiTSIDivergs ? arrTsiMuDiTF	: na,									color = color.new(insTsiMuDiFillColor, 30),		linewidth = 2)		//	plot TsiSI
+insTsiMuDiEmaPlotLine				= plot(showTsiMuDiTSIDivergs ? ta.ema(arrTsiMuDiTF,	vTsiMuDiSignal)	: na,			color = color.new(insTsiMuDiFillColor, 30),		linewidth = 2)		//	plot EMA
+
+/// ─── fill present
+fill(insTsiMuDiTsiPlotLine, insTsiMuDiEmaPlotLine,																		color = showTsiMuDiCloudOn ? color.new(insTsiMuDiCloudColor, 70) : na)						//	fill
 
 //// ───────────────────────
 /// ─── Divergences ───
@@ -429,20 +450,19 @@ FunTsiMuDi_inRange(cond) =>
 /// ─── Compra regular ───
 //// ───────────────────────
 
-/// ─── Osc: Higher Low ───
+/// ─── Osc: Higher Low ─ Price: Lower Low
 tsiDiInsOSCHL						= iTsiMuDiCalculateTSI[vTsiMuDiLBR]	> ta.valuewhen(insTsiMuDiPLFound, iTsiMuDiCalculateTSI[vTsiMuDiLBR], 1)	and FunTsiMuDi_inRange(insTsiMuDiPLFound[1])
-/// ─── Price: Lower Low ───
 tsiDiInsPRICELL						= low[vTsiMuDiLBR]				< ta.valuewhen(insTsiMuDiPLFound, low[vTsiMuDiLBR], 1)
 
 tsiDiInsBULLCond					= showTsiMuDiPlotDiverg	and tsiDiInsPRICELL	and tsiDiInsOSCHL	and insTsiMuDiPLFound
 
-plot(insTsiMuDiPLFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
+plot(showTsiMuDiTSIDivergs and		insTsiMuDiPLFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmacion de Compra',
 			  linewidth				= 2,
 			  color					= tsiDiInsBULLCond ? color.new(colorTsiMuDiDivergLong, 10) : colorTsiMuDiDivergNone)
 
-plotshape(tsiDiInsBULLCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
+plotshape(showTsiMuDiTSIDivergs and	tsiDiInsBULLCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Etiqueta de Compra',
 			  text					= ' Compra ',
@@ -455,20 +475,18 @@ plotshape(tsiDiInsBULLCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 /// ─── Compra scalp ───
 //// ───────────────────────
 
-/// ─── Osc: Lower Low ───
+/// ─── Osc: Lower Low ─ Price: Higher Low
 tsiDiInsOSCLL						= iTsiMuDiCalculateTSI[vTsiMuDiLBR]	< ta.valuewhen(insTsiMuDiPLFound, iTsiMuDiCalculateTSI[vTsiMuDiLBR], 1)	and FunTsiMuDi_inRange(insTsiMuDiPLFound[1])
-/// ─── Price: Higher Low ───
 tsiDiInsPRICEHL						= low[vTsiMuDiLBR]				> ta.valuewhen(insTsiMuDiPLFound, low[vTsiMuDiLBR], 1)
-
 tsiDiInsHiddenBullCond				= showTsiMuDiPlotDivergScalp	and tsiDiInsPRICEHL	and tsiDiInsOSCLL	and insTsiMuDiPLFound
 
-plot(insTsiMuDiPLFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
+plot(showTsiMuDiTSIDivergs and		insTsiMuDiPLFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Compra scalp',
 			  linewidth				= 2,
 			  color					= tsiDiInsHiddenBullCond ? color.new(colorTsiMuDiDivergLong, 40) : colorTsiMuDiDivergNone)
 
-plotshape(tsiDiInsHiddenBullCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
+plotshape(showTsiMuDiTSIDivergs and	tsiDiInsHiddenBullCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Etiqueta de Compra scalp',
 			  text					= ' △ scalp ',
@@ -481,20 +499,18 @@ plotshape(tsiDiInsHiddenBullCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 /// ─── Venta regular ───
 //// ───────────────────────
 
-/// ─── Osc: Lower High ───
+/// ─── Osc: Lower High ─ Price: Higher High
 tsiDiInsOSCLH						= iTsiMuDiCalculateTSI[vTsiMuDiLBR]	< ta.valuewhen(insTsiMuDiPHFound, iTsiMuDiCalculateTSI[vTsiMuDiLBR], 1) and FunTsiMuDi_inRange(insTsiMuDiPHFound[1])
-/// ─── Price: Higher High ───
 tsiDiInsPRICEHH						= high[vTsiMuDiLBR]				> ta.valuewhen(insTsiMuDiPHFound, high[vTsiMuDiLBR], 1)
-
 tsiDiInsBEARCond					= showTsiMuDiPlotDiverg	and tsiDiInsPRICEHH	and tsiDiInsOSCLH	and insTsiMuDiPHFound
 
-plot(insTsiMuDiPHFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
+plot(showTsiMuDiTSIDivergs and		insTsiMuDiPHFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Venta',
 			  linewidth				= 2,
 			  color					= tsiDiInsBEARCond ? color.new(colorTsiMuDiDivergShort, 10) : colorTsiMuDiDivergNone)
 
-plotshape(tsiDiInsBEARCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
+plotshape(showTsiMuDiTSIDivergs and	tsiDiInsBEARCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Etiqueta de Venta',
 			  text					= ' Venta ',
@@ -507,20 +523,18 @@ plotshape(tsiDiInsBEARCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 /// ─── Venta scalp ───
 //// ───────────────────────
 
-/// ─── Osc: Higher High ───
+/// ─── Osc: Higher High ─ Price: Lower High
 tsiDiInsOSCHH						= iTsiMuDiCalculateTSI[vTsiMuDiLBR]	> ta.valuewhen(insTsiMuDiPHFound, iTsiMuDiCalculateTSI[vTsiMuDiLBR], 1) and FunTsiMuDi_inRange(insTsiMuDiPHFound[1])
-/// ─── Price: Lower High ───
-tsiDiInsPRICELH						= high[vTsiMuDiLBR]				< ta.valuewhen(insTsiMuDiPHFound, high[vTsiMuDiLBR], 1)
+tsiDiInsPRICELH						= high[vTsiMuDiLBR]					< ta.valuewhen(insTsiMuDiPHFound, high[vTsiMuDiLBR], 1)
+tsiDiInsHiddenBearCond				= showTsiMuDiPlotDivergScalp		and tsiDiInsPRICELH	and tsiDiInsOSCHH	and insTsiMuDiPHFound
 
-tsiDiInsHiddenBearCond				= showTsiMuDiPlotDivergScalp	and tsiDiInsPRICELH	and tsiDiInsOSCHH	and insTsiMuDiPHFound
-
-plot(insTsiMuDiPHFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
+plot(showTsiMuDiTSIDivergs and		insTsiMuDiPHFound ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Confirmación de Venta scalp',
 			  linewidth				= 2,
 			  color					= tsiDiInsHiddenBearCond ? color.new(colorTsiMuDiDivergShort, 40) : colorTsiMuDiDivergNone)
 
-plotshape(tsiDiInsHiddenBearCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
+plotshape(showTsiMuDiTSIDivergs and	tsiDiInsHiddenBearCond ? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset				= -vTsiMuDiLBR,
 			  title					= 'Etiqueta de Venta scalp',
 			  text					= ' ▽ scalp ',

@@ -127,6 +127,21 @@ FunGlobalCalculateMA(_source, _length, _type) =>
 		"VWMA"							=> ta.vwma	(_source, _length)
 		"MFI"							=> ta.mfi	(_source, _length)
 
+/// ─── Function calculate timeframe range
+FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
+	_x									= 3
+	_mayor								= 500
+	_minor								= 15
+	_tonumber							= str.tonumber(_timeframe)
+	_operat_coeff						= _tonumber * _coefficient
+	_operat_minor						= _tonumber * _x
+	// _if_mayor							= _tonumber > _mayor ? _tonumber : _if_minor
+	// _if_minor							= _tonumber <= _minor ? _operat_minor : _operat_coeff
+	_conditional						= _tonumber > _mayor ? _tonumber <= _minor ? _operat_minor : _operat_coeff : _tonumber
+	// _tostring							= str.tostring(_conditional)
+	str.tostring(_conditional)
+	// str.tostring(_conditional)
+
 /// ───────────────────────
 /// ─── Instances
 /// ───────────────────────
