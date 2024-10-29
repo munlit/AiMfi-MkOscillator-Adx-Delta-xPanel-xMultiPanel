@@ -28,6 +28,7 @@ AmeTrBlueFrost							= #E1EEF9
 AmeTrGrayNickel							= #F1F1F1
 GraySwebSecondaryText					= #77708A
 ARoPrimary								= #0035FF
+CitiAccentUltraLightBlue				= #E6F7FF
 MongoSky10								= #E3FCF7
 BrLiYel10								= #FBFD73
 BrLiYel40								= #FEF301
@@ -206,38 +207,40 @@ globalOHL								= globalTypeOHL.new()
 
 //// ─────────────────────────────────────────────────────────────────────
 
-adapMonToolAdj				= "Ajusta el MFI en su lugar para que los niveles de Sobrecompra, Sobreventa y Neutral permanezcan fijos"
-adapMonToolMlt				= "Aumente esto para que los números de clasificación aparezcan más lejos del gráfico del oscilador"
+adapMonToolAdj							= "Ajusta el MFI en su lugar para que los niveles de Sobrecompra, Sobreventa y Neutral permanezcan fijos"
+adapMonToolMlt							= "Aumente esto para que los números de clasificación aparezcan más lejos del gráfico del oscilador"
 
-adapMonGrpSet				= "Adaptative MFI"
-adapMonGrpLim				= "Clustering Setting"
-adapMonGrpApar				= "Apariencia"
+adapMonGrpSet							= "Adaptative MFI"
+adapMonGrpLim							= "Clustering Setting"
+adapMonGrpApar							= "Apariencia"
 
 //// ───────────────────────
-/// ─── Adaptive Money
+/// ─── Adaptive MFI
 /// ─── Vars ─────────
 //// ───────────────────────
 
-adapMonVarSRC				= input.source	(defval = hlc3,	title = "Fuente MFI",										group = adapMonGrpSet)
-adapMonVarLENGTH			= input.int		(defval = 14,	title = "Longitud MFI",							minval = 1,	group = adapMonGrpSet)
-adapMonVarDataLength		= input.int		(defval = 300,	title = "Tamaño de datos de entrenamiento",		minval = 1,	group = adapMonGrpLim)
-adapMonVarIterations		= input.int		(defval = 5,	title = "Cantidad de iteraciones por barra",	minval = 1,	group = adapMonGrpLim)
-adapMonVarOverbought		= input.float	(defval = 80.0,	title = "Inicio de Sobre Compra",							group = adapMonGrpLim)
-adapMonVarNeutral			= input.float	(defval = 50.0,	title = "Neutral",											group = adapMonGrpLim)
-adapMonVarOversold			= input.float	(defval = 20.0,	title = "Inicio de Sobre Venta",							group = adapMonGrpLim)
+showadapMonGroup						= input.bool	(defval = true,				title = 'Mostrar Ai Adaptative MFI',						group = adapMonGrpSet)
 
-adapMonVarADJ				= input.bool	(defval = true,	title = "Usar MFI ajustado",								group = adapMonGrpApar,		tooltip = adapMonToolAdj)
-adapMonVarMLT				= input.float	(defval = 1.0,	title = "Multiplicador",									group = adapMonGrpApar,		tooltip = adapMonToolMlt)
+adapMonVarADJ							= input.bool	(defval = true,				title = "Usar MFI ajustado",								group = adapMonGrpApar,		tooltip = adapMonToolAdj)
+adapMonVarMLT							= input.float	(defval = 1.0,				title = "Multiplicador",									group = adapMonGrpApar,		tooltip = adapMonToolMlt)
+adapMonColorLong						= input.color	(AllenMint60,				title = "Rango:     Compra",								group = adapMonGrpApar,		inline = "mfi colors")
+adapMonColorShort						= input.color	(AllenSky10,				title = "Venta",											group = adapMonGrpApar,		inline = "mfi colors")
+adapMonColorAux							= input.color	(CitiAccentUltraLightBlue,	title = "Auxiliares",										group = adapMonGrpApar)
 
-adapMonColorLong			= input.color	(AllenMint60,	title = "Compra",											group = adapMonGrpApar)
-adapMonColorShort			= input.color	(AllenSky10,	title = "Venta",											group = adapMonGrpApar)
+adapMonVarSRC							= input.source	(defval = hlc3,				title = "Fuente MFI",										group = adapMonGrpSet)
+adapMonVarLENGTH						= input.int		(defval = 14,				title = "Longitud MFI",							minval = 1,	group = adapMonGrpSet)
+adapMonVarDataLength					= input.int		(defval = 300,				title = "Tamaño de datos de entrenamiento",		minval = 1,	group = adapMonGrpLim)
+adapMonVarIterations					= input.int		(defval = 5,				title = "Cantidad de iteraciones por barra",	minval = 1,	group = adapMonGrpLim)
+adapMonVarOverbought					= input.float	(defval = 80.0,				title = "Inicio de Sobre Compra",							group = adapMonGrpLim)
+adapMonVarNeutral						= input.float	(defval = 50.0,				title = "Neutral",											group = adapMonGrpLim)
+adapMonVarOversold						= input.float	(defval = 20.0,				title = "Inicio de Sobre Venta",							group = adapMonGrpLim)
 
-adapMonVaExAA				= adapMonVarOverbought
-adapMonVaExBB				= adapMonVarNeutral
-adapMonVaExCC				= adapMonVarOversold
+adapMonVaExAA							= adapMonVarOverbought
+adapMonVaExBB							= adapMonVarNeutral
+adapMonVaExCC							= adapMonVarOversold
 
 //// ───────────────────────
-/// ─── Adaptive Money
+/// ─── Adaptive MFI
 /// ─── Functions ────
 //// ───────────────────────
 
@@ -283,21 +286,18 @@ adapMonIfCOLOR100			= adapMonVarOSC > adapMonArrNE_NEW ? color.new(adapMonColorL
 adapMonIfCOLOR0				= adapMonVarOSC > adapMonArrNE_NEW ? color.new(adapMonColorLong, 0) : color.new(adapMonColorShort, 0)
 
 //// ───────────────────────
-/// ─── Adaptive Money
+/// ─── Adaptive MFI
 /// ─── Display ──────
 //// ───────────────────────
 
-adapMonPlotMAIN		= plot	(adapMonIfVAL,						color = adapMonIfCOLOR100)
-adapMonPlotMID		= plot	(adapMonVarADJ ? adapMonVarNeutral : adapMonArrNE_NEW,		color = adapMonIfCOLOR100)
+adapMonPlotMAIN		= plot	(showadapMonGroup ? adapMonIfVAL : na,											color = adapMonIfCOLOR100)
+adapMonPlotMID		= plot	(showadapMonGroup and adapMonVarADJ ? adapMonVarNeutral : adapMonArrNE_NEW,		color = adapMonIfCOLOR100)
 
-plot				(adapMonVarADJ ? 100 : adapMonArrOB_NEW,	color =  color.from_gradient(adapMonVarOSC, adapMonArrNE_NEW, adapMonVarADJ ? 100 : adapMonArrOB_NEW, color.new(color.gray, 70), color.new(adapMonColorShort, 0)), linewidth = 6)
-plot				(adapMonVarADJ ? 0 : adapMonArrOS_NEW,		color = color.from_gradient(adapMonVarOSC, adapMonVarADJ ? 0 : adapMonArrOS_NEW, adapMonArrNE_NEW, color.new(adapMonColorLong, 0), color.new(color.gray, 70)), linewidth = 6)
+plot				(showadapMonGroup ? adapMonVarADJ ? 100 : adapMonArrOB_NEW : na,						color =  color.from_gradient(adapMonVarOSC, adapMonArrNE_NEW, adapMonVarADJ ? 100 : adapMonArrOB_NEW, color.new(color.gray, 70), color.new(adapMonColorShort, 0)), linewidth = 6)
+plot				(showadapMonGroup ? adapMonVarADJ ? 0 : adapMonArrOS_NEW : na,							color = color.from_gradient(adapMonVarOSC, adapMonVarADJ ? 0 : adapMonArrOS_NEW, adapMonArrNE_NEW, color.new(adapMonColorLong, 0), color.new(color.gray, 70)), linewidth = 6)
 
 fill				(adapMonPlotMID, adapMonPlotMAIN, color = adapMonIfCOLOR100, title = "Area de Tendencia")
 fill				(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 : adapMonArrNE_NEW, color.new(chart.bg_color, 1000), adapMonVarOSC > adapMonArrNE_NEW ? adapMonColorLong : adapMonColorShort)
-
-// plotchar			(ta.crossunder(adapMonVarOSC, adapMonArrOB_NEW) ? (adapMonVarADJ ? 100 : adapMonArrOB_NEW) + 10 : na,	"Corrección Venta",		"▼",	location.absolute, adapMonColorShort, size = size.tiny)
-// plotchar			(ta.crossover(adapMonVarOSC, adapMonArrOS_NEW) ? (adapMonVarADJ ? 0 : adapMonArrOS_NEW) - 10 : na,		"Corrección Compra",	"▲",	location.absolute, adapMonColorLong, size = size.tiny)
 
 //// ─────────────────────────────────────────────────────────────────────
 //// ─────────────────────────────────────────────────────────────────────
@@ -340,8 +340,8 @@ vTsiMuDiLBL							= 5									//	Corrección a la izquierda
 vTsiMuDiRangeUpper					= 30								//	Rango de corrección maximo
 vTsiMuDiRangeLower					= 2									//	Rango de corrección minimo
 /// ─── Show ───
-showTsiMuDiPlotDiverg				= input.bool	(defval = true,		title = 'Divergencias',					group = globalTSIGroupTimeframe			,inline = "diverg show")
-showTsiMuDiPlotDivergScalp			= input.bool	(defval = true,		title = 'Scalp',						group = globalTSIGroupTimeframe			,inline = "diverg show")
+showTsiMuDiPlotDiverg				= input.bool	(defval = true,		title = 'Divergencias',					group = globalTSIGroupTimeframe,		inline = "diverg show")
+showTsiMuDiPlotDivergScalp			= input.bool	(defval = true,		title = 'Scalp',						group = globalTSIGroupTimeframe,		inline = "diverg show")
 showTsiMuDiCloudOn					= input.bool	(defval = true,		title = 'TSI Cloud',					group = globalTSIGroupTimeframe)
 
 vTsiMuDiSource						= globalOHL.C[0]
