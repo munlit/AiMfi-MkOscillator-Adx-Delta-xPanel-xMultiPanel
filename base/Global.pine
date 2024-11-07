@@ -178,6 +178,23 @@ FunGlobalNewTable(_box, _col, _row, _width, _bgcolor, _txt, _txtcolor, _txthalig
 		  text_size			= _txtsize
 		  )
 
+/// ─── function Signal buy/sell
+FunGlobalSignal(_buy, _sell) =>
+	_buy ? "🟢⬈" : _sell ? "🔴⬊" : "⚪➞"
+
+/// ─── function Color buy/sell
+FunGlobalIfColor(_buy, _sell) =>
+	_buy ? _colorbuy : _sell ? _colorsell : _colorneutral
+
+/// ─── function RSI calculate
+FunGlobalCalculateRSI(_source, _length) =>
+	_upmove					= math.max		(_source - _source[1], 0)
+	_downmove				= math.max		(_source[1] - _source, 0)
+	_upavg					= ta.rma		(_upmove, _length)
+	_downavg				= ta.rma		(_downmove, _length)
+	_crsi					= _downavg == 0 ? 100 : _upavg == 0 ? 0 : 100 - (100 / (1 + _upavg / _downavg))
+	_crsi
+
 /// ───────────────────────
 /// ─── Instances
 /// ───────────────────────
