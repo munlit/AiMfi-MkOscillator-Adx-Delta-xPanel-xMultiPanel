@@ -47,11 +47,11 @@ FunGlobalTimeFrame(_timeframe) =>
 		"3 Horas"						=> "180"
 		"4 Horas"						=> "240"
 		"8 horas"						=> "480"
-		"1 Dia"							=> "D"
+		"Dia"							=> "D"
 		"1 Dia"							=> "1D"
-		"1 Semana"						=> "W"
+		"Semana"						=> "W"
 		"1 Semana"						=> "1W"
-		"1 Mes"							=> "M"
+		"Mes"							=> "M"
 		"1 Mes"							=> "1M"
 
 /// ─── function location vertical
@@ -103,6 +103,30 @@ FunGlobalDayofWeek(_days) =>
 		6								=> 'Viernes'
 		7								=> 'Sabado'
 
+/// ─── function Months of Year
+FunGlobalDayofWeek(_months) =>
+	switch _months
+		1								=> 'Enero'
+		2								=> 'Febrero'
+		3								=> 'Marzo'
+		4								=> 'Abril'
+		5								=> 'Mayo'
+		6								=> 'Junio'
+		7								=> 'Julio'
+		8								=> 'Abosto'
+		9								=> 'Septiembre'
+		10								=> 'Octubre'
+		11								=> 'Noviembre'
+		12								=> 'Diciembre'
+
+/// ─── function Quarters
+FunGlobalDayofWeek(_quarters) =>
+	switch _quarters
+		1								=> 'Q1'
+		2								=> 'Q2'
+		3								=> 'Q3'
+		4								=> 'Q4'
+
 /// ─── function Timezone
 FunGlobalTimeZone(_timezone) =>
 	switch _timezone
@@ -130,17 +154,29 @@ FunGlobalCalculateMA(_source, _length, _type) =>
 /// ─── Function calculate timeframe range
 FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 	_x									= 3
-	_mayor								= 500
+	_mayor								= 480
 	_minor								= 15
 	_tonumber							= str.tonumber(_timeframe)
 	_operat_coeff						= _tonumber * _coefficient
 	_operat_minor						= _tonumber * _x
-	// _if_mayor							= _tonumber > _mayor ? _tonumber : _if_minor
-	// _if_minor							= _tonumber <= _minor ? _operat_minor : _operat_coeff
-	_conditional						= _tonumber > _mayor ? _tonumber <= _minor ? _operat_minor : _operat_coeff : _tonumber
-	// _tostring							= str.tostring(_conditional)
+	_toresult							= str.tonumber(_timeframe)
+	// _toresult							= str.tostring(_timeframe)
+
+	_conditional						= _tonumber >= _mayor ? _toresult : _tonumber <= _minor ? _operat_minor : _operat_coeff
 	str.tostring(_conditional)
-	// str.tostring(_conditional)
+
+/// ─── Function create new table
+FunGlobalNewTable(_box, _col, _row, _width, _bgcolor, _txt, _txtcolor, _txthalign, _txtsize) =>
+	table.cell(table_id		= _box,
+		  column			= _col,
+		  row				= _row,
+		  width				= _width,
+		  bgcolor			= _bgcolor,
+		  text				= _txt,
+		  text_color		= _txtcolor,
+		  text_halign		= _txthalign,
+		  text_size			= _txtsize
+		  )
 
 /// ───────────────────────
 /// ─── Instances
