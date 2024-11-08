@@ -186,6 +186,18 @@ FunGlobalSignal(_buy, _sell) =>
 FunGlobalIfColor(_buy, _sell) =>
 	_buy ? _colorbuy : _sell ? _colorsell : _colorneutral
 
+/// ─── Function signal buy/sell
+FunGlobalSignalBuySell(_buy, _sell, _buy2, _sell2, _buy3, _sell3, _buy4, _sell4) =>
+	_if_buy								= _sell			> _sell3			and _sell2			> _sell4
+	_if_sell							= _buy			< _buy3				and _buy2			< _buy4
+	_if_color							= _if_sell	?	"🔴⬊"	:	_if_buy	?	"🟢⬈"	:	"⚪➞"
+
+	_cond_buy							= _buy >= 80
+	_cond_sell							= _sell <= 20
+
+	_signal_color						= _cond_buy ? colorTsiObsPnl_Buy : _cond_sell ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
+	_signal_opacity						= _buy >= 100 or _sell <= 0 ? 20 : _buy >= 80 or _sell <= 20 ? 40 : 65
+
 /// ─── function RSI calculate
 FunGlobalCalculateRSI(_source, _length) =>
 	_upmove					= math.max		(_source - _source[1], 0)

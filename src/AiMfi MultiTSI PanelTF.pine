@@ -194,14 +194,6 @@ FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 	_conditional						= _tonumber >= _mayor ? _toresult : _tonumber <= _minor ? _operat_minor : _operat_coeff
 	str.tostring(_conditional)
 
-/// ─── function Signal buy/sell
-FunGlobalSignal(_buy, _sell) =>
-	_buy ? "🟢⬈" : _sell ? "🔴⬊" : "⚪➞"
-
-/// ─── function Color buy/sell
-FunGlobalIfColor(_buy, _sell) =>
-	_buy ? _colorbuy : _sell ? _colorsell : _colorneutral
-
 /// ───────────────────────
 /// ─── Instances
 /// ───────────────────────
@@ -602,7 +594,7 @@ showTsiObsPnlSignalMtf					= input.bool	(true,				title = "Mtf  ",				group = 
 showTsiObsPnlSignalRsi					= input.bool	(true,				title = "Rsi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 showTsiObsPnlSignalMfi					= input.bool	(true,				title = "Mfi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 
-tsiObsPnl_PosiVert						= input.string	(defval = "arriba",	title = " Y: ",					group = tsiObsPnlGroupTimeframes,		inline = "ubic",
+tsiObsPnl_PosiVert						= input.string	(defval = "abajo",	title = " Y: ",					group = tsiObsPnlGroupTimeframes,		inline = "ubic",
 		  options						=				["arriba", "medio","abajo"])
 tsiObsPnl_PosiHoriz						= input.string	(defval = "centro",	title = " X: ",					group = tsiObsPnlGroupTimeframes,		inline = "ubic",
 		  options						=				["izquierda", "centro","derecha"])
@@ -643,10 +635,10 @@ vTsiObsPnlTF3h							= request.security(syminfo.tickerid,		"180",		tsiObsPnlTSI)
 vTsiObsPnlTF4h							= request.security(syminfo.tickerid,		"240",		tsiObsPnlTSI)
 
 /// ─── TSI timeframes signal
-[vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_1,	vTsiObsPnlTFSignalTsi_2]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_1,	vTsiObsPnlTFSignalMtf_2]	= request.security(syminfo.tickerid,	tsiObsPnlMTFRange,		[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_1,	vTsiObsPnlTFSignalRsi_2]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlRSI,	tsiObsPnlRSI[1],	tsiObsPnlRSI[2]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_1,	vTsiObsPnlTFSignalMfi_2]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiDbsPnlMFI,	tsiDbsPnlMFI[1],	tsiDbsPnlMFI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4]	= request.security(syminfo.tickerid,	tsiObsPnlMTFRange,		[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlRSI,	tsiObsPnlRSI[1],	tsiObsPnlRSI[2],	tsiObsPnlRSI[3]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiDbsPnlMFI,	tsiDbsPnlMFI[1],	tsiDbsPnlMFI[2],	tsiDbsPnlMFI[3]],	lookahead = barmerge.lookahead_on)
 
 /// ─── New table
 var vTsiPnlNewTable						= table.new(
@@ -659,7 +651,7 @@ var vTsiPnlNewTable						= table.new(
 
 /// ─── New table signal
 var vTsiPnlNewTableSignal				= table.new(
-		  position						= "middle_right",
+		  position						= "middle" + "_" + FunGlobalHorizontal(tsiObsPnl_LocatSignalHoriz),
 		  columns						= 1,
 		  rows							= 5,
 		  border_width					= 2,
@@ -689,30 +681,29 @@ FunTsiObsPnlCalculateCellNow(_col, _row) =>
 		  width							= 3)
 
 /// ─── Function table signal
-FunTsiObsPnlCalculateCellSignal(_col, _row, _timeframe, _value) =>
+FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _value, _var, _var2, _var3, _var4) =>
+	/// ─── signal buy/sell
+	_if_buy								= _var		> _var3		and _var2		> _var4		and	_var4 < 20
+	_if_sell							= _var		< _var3		and _var2		< _var4		and _var4 > 80
+	_if_condition						= _if_sell	?	"🔴⬊"	:	_if_buy	?	"🟢⬈"	:	"⚪➞"
+
+	_cond_buy							= _var >= 80
+	_cond_sell							= _var <= 20
+
+	_signal_color						= _cond_buy ? colorTsiObsPnl_Buy : _cond_sell ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
+	_signal_opacity						= _var >= 100 or _var <= 0 ? 20 : _var >= 80 or _var <= 20 ? 40 : 65
+
+	/// ─── table
 	_cell_color							= _value >= 100 ? colorTsiObsPnl_Sell : _value <= 0 ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
 	_opacity							= _value >= 100 or _value <= 0 ? 20 : _value >= 85 or _value <= 15 ? 40 : 65
-	_cell_text							= _timeframe + "\n" + str.tostring(_value, "#.00")
+	_cell_text							= _title + "\n" + str.tostring(_value, "#.00") + "\n" +_if_condition
+	// _cell_text							= _timeframe + "\n" + str.tostring(_value, "#.00")
 
 	table.cell							(vTsiPnlNewTableSignal, _col, _row, _cell_text,
-		  bgcolor						= color.new(_cell_color, _opacity),
+		  bgcolor						= color.new(_signal_color, _signal_opacity),
 		  text_size						= stTsiObsPnl_TextSize,
 		  text_color					= colorTsiObsPnl_Text,
 		  width							= 6)
-
-// /// ─── Function signal buy/sell
-// FunTsiObsPnlCalculateSignalBuySell(_col, _row, _timeframe, _value) =>
-// 	_cell_color							= _value >= 100 ? colorTsiObsPnl_Sell : _value <= 0 ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
-
-// 	_opacity							= _value >= 100 or _value <= 0 ? 20 : _value >= 85 or _value <= 15 ? 40 : 65
-
-// 	_cell_text							= _timeframe + "\n" + str.tostring(_value, "#.00")
-
-// 	ifRsiOvOvLongTF						= rsiOvORSI[1]	< rsiOvORSI[3]		and rsiOvORSI[2]	< rsiOvORSI[4]		and rsiOvORSI	< 30 
-// 	ifRsiOvOvShortTF					= rsiOvORSI[1]	> rsiOvORSI[3]		and rsiOvORSI[2]	> rsiOvORSI[4]		and rsiOvORSI	> 70
-
-// FunGlobalSignal(_buy, _sell) =>
-// FunGlobalIfColor(_buy, _sell) =>
 
 /// ───────────────────────
 /// ─── Visual
@@ -739,12 +730,12 @@ if showTsiObsPnlTimeframesPanel
 /// ─── Table Signal
 if showTsiObsPnlSignalPanel
 	if showTsiObsPnlSignalTsi
-		FunTsiObsPnlCalculateCellSignal		(0,	0,		"Tsi",		vTsiObsPnlTFSignalTsi)
+		FunTsiObsPnlCalculateCellSignal		(0,	0,	"Tsi",	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4)
 	if showTsiObsPnlSignalMtf
-		FunTsiObsPnlCalculateCellSignal		(0,	1,		"Mtf",		vTsiObsPnlTFSignalMtf)
+		FunTsiObsPnlCalculateCellSignal		(0,	1,	"Mtf",	vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4)
 	if showTsiObsPnlSignalRsi
-		FunTsiObsPnlCalculateCellSignal		(0,	2,		"Rsi",		vTsiObsPnlTFSignalRsi)
+		FunTsiObsPnlCalculateCellSignal		(0,	2,	"Rsi",	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4)
 	if showTsiObsPnlSignalMfi
-		FunTsiObsPnlCalculateCellSignal		(0,	3,		"Mfi",		vTsiObsPnlTFSignalMfi)
+		FunTsiObsPnlCalculateCellSignal		(0,	3,	"Mfi",	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4)
 
 //// ─────────────────────────────────────────────────────────────────────
