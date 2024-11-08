@@ -194,6 +194,14 @@ FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 	_conditional						= _tonumber >= _mayor ? _toresult : _tonumber <= _minor ? _operat_minor : _operat_coeff
 	str.tostring(_conditional)
 
+/// ─── function Signal buy/sell
+FunGlobalSignal(_buy, _sell) =>
+	_buy ? "🟢⬈" : _sell ? "🔴⬊" : "⚪➞"
+
+/// ─── function Color buy/sell
+FunGlobalIfColor(_buy, _sell) =>
+	_buy ? _colorbuy : _sell ? _colorsell : _colorneutral
+
 /// ───────────────────────
 /// ─── Instances
 /// ───────────────────────
@@ -578,26 +586,34 @@ colorTsiObsPnl_TiPnTx					= PlatziBlue70
 colorTsiObsPnl_TiPnBg					= BrLiYel30
 
 /// ─── Inputs
-tsiObsPnlLocatGroup						=				"Timeframe Panel"
-showTsiObsPnlTimeframes					= input.bool	(true,				title = "Panel Rsi",			group = tsiObsPnlLocatGroup)
-showTsiObsPnlTF15m						= input.bool	(true,				title = "15m  ",				group = tsiObsPnlLocatGroup,		inline = "timefr")
-showTsiObsPnlTF30m						= input.bool	(true,				title = "30m  ",				group = tsiObsPnlLocatGroup,		inline = "timefr")
-showTsiObsPnlTF1h						= input.bool	(true,				title = "1 H  ",				group = tsiObsPnlLocatGroup,		inline = "timefr")
-showTsiObsPnlTF2h						= input.bool	(true,				title = "2 H   ",				group = tsiObsPnlLocatGroup,		inline = "timefr2")
-showTsiObsPnlTF3h						= input.bool	(true,				title = "3 H   ",				group = tsiObsPnlLocatGroup,		inline = "timefr2")
-showTsiObsPnlTF4h						= input.bool	(true,				title = "4 H  ",				group = tsiObsPnlLocatGroup,		inline = "timefr2")
+tsiObsPnlGroupTimeframes				=				"Timeframe Panel"
+showTsiObsPnlTimeframesPanel			= input.bool	(true,				title = "Panel TSI",			group = tsiObsPnlGroupTimeframes)
+showTsiObsPnlTF15m						= input.bool	(true,				title = "15m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
+showTsiObsPnlTF30m						= input.bool	(true,				title = "30m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
+showTsiObsPnlTF1h						= input.bool	(true,				title = "1 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
+showTsiObsPnlTF2h						= input.bool	(true,				title = "2 H   ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
+showTsiObsPnlTF3h						= input.bool	(true,				title = "3 H   ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
+showTsiObsPnlTF4h						= input.bool	(true,				title = "4 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
 
-tsiObsPnl_Length						= input.int		(defval = 14,		title = "TSI Longitud",			group = tsiObsPnlLocatGroup)
-tsiObsPnl_BuyThreshold					= input.int		(defval = 0,		title = "Sobrecompra",			group = tsiObsPnlLocatGroup)
-tsiObsPnl_SellThreshold					= input.int		(defval = 100,		title = "Sobreventa",			group = tsiObsPnlLocatGroup)
+tsiObsPnlGroupSignal					=				"Signal Panel"
+showTsiObsPnlSignalPanel				= input.bool	(true,				title = "Panel TSI Signal",		group = tsiObsPnlGroupSignal)
+showTsiObsPnlSignalTsi					= input.bool	(true,				title = "Tsi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
+showTsiObsPnlSignalMtf					= input.bool	(true,				title = "Mtf  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
+showTsiObsPnlSignalRsi					= input.bool	(true,				title = "Rsi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
+showTsiObsPnlSignalMfi					= input.bool	(true,				title = "Mfi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 
-tsiObsPnl_PosiVert						= input.string	(defval = "arriba",	title = " Y: ",					group = tsiObsPnlLocatGroup,		inline = "vector",
+tsiObsPnl_PosiVert						= input.string	(defval = "arriba",	title = " Y: ",					group = tsiObsPnlGroupTimeframes,		inline = "ubic",
 		  options						=				["arriba", "medio","abajo"])
-tsiObsPnl_PosiHoriz						= input.string	(defval = "centro",	title = " X: ",					group = tsiObsPnlLocatGroup,		inline = "vector",
+tsiObsPnl_PosiHoriz						= input.string	(defval = "centro",	title = " X: ",					group = tsiObsPnlGroupTimeframes,		inline = "ubic",
 		  options						=				["izquierda", "centro","derecha"])
 
-stTsiObsPnl_TextSize					= input.string	(defval = "normal",	title = "Texto del Box",
+tsiObsPnl_LocatSignalHoriz				= input.string	(defval = "derecha",title = "Ubicación",			group = tsiObsPnlGroupSignal,
+		  options						=				["izquierda", "derecha"])
+
+stTsiObsPnl_TextSize					= input.string	(defval = "normal",	title = "Tamaño de texto",
 		  options						= ["auto","tiny","small","normal","large","huge"])
+
+vTsiObsPnl_RsiLength					= 14
 
 /// ───────────────────────
 /// ─── Types
@@ -606,10 +622,31 @@ stTsiObsPnl_TextSize					= input.string	(defval = "normal",	title = "Texto del B
 /// ───────────────────────
 /// ─── Functions
 /// ───────────────────────
+/// ─── RSI
+tsiObsPnlRSI							= ta.rsi(globalOHL.C, vTsiObsPnl_RsiLength)
 
 /// ─── TSI invoke
 tsiObsPnlTSI							= iTsiMuDiCalculateMultiTfTSI
+tsiObsPnlMTFRange						= FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, timeframe.period)
 tsiDbsPnlEma							= iTsiMuDiCalculateMultiTfEMA
+tsiDbsPnlMFI							= adapMonVarOSC
+
+/// instance function global timeframe
+iTsiObsPnlCalcSignal					= timeframe.period
+
+/// ─── TSI timeframes
+vTsiObsPnlTF15m							= request.security(syminfo.tickerid,		"15",		tsiObsPnlTSI)
+vTsiObsPnlTF30m							= request.security(syminfo.tickerid,		"30",		tsiObsPnlTSI)
+vTsiObsPnlTF1h							= request.security(syminfo.tickerid,		"60",		tsiObsPnlTSI)
+vTsiObsPnlTF2h							= request.security(syminfo.tickerid,		"120",		tsiObsPnlTSI)
+vTsiObsPnlTF3h							= request.security(syminfo.tickerid,		"180",		tsiObsPnlTSI)
+vTsiObsPnlTF4h							= request.security(syminfo.tickerid,		"240",		tsiObsPnlTSI)
+
+/// ─── TSI timeframes signal
+[vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_1,	vTsiObsPnlTFSignalTsi_2]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_1,	vTsiObsPnlTFSignalMtf_2]	= request.security(syminfo.tickerid,	tsiObsPnlMTFRange,		[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_1,	vTsiObsPnlTFSignalRsi_2]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlRSI,	tsiObsPnlRSI[1],	tsiObsPnlRSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_1,	vTsiObsPnlTFSignalMfi_2]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiDbsPnlMFI,	tsiDbsPnlMFI[1],	tsiDbsPnlMFI[2]],	lookahead = barmerge.lookahead_on)
 
 /// ─── New table
 var vTsiPnlNewTable						= table.new(
@@ -620,9 +657,17 @@ var vTsiPnlNewTable						= table.new(
 	  frame_color						= color.new(colorTsiObsPnl_Black, 15),
 	  force_overlay						= true)
 
+/// ─── New table signal
+var vTsiPnlNewTableSignal				= table.new(
+		  position						= "middle_right",
+		  columns						= 1,
+		  rows							= 5,
+		  border_width					= 2,
+		  frame_color					= color.new(colorTsiObsPnl_Black, 15))
+
 /// ─── Function table cells
 FunTsiObsPnlCalculateCell(_col, _row, _timeframe, _value) =>
-	_cell_color							= _value >= tsiObsPnl_SellThreshold ? colorTsiObsPnl_Sell : _value <= tsiObsPnl_BuyThreshold ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
+	_cell_color							= _value >= 100 ? colorTsiObsPnl_Sell : _value <= 0 ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
 	_opacity							= _value >= 100 or _value <= 0 ? 20 : _value >= 85 or _value <= 15 ? 40 : 65
 	_cell_text							= _timeframe + "\n" + str.tostring(_value, "#.00")
 	_txtsize							= stTsiObsPnl_TextSize
@@ -643,16 +688,38 @@ FunTsiObsPnlCalculateCellNow(_col, _row) =>
 		  text_color					= color.new(colorTsiObsPnl_TiPnTx, 10),
 		  width							= 3)
 
-/// ─── TSI timeframes
-[vTsiObsPnlTF15m,	vTsiObsPnlTF15m_1,	vTsiObsPnlTF15m_2]	= request.security(syminfo.tickerid,	"15",	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTF30m,	vTsiObsPnlTF30m_1,	vTsiObsPnlTF30m_2]	= request.security(syminfo.tickerid,	"30",	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTF1h,	vTsiObsPnlTF1h_1,	vTsiObsPnlTF1h_2]	= request.security(syminfo.tickerid,	"60",	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTF2h,	vTsiObsPnlTF2h_1,	vTsiObsPnlTF2h_2]	= request.security(syminfo.tickerid,	"120",	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTF3h,	vTsiObsPnlTF3h_1,	vTsiObsPnlTF3h_2]	= request.security(syminfo.tickerid,	"180",	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTF4h,	vTsiObsPnlTF4h_1,	vTsiObsPnlTF4h_2]	= request.security(syminfo.tickerid,	"240",	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+/// ─── Function table signal
+FunTsiObsPnlCalculateCellSignal(_col, _row, _timeframe, _value) =>
+	_cell_color							= _value >= 100 ? colorTsiObsPnl_Sell : _value <= 0 ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
+	_opacity							= _value >= 100 or _value <= 0 ? 20 : _value >= 85 or _value <= 15 ? 40 : 65
+	_cell_text							= _timeframe + "\n" + str.tostring(_value, "#.00")
 
-/// ─── Table
-if showTsiObsPnlTimeframes
+	table.cell							(vTsiPnlNewTableSignal, _col, _row, _cell_text,
+		  bgcolor						= color.new(_cell_color, _opacity),
+		  text_size						= stTsiObsPnl_TextSize,
+		  text_color					= colorTsiObsPnl_Text,
+		  width							= 6)
+
+// /// ─── Function signal buy/sell
+// FunTsiObsPnlCalculateSignalBuySell(_col, _row, _timeframe, _value) =>
+// 	_cell_color							= _value >= 100 ? colorTsiObsPnl_Sell : _value <= 0 ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
+
+// 	_opacity							= _value >= 100 or _value <= 0 ? 20 : _value >= 85 or _value <= 15 ? 40 : 65
+
+// 	_cell_text							= _timeframe + "\n" + str.tostring(_value, "#.00")
+
+// 	ifRsiOvOvLongTF						= rsiOvORSI[1]	< rsiOvORSI[3]		and rsiOvORSI[2]	< rsiOvORSI[4]		and rsiOvORSI	< 30 
+// 	ifRsiOvOvShortTF					= rsiOvORSI[1]	> rsiOvORSI[3]		and rsiOvORSI[2]	> rsiOvORSI[4]		and rsiOvORSI	> 70
+
+// FunGlobalSignal(_buy, _sell) =>
+// FunGlobalIfColor(_buy, _sell) =>
+
+/// ───────────────────────
+/// ─── Visual
+/// ───────────────────────
+
+/// ─── Table TSI
+if showTsiObsPnlTimeframesPanel
 	FunTsiObsPnlCalculateCellNow		(0,	0)
 	FunTsiObsPnlCalculateCell			(1,	0,		"Actual",	tsiObsPnlTSI)
 
@@ -668,5 +735,16 @@ if showTsiObsPnlTimeframes
 		FunTsiObsPnlCalculateCell		(6,	0,		"3 H",		vTsiObsPnlTF3h)
 	if showTsiObsPnlTF4h
 		FunTsiObsPnlCalculateCell		(7,	0,		"4 H",		vTsiObsPnlTF4h)
+
+/// ─── Table Signal
+if showTsiObsPnlSignalPanel
+	if showTsiObsPnlSignalTsi
+		FunTsiObsPnlCalculateCellSignal		(0,	0,		"Tsi",		vTsiObsPnlTFSignalTsi)
+	if showTsiObsPnlSignalMtf
+		FunTsiObsPnlCalculateCellSignal		(0,	1,		"Mtf",		vTsiObsPnlTFSignalMtf)
+	if showTsiObsPnlSignalRsi
+		FunTsiObsPnlCalculateCellSignal		(0,	2,		"Rsi",		vTsiObsPnlTFSignalRsi)
+	if showTsiObsPnlSignalMfi
+		FunTsiObsPnlCalculateCellSignal		(0,	3,		"Mfi",		vTsiObsPnlTFSignalMfi)
 
 //// ─────────────────────────────────────────────────────────────────────
