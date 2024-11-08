@@ -636,6 +636,7 @@ vTsiObsPnlTF4h							= request.security(syminfo.tickerid,		"240",		tsiObsPnlTSI)
 
 /// ─── TSI timeframes signal
 [vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalEma,	vTsiObsPnlTFSignalEma_2,	vTsiObsPnlTFSignalEma_3,	vTsiObsPnlTFSignalEma_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiDbsPnlEma,	tsiDbsPnlEma[1],	tsiDbsPnlEma[2],	tsiDbsPnlEma[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4]	= request.security(syminfo.tickerid,	tsiObsPnlMTFRange,		[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlRSI,	tsiObsPnlRSI[1],	tsiObsPnlRSI[2],	tsiObsPnlRSI[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiDbsPnlMFI,	tsiDbsPnlMFI[1],	tsiDbsPnlMFI[2],	tsiDbsPnlMFI[3]],	lookahead = barmerge.lookahead_on)
@@ -681,26 +682,24 @@ FunTsiObsPnlCalculateCellNow(_col, _row) =>
 		  width							= 3)
 
 /// ─── Function table signal
-FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _value, _var, _var2, _var3, _var4) =>
+FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _min, _max) =>
 	/// ─── signal buy/sell
-	_if_buy								= _var		> _var3		and _var2		> _var4		and	_var4 < 20
-	_if_sell							= _var		< _var3		and _var2		< _var4		and _var4 > 80
-	_if_condition						= _if_sell	?	"🔴⬊"	:	_if_buy	?	"🟢⬈"	:	"⚪➞"
+	_if_buy								= _var		> _var3		and _var2		> _var4		and	_var > vTsiObsPnlTFSignalEma	and	_var < _min
+	_if_sell							= _var		< _var3		and _var2		< _var4		and _var < vTsiObsPnlTFSignalEma	and	_var > _max
+	_if_condition						= _if_sell	?	" 🔴 ⬊ "	:	_if_buy	?	" 🟢 ⬈ "	:	" ⚪ "
 
-	_cond_buy							= _var >= 80
-	_cond_sell							= _var <= 20
+	// _cond_buy							= _var >= 80
+	// _cond_sell							= _var <= 20
 
-	_signal_color						= _cond_buy ? colorTsiObsPnl_Buy : _cond_sell ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
-	_signal_opacity						= _var >= 100 or _var <= 0 ? 20 : _var >= 80 or _var <= 20 ? 40 : 65
+	/// ─── signal 
+	// _signal_color						= _cond_buy ? colorTsiObsPnl_Buy : _cond_sell ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
+	_cell_color							= _var >= _max ? colorTsiObsPnl_Sell : _var <= _min ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
+	_signal_opacity						= _var >= 100 or _var <= 0 ? 30 : _var >= 80 or _var <= 20 ? 40 : 65
+	_cell_text							= _title + "\n" + str.tostring(_var, "#.00") + "\n" +_if_condition
 
 	/// ─── table
-	_cell_color							= _value >= 100 ? colorTsiObsPnl_Sell : _value <= 0 ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
-	_opacity							= _value >= 100 or _value <= 0 ? 20 : _value >= 85 or _value <= 15 ? 40 : 65
-	_cell_text							= _title + "\n" + str.tostring(_value, "#.00") + "\n" +_if_condition
-	// _cell_text							= _timeframe + "\n" + str.tostring(_value, "#.00")
-
 	table.cell							(vTsiPnlNewTableSignal, _col, _row, _cell_text,
-		  bgcolor						= color.new(_signal_color, _signal_opacity),
+		  bgcolor						= color.new(_cell_color, _signal_opacity),
 		  text_size						= stTsiObsPnl_TextSize,
 		  text_color					= colorTsiObsPnl_Text,
 		  width							= 6)
@@ -730,12 +729,12 @@ if showTsiObsPnlTimeframesPanel
 /// ─── Table Signal
 if showTsiObsPnlSignalPanel
 	if showTsiObsPnlSignalTsi
-		FunTsiObsPnlCalculateCellSignal		(0,	0,	"Tsi",	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4)
+		FunTsiObsPnlCalculateCellSignal		(0,	0,	"Tsi",	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4,	20,		80)
 	if showTsiObsPnlSignalMtf
-		FunTsiObsPnlCalculateCellSignal		(0,	1,	"Mtf",	vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4)
+		FunTsiObsPnlCalculateCellSignal		(0,	1,	"Mtf",	vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4,	20,		80)
 	if showTsiObsPnlSignalRsi
-		FunTsiObsPnlCalculateCellSignal		(0,	2,	"Rsi",	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4)
+		FunTsiObsPnlCalculateCellSignal		(0,	2,	"Rsi",	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4,	30,		70)
 	if showTsiObsPnlSignalMfi
-		FunTsiObsPnlCalculateCellSignal		(0,	3,	"Mfi",	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4)
+		FunTsiObsPnlCalculateCellSignal		(0,	3,	"Mfi",	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4,	30,		70)
 
 //// ─────────────────────────────────────────────────────────────────────

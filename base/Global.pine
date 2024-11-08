@@ -207,6 +207,32 @@ FunGlobalCalculateRSI(_source, _length) =>
 	_crsi					= _downavg == 0 ? 100 : _upavg == 0 ? 0 : 100 - (100 / (1 + _upavg / _downavg))
 	_crsi
 
+/// ─── Function table signal
+FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _ma) =>
+	/// ─── signal buy/sell
+	_if_buy								= _var		> _var3		and _var2		> _var4		and	_var4 < 20
+	_if_sell							= _var		< _var3		and _var2		< _var4		and _var4 > 80
+	_if_condition						= _if_sell	?	"🔴⬊"	:	_if_buy	?	"🟢⬈"	:	"⚪➞"
+
+	// _cond_buy							= _var >= 80
+	// _cond_sell							= _var <= 20
+
+	// _signal_color						= _cond_buy ? colorTsiObsPnl_Buy : _cond_sell ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
+	_signal_opacity						= _var >= 100 or _var <= 0 ? 20 : _var >= 80 or _var <= 20 ? 40 : 65
+
+	/// ─── table
+	_cell_color							= _var >= 80 ? colorTsiObsPnl_Sell : _var <= 20 ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
+	_opacity							= _var >= 100 or _var <= 0 ? 20 : _var >= 85 or _var <= 15 ? 40 : 65
+	_cell_text							= _title + "\n" + str.tostring(_var, "#.00") + "\n" +_if_condition
+	// _cell_text							= _timeframe + "\n" + str.tostring(_var, "#.00")
+
+	table.cell							(vTsiPnlNewTableSignal, _col, _row, _cell_text,
+		  bgcolor						= color.new(_cell_color, _signal_opacity),
+		  text_size						= stTsiObsPnl_TextSize,
+		  text_color					= colorTsiObsPnl_Text,
+		  width							= 6)
+
+
 /// ───────────────────────
 /// ─── Instances
 /// ───────────────────────
