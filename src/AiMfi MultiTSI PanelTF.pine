@@ -65,6 +65,8 @@ showTsiMuDiTSITendency					= input.bool	(defval = true,			title = "Tsi de Tenden
 showTsiMuDiTSIMultitimeframe			= input.bool	(defval = false,		title = "Tsi Multitimeframe",			group = globalTSIGroupTimeframe,		tooltip = strGlobalOptionalTooltip)
 strGlobalMultiTimeFrame					= input.string 	(defval = "Grafico",	title = "Multi Timeframe",				group = globalTSIGroupTimeframe,
 			  options					=				["Grafico", "15 min", "30 min", "1 Hora", "2 Horas", "3 Horas", "4 Horas", "1 Dia", "1 Semana", "1 Mes"])
+strGlobalMultiHistogram					= input.string 	(defval = "Mfi",		title = "Histograma",					group = globalTSIGroupTimeframe,
+			  options					=				["Mfi", "Adx"])
 insGlobalTFCoefficient					= 				2
 
 /// ───────────────────────
@@ -200,9 +202,6 @@ FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 
 globalOHL								= globalTypeOHL.new()
 
-/// Instance function timeframe
-// FunGlobalTimeFrame(strGlobalTimeFrame)
-
 //// ─────────────────────────────────────────────────────────────────────
 
 /// ╔═══════════════════════════════════╗
@@ -225,8 +224,8 @@ adapMonGrpApar							= "Apariencia"
 showadapMonGroup						= input.bool	(defval = true,				title = 'Mostrar Ai Adaptative MFI',						group = adapMonGrpSet)
 
 adapMonVarADJ							= input.bool	(defval = true,				title = "Usar MFI ajustado",								group = adapMonGrpApar,		tooltip = adapMonToolAdj)
-adapMonColorLong						= input.color	(AllenMint60,				title = "Rango:     Compra",								group = adapMonGrpApar,		inline = "mfi colors")
-adapMonColorShort						= input.color	(AllenSky10,				title = "Venta",											group = adapMonGrpApar,		inline = "mfi colors")
+adapMonColorLong						= input.color	(AllenMint60,				title = "Rango:   Compra",									group = adapMonGrpApar,		inline = "mfi colors")
+adapMonColorShort						= input.color	(AllenSky10,				title = "Venta  ",											group = adapMonGrpApar,		inline = "mfi colors")
 adapMonColorAux							= input.color	(CitiAccentUltraLightBlue,	title = "Auxiliares",										group = adapMonGrpApar)
 adapMonColorDark						= 				SurfeGray600
 
@@ -234,16 +233,10 @@ adapMonVarSRC							= input.source	(defval = hlc3,				title = "Fuente MFI",					
 adapMonVarLENGTH						= input.int		(defval = 14,				title = "Longitud MFI",							minval = 1,	group = adapMonGrpSet)
 adapMonVarDataLength					= input.int		(defval = 300,				title = "Tamaño de datos de entrenamiento",		minval = 1,	group = adapMonGrpLim)
 adapMonVarIterations					= input.int		(defval = 5,				title = "Cantidad de iteraciones por barra",	minval = 1,	group = adapMonGrpLim)
-// adapMonVarOverbought						= input.float	(defval = 80.0,				title = "Inicio de Sobre Compra",							group = adapMonGrpLim)
-// adapMonVarNeutral						= input.float	(defval = 50.0,				title = "Neutral",											group = adapMonGrpLim)
-// adapMonVarOversold						= input.float	(defval = 20.0,				title = "Inicio de Sobre Venta",							group = adapMonGrpLim)
-float adapMonVarOverbought				= 80.0
-float adapMonVarNeutral					= 50.0
-float adapMonVarOversold				= 20.0
 
-adapMonVaExAA							= adapMonVarOverbought
-adapMonVaExBB							= adapMonVarNeutral
-adapMonVaExCC							= adapMonVarOversold
+float adapMonVarOverbought				= 75.0			// 80.0
+float adapMonVarNeutral					= 50.0
+float adapMonVarOversold				= 25.0			// 20.0
 
 //// ───────────────────────
 /// ─── Adaptive MFI
@@ -255,28 +248,6 @@ adapMonVarOSC							= ta.mfi(adapMonVarSRC, adapMonVarLENGTH)
 var adapMonArrOB						= array.new_float(1, adapMonVarOverbought)
 var adapMonArrNE						= array.new_float(1, adapMonVarNeutral)
 var adapMonArrOS						= array.new_float(1, adapMonVarOversold)
-
-if nz(adapMonVarOSC) > 0
-	for j = adapMonVarIterations to 1
-
-		adapMonArrOB.clear()
-		adapMonArrNE.clear()
-		adapMonArrOS.clear()
-
-		for i = adapMonVarDataLength to 0
-
-			if math.abs(adapMonVarOSC[i] - adapMonVaExBB) < math.abs(adapMonVarOSC[i] - adapMonVaExAA) and math.abs(adapMonVarOSC[i] - adapMonVaExBB) < math.abs(adapMonVarOSC[i] - adapMonVaExCC)
-				adapMonArrNE.push(adapMonVarOSC[i])
-
-			if math.abs(adapMonVarOSC[i] - adapMonVaExAA) < math.abs(adapMonVarOSC[i] - adapMonVaExBB) and math.abs(adapMonVarOSC[i] - adapMonVaExAA) < math.abs(adapMonVarOSC[i] - adapMonVaExCC)
-				adapMonArrOB.push(adapMonVarOSC[i])
-
-			if math.abs(adapMonVarOSC[i] - adapMonVaExCC) < math.abs(adapMonVarOSC[i] - adapMonVaExAA) and math.abs(adapMonVarOSC[i] - adapMonVaExCC) < math.abs(adapMonVarOSC[i] - adapMonVaExBB)
-				adapMonArrOS.push(adapMonVarOSC[i])
-		
-		adapMonVaExAA					:= array.avg(adapMonArrOB)
-		adapMonVaExBB					:= array.avg(adapMonArrNE)
-		adapMonVaExCC					:= array.avg(adapMonArrOS)
 
 adapMonArrNE_NEW						= array.avg(adapMonArrNE)
 adapMonArrOB_NEW						= array.avg(adapMonArrOB)
@@ -296,16 +267,16 @@ adapMonIfCOLOR0							= adapMonVarOSC > adapMonArrNE_NEW		? color.new(adapMonCol
 /// ─── Display ──────
 //// ───────────────────────
 
-adapMonPlotMAIN							= plot	(showadapMonGroup ? adapMonIfVAL : na,											color = adapMonIfCOLOR100)
-adapMonPlotMID							= plot	(showadapMonGroup and adapMonVarADJ ? adapMonVarNeutral : adapMonArrNE_NEW,		color = adapMonIfCOLOR100)
+adapMonPlotMAIN							= plot	(strGlobalMultiHistogram == "Mfi" and showadapMonGroup ? adapMonIfVAL : na,						color = adapMonIfCOLOR100)
+adapMonPlotMID							= plot	(strGlobalMultiHistogram == "Mfi" and showadapMonGroup and adapMonVarADJ ? adapMonVarNeutral : adapMonArrNE_NEW, color = adapMonIfCOLOR100)
 
 /// ─── plot marcas de sobrecompra y sobreventa
-plot									(showadapMonGroup ? adapMonVarADJ ? 110 : adapMonArrOB_NEW : na,						color =  color.from_gradient(adapMonVarOSC, adapMonArrNE_NEW, adapMonVarADJ ? 100 : adapMonArrOB_NEW, color.new(adapMonColorDark, 70), color.new(adapMonColorShort, 0)), linewidth = 6)
-plot									(showadapMonGroup ? adapMonVarADJ ? -10 : adapMonArrOS_NEW : na,						color = color.from_gradient(adapMonVarOSC, adapMonVarADJ ? 0 : adapMonArrOS_NEW, adapMonArrNE_NEW, color.new(adapMonColorLong, 0), color.new(adapMonColorDark, 70)), linewidth = 6)
+plot									(showadapMonGroup ? adapMonVarADJ ? 110 : adapMonArrOB_NEW : na,										color = color.from_gradient(adapMonVarOSC, adapMonArrNE_NEW, adapMonVarADJ ? 100 : adapMonArrOB_NEW, color.new(adapMonColorDark, 70), color.new(adapMonColorShort, 0)),	linewidth = 6)
+plot									(showadapMonGroup ? adapMonVarADJ ? -10 : adapMonArrOS_NEW : na,										color = color.from_gradient(adapMonVarOSC, adapMonVarADJ ? 0 : adapMonArrOS_NEW, adapMonArrNE_NEW, color.new(adapMonColorLong, 0), color.new(adapMonColorDark, 70)),	linewidth = 6)
 
 /// ─── fill areas de tendencia
-fill									(adapMonPlotMID, adapMonPlotMAIN,														color = adapMonIfCOLOR100, title = "Area de Tendencia")
-fill									(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 : adapMonArrNE_NEW,	color.new(chart.bg_color, 1000), adapMonVarOSC > adapMonArrNE_NEW ? adapMonColorLong : adapMonColorShort)
+fill									(adapMonPlotMID, adapMonPlotMAIN,																		color = adapMonIfCOLOR100, title = "Area de Tendencia")
+fill									(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 : adapMonArrNE_NEW,					color.new(chart.bg_color, 1000), adapMonVarOSC > adapMonArrNE_NEW ? adapMonColorLong : adapMonColorShort)
 
 //// ─────────────────────────────────────────────────────────────────────
 //// ─────────────────────────────────────────────────────────────────────
@@ -327,8 +298,9 @@ colorxAdxDiHi_Extra						= BrLiYel10
 /// ─── Vars ───
 //// ───────────────────────
 
-adxDiHi_Length							= input.int(defval = 14,		title = "Longitud Adx")
-adxDiHi_Th								= input.int(defval = 25,		title = "Umbral")
+AdxDiHiGroupVars						= "Adx Setting"
+adxDiHi_Length							= input.int(defval = 14,		title = "Longitud Adx",			group = AdxDiHiGroupVars)
+adxDiHi_Th								= input.int(defval = 25,		title = "Umbral",				group = AdxDiHiGroupVars)
 
 //// ───────────────────────
 /// ─── Functions ───
@@ -363,9 +335,8 @@ xAdxDiHi_CG								= xAdxDiHi_ADX <= 22 ? color.new(colorxAdxDiHi_Short, 80) : x
 /// ─── Visual ───
 //// ───────────────────────
 
-plot(xAdxDiHi_Didi,		style = plot.style_columns,		linewidth = 4,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		transp = 50,		histbase = adxDiHi_Th ,		title = "DI")
-plot(xAdxDiHi_Didi,		style = plot.style_line,		linewidth = 2,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		transp = 50,		histbase = adxDiHi_Th ,		title = "Linea DI")
-// plot(xAdxDiHi_ADX,										linewidth = 1,		color = color.new(colorxAdxDiHi_Extra, 10),																title = "ADX")
+plot(strGlobalMultiHistogram == "Adx" ? xAdxDiHi_Didi : na,		style = plot.style_columns,		linewidth = 4,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		transp = 50,		histbase = adxDiHi_Th ,		title = "DI")
+plot(strGlobalMultiHistogram == "Adx" ? xAdxDiHi_Didi : na,		style = plot.style_line,		linewidth = 2,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		transp = 50,		histbase = adxDiHi_Th ,		title = "Linea DI")
 
 //// ─────────────────────────────────────────────────────────────────────
 //// ─────────────────────────────────────────────────────────────────────
@@ -489,8 +460,6 @@ insTsiMuDiCloudColor					= iTsiMuDiCalculateTSI			> iTsiMuDiCalculateEma			? col
  /// plot multi timeframe
 insTsiMuDiMultitimefTsiPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? arrTsiMuDiMultiTimeframeTicker : na,							color = color.new(colorTsiMuDiMultitimeframe, 40),		linewidth = 2)
 insTsiMuDiMultitimefEmaPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? ta.ema(arrTsiMuDiMultiTimeframeTicker, vTsiMuDiSignal) : na,	color = color.new(colorTsiMuDiMultitimeframe, 50),		linewidth = 1)
-/// fill multi timeframe
-// fill(insTsiMuDiMultitimefTsiPlotLine, insTsiMuDiMultitimefEmaPlotLine,																	color = color.new(AmeTrBlueFrost, 70))
 
 /// plot tendency TSI
 insTsiMuDiTendencyTsiPlotLine			= plot(showTsiMuDiTSITendency ? iTsiMuDiCalculateTendencyTSI : na,									color = color.new(colorTsiMuDiTendency, 77),			linewidth = 2)
@@ -644,17 +613,17 @@ colorTsiObsPnl_TiPnBg					= BrLiYel30
 tsiObsPnlGroupTimeframes				=				"Timeframe Panel"
 showTsiObsPnlTimeframesPanel			= input.bool	(true,				title = "Panel TSI",			group = tsiObsPnlGroupTimeframes)
 showTsiObsPnlTF15m						= input.bool	(true,				title = "15m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
-showTsiObsPnlTF30m						= input.bool	(true,				title = "30m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
+showTsiObsPnlTF30m						= input.bool	(false,				title = "30m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
 showTsiObsPnlTF1h						= input.bool	(true,				title = "1 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
 showTsiObsPnlTF2h						= input.bool	(true,				title = "2 H   ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
 showTsiObsPnlTF3h						= input.bool	(true,				title = "3 H   ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
-showTsiObsPnlTF4h						= input.bool	(true,				title = "4 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
+showTsiObsPnlTF4h						= input.bool	(false,				title = "4 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
 
 tsiObsPnlGroupSignal					=				"Signal Panel"
 showTsiObsPnlSignalPanel				= input.bool	(true,				title = "Panel TSI Signal",		group = tsiObsPnlGroupSignal)
 showTsiObsPnlSignalTsi					= input.bool	(true,				title = "Tsi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 showTsiObsPnlSignalMtf					= input.bool	(true,				title = "Mtf  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
-showTsiObsPnlSignalRsi					= input.bool	(true,				title = "Rsi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
+showTsiObsPnlSignalRsi					= input.bool	(false,				title = "Rsi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 showTsiObsPnlSignalMfi					= input.bool	(true,				title = "Mfi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 showTsiObsPnlSignalAdx					= input.bool	(true,				title = "Adx  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 
@@ -663,7 +632,9 @@ tsiObsPnl_PosiVert						= input.string	(defval = "abajo",	title = " Y: ",					gr
 tsiObsPnl_PosiHoriz						= input.string	(defval = "centro",	title = " X: ",					group = tsiObsPnlGroupTimeframes,		inline = "ubic",
 		  options						=				["izquierda", "centro","derecha"])
 
-tsiObsPnl_LocatSignalHoriz				= input.string	(defval = "derecha",title = "Ubicación",			group = tsiObsPnlGroupSignal,
+tsiObsPnl_LocatSignalVert				= input.string	(defval = "medio",	title = " Y: ",					group = tsiObsPnlGroupSignal,			inline = "ubic signal",
+		  options						=				["arriba", "medio","abajo"])
+tsiObsPnl_LocatSignalHoriz				= input.string	(defval = "derecha",title = " X: ",					group = tsiObsPnlGroupSignal,			inline = "ubic signal",
 		  options						=				["izquierda", "derecha"])
 
 stTsiObsPnl_TextSize					= input.string	(defval = "normal",	title = "Tamaño de texto",
@@ -703,9 +674,9 @@ vTsiObsPnlTF4h							= request.security(syminfo.tickerid,		"240",		tsiObsPnlTSI)
 [vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalEma,	vTsiObsPnlTFSignalEma_2,	vTsiObsPnlTFSignalEma_3,	vTsiObsPnlTFSignalEma_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlEma,	tsiObsPnlEma[1],	tsiObsPnlEma[2],	tsiObsPnlEma[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4]	= request.security(syminfo.tickerid,	tsiObsPnlMTFRange,		[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlADX,	tsiObsPnlADX[1],	tsiObsPnlADX[2],	tsiObsPnlADX[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlRSI,	tsiObsPnlRSI[1],	tsiObsPnlRSI[2],	tsiObsPnlRSI[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlMFI,	tsiObsPnlMFI[1],	tsiObsPnlMFI[2],	tsiObsPnlMFI[3]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlADX,	tsiObsPnlADX[1],	tsiObsPnlADX[2],	tsiObsPnlADX[3]],	lookahead = barmerge.lookahead_on)
 
 /// ─── New table
 var vTsiPnlNewTable						= table.new(
@@ -726,16 +697,16 @@ var vTsiPnlNewTableSignal				= table.new(
 
 /// ─── Function table cells
 FunTsiObsPnlCalculateCell(_col, _row, _timeframe, _value) =>
-	_cell_color							= _value >= 100 ? colorTsiObsPnl_Sell : _value <= 0 ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
+	_cell_color							= _value >= 100 ? colorTsiObsPnl_Buy : _value <= 0 ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
 	_opacity							= _value >= 100 or _value <= 0 ? 20 : _value >= 85 or _value <= 15 ? 40 : 65
 	_cell_text							= _timeframe + "\n" + str.tostring(_value, "#.00")
 	_txtsize							= stTsiObsPnl_TextSize
 
-	table.cell				(vTsiPnlNewTable, _col, _row, _cell_text,
-		  bgcolor			= color.new(_cell_color, _opacity),
-		  text_size			= _txtsize,
-		  text_color		= colorTsiObsPnl_Text,
-		  width				= 6)
+	table.cell							(vTsiPnlNewTable, _col, _row, _cell_text,
+		  bgcolor						= color.new(_cell_color, _opacity),
+		  text_size						= _txtsize,
+		  text_color					= colorTsiObsPnl_Text,
+		  width							= 5)
 
 /// ─── Function table name
 FunTsiObsPnlCalculateCellNow(_col, _row) =>
@@ -752,21 +723,14 @@ FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _
 	/// ─── signal buy/sell
 	_if_buy								= _var		> _var3		and _var2		> _var4		and	_var > vTsiObsPnlTFSignalEma	and	_var < _min
 	_if_sell							= _var		< _var3		and _var2		< _var4		and _var < vTsiObsPnlTFSignalEma	and	_var > _max
-	_if_condition						= _if_sell	?	" 🔴 ⬊ "	:	_if_buy	?	" 🟢 ⬈ "	:	" ⚪ "
+	_if_condition						= _if_sell	?	" 🔴 ⬊ "	:	_if_buy	?	" 🟢 ⬈ "	:	"  "
 
-	// _cond_buy							= _var >= 80
-	// _cond_sell							= _var <= 20
-
-	/// ─── signal 
-	// _signal_color						= _cond_buy ? colorTsiObsPnl_Buy : _cond_sell ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
-	
-	_fract_max							= _max - (_max / 6)
-	_fract_min							= _min + (_max / 6)
-	// _fract_min							= _min + (_min / 5)
+	_div								= 6
+	_fract_max							= math.round(_max - (_max / _div))
+	_fract_min							= math.ceil(_min + (_max / _div))
 
 	_cell_color							= _var >= _max ? colorTsiObsPnl_Sell : _var <= _min ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
 	_signal_opacity						= _var >= _max or _var <= _min ? 30 : _var >= _fract_max or _var <= _fract_min ? 40 : 65
-	// _signal_opacity						= _var >= 100 or _var <= 0 ? 30 : _var >= 80 or _var <= 20 ? 40 : 65
 	_cell_text							= _title + "\n" + str.tostring(_var, "#.00") + "\n" +_if_condition
 
 	/// ─── table
@@ -774,7 +738,8 @@ FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _
 		  bgcolor						= color.new(_cell_color, _signal_opacity),
 		  text_size						= stTsiObsPnl_TextSize,
 		  text_color					= colorTsiObsPnl_Text,
-		  width							= 6)
+		  width							= 4,
+		  height						= 23)
 
 /// ───────────────────────
 /// ─── Visual
@@ -804,11 +769,11 @@ if showTsiObsPnlSignalPanel
 		FunTsiObsPnlCalculateCellSignal		(0,	0,	"Tsi",	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4,	0,		100)
 	if showTsiObsPnlSignalMtf
 		FunTsiObsPnlCalculateCellSignal		(0,	1,	"Mtf",	vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4,	20,		80)
-	if showTsiObsPnlSignalAdx
-		FunTsiObsPnlCalculateCellSignal		(0,	2,	"Adx",	vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4,	10,		40)
 	if showTsiObsPnlSignalRsi
 		FunTsiObsPnlCalculateCellSignal		(0,	3,	"Rsi",	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4,	25,		75)
 	if showTsiObsPnlSignalMfi
 		FunTsiObsPnlCalculateCellSignal		(0, 4,	"Mfi",	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4,	-10,	110)
+	if showTsiObsPnlSignalAdx
+		FunTsiObsPnlCalculateCellSignal		(0,	2,	"Adx",	vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4,	10,		40)
 
 //// ─────────────────────────────────────────────────────────────────────
