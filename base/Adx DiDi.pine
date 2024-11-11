@@ -1,0 +1,65 @@
+/// ╔═══════════════════════════════════════╗
+/// ║	Adx Histogram						║
+/// ║	@	Allen.							║
+/// ╚═══════════════════════════════════════╝
+
+//@version=5
+indicator("ADX & DI Histogram", overlay = false, scale = scale.left)
+
+BrLiYel10								= #FBFD73
+BrLiYel30								= #FDF43C
+AllenSky10								= #CCF8FF
+AllenMint60								= #33FFAC
+
+//// ─────────────────────────────────────────────────────────────────────
+
+colorxAdxDiHi_Buy						= AllenMint60
+colorxAdxDiHi_Short						= AllenSky10
+colorxAdxDiHi_Mid						= BrLiYel30
+colorxAdxDiHi_Extra						= BrLiYel10
+
+//// ───────────────────────
+/// ─── Vars ───
+//// ───────────────────────
+
+adxDiHi_Length							= input.int(defval = 14,		title = "Longitud Adx")
+adxDiHi_Th								= input.int(defval = 25,		title = "Umbral")
+
+//// ───────────────────────
+/// ─── Functions ───
+//// ───────────────────────
+xAdxDiHi_TrueRange						= math.max(math.max(high - low, math.abs(high - nz(close[1]))), math.abs(low - nz(close[1])))
+xAdxDiHi_DirectMovePlus					= high - nz(high[1]) > nz(low[1]) - low ? math.max(high - nz(high[1]), 0) : 0
+xAdxDiHi_DirectMoveMinus				= nz(low[1]) - low > high - nz(high[1]) ? math.max(nz(low[1]) - low, 0) : 0
+
+var float xAdxDiHi_SmoothTrueRange		= na
+var float xAdxDiHi_SmoothDirectMovePlus	= na
+var float xAdxDiHi_SmoothDirectMoveMinus= na
+
+xAdxDiHi_SmoothTrueRange				:= na(xAdxDiHi_SmoothTrueRange) ? xAdxDiHi_TrueRange : xAdxDiHi_SmoothTrueRange - (xAdxDiHi_SmoothTrueRange / adxDiHi_Length) + xAdxDiHi_TrueRange
+xAdxDiHi_SmoothDirectMovePlus			:= na(xAdxDiHi_SmoothDirectMovePlus) ? xAdxDiHi_DirectMovePlus : xAdxDiHi_SmoothDirectMovePlus - (xAdxDiHi_SmoothDirectMovePlus / adxDiHi_Length) + xAdxDiHi_DirectMovePlus
+xAdxDiHi_SmoothDirectMoveMinus			:= na(xAdxDiHi_SmoothDirectMoveMinus) ? xAdxDiHi_DirectMoveMinus : xAdxDiHi_SmoothDirectMoveMinus - (xAdxDiHi_SmoothDirectMoveMinus / adxDiHi_Length) + xAdxDiHi_DirectMoveMinus
+
+//// ───────────────────────
+/// ─── Maths ───
+//// ───────────────────────
+
+xAdxDiHi_DIPlus							= xAdxDiHi_SmoothDirectMovePlus / xAdxDiHi_SmoothTrueRange * 100
+xAdxDiHi_DIMinus						= xAdxDiHi_SmoothDirectMoveMinus / xAdxDiHi_SmoothTrueRange * 100
+xAdxDiHi_DX								= math.abs(xAdxDiHi_DIPlus - xAdxDiHi_DIMinus) / (xAdxDiHi_DIPlus + xAdxDiHi_DIMinus) * 100
+xAdxDiHi_ADX							= ta.sma(xAdxDiHi_DX, adxDiHi_Length)
+
+xAdxDiHi_Didi							= 25 + (xAdxDiHi_DIPlus - xAdxDiHi_DIMinus)
+
+xAdxDiHi_CR								= xAdxDiHi_ADX <= 22 ? color.new(colorxAdxDiHi_Buy, 80) : xAdxDiHi_ADX <= 34 ? color.new(colorxAdxDiHi_Buy, 60) : xAdxDiHi_ADX <= 46 ? color.new(colorxAdxDiHi_Buy, 40) : xAdxDiHi_ADX <= 58 ? color.new(colorxAdxDiHi_Buy, 25) : xAdxDiHi_ADX <= 70 ? color.new(colorxAdxDiHi_Buy, 10) : color.new(colorxAdxDiHi_Buy, 0)
+xAdxDiHi_CG								= xAdxDiHi_ADX <= 22 ? color.new(colorxAdxDiHi_Short, 80) : xAdxDiHi_ADX <= 34 ? color.new(colorxAdxDiHi_Short, 60) : xAdxDiHi_ADX <= 46 ? color.new(colorxAdxDiHi_Short, 40) : xAdxDiHi_ADX <= 58 ? color.new(colorxAdxDiHi_Short, 25) : xAdxDiHi_ADX <= 70 ? color.new(colorxAdxDiHi_Short, 10) : color.new(colorxAdxDiHi_Short, 0)
+
+//// ───────────────────────
+/// ─── Visual ───
+//// ───────────────────────
+
+plot(xAdxDiHi_Didi,		style = plot.style_columns,		linewidth = 4,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		transp = 50,		histbase = adxDiHi_Th ,		title = "DI")
+plot(xAdxDiHi_Didi,		style = plot.style_line,		linewidth = 2,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		transp = 50,		histbase = adxDiHi_Th ,		title = "Linea DI")
+plot(xAdxDiHi_ADX,										linewidth = 1,		color = color.new(colorxAdxDiHi_Extra, 10),																title = "ADX")
+
+//// ─────────────────────────────────────────────────────────────────────

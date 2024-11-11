@@ -234,9 +234,12 @@ adapMonVarSRC							= input.source	(defval = hlc3,				title = "Fuente MFI",					
 adapMonVarLENGTH						= input.int		(defval = 14,				title = "Longitud MFI",							minval = 1,	group = adapMonGrpSet)
 adapMonVarDataLength					= input.int		(defval = 300,				title = "Tamaño de datos de entrenamiento",		minval = 1,	group = adapMonGrpLim)
 adapMonVarIterations					= input.int		(defval = 5,				title = "Cantidad de iteraciones por barra",	minval = 1,	group = adapMonGrpLim)
-adapMonVarOverbought					= input.float	(defval = 80.0,				title = "Inicio de Sobre Compra",							group = adapMonGrpLim)
-adapMonVarNeutral						= input.float	(defval = 50.0,				title = "Neutral",											group = adapMonGrpLim)
-adapMonVarOversold						= input.float	(defval = 20.0,				title = "Inicio de Sobre Venta",							group = adapMonGrpLim)
+// adapMonVarOverbought						= input.float	(defval = 80.0,				title = "Inicio de Sobre Compra",							group = adapMonGrpLim)
+// adapMonVarNeutral						= input.float	(defval = 50.0,				title = "Neutral",											group = adapMonGrpLim)
+// adapMonVarOversold						= input.float	(defval = 20.0,				title = "Inicio de Sobre Venta",							group = adapMonGrpLim)
+float adapMonVarOverbought				= 80.0
+float adapMonVarNeutral					= 50.0
+float adapMonVarOversold				= 20.0
 
 adapMonVaExAA							= adapMonVarOverbought
 adapMonVaExBB							= adapMonVarNeutral
@@ -303,6 +306,66 @@ plot									(showadapMonGroup ? adapMonVarADJ ? -10 : adapMonArrOS_NEW : na,			
 /// ─── fill areas de tendencia
 fill									(adapMonPlotMID, adapMonPlotMAIN,														color = adapMonIfCOLOR100, title = "Area de Tendencia")
 fill									(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 : adapMonArrNE_NEW,	color.new(chart.bg_color, 1000), adapMonVarOSC > adapMonArrNE_NEW ? adapMonColorLong : adapMonColorShort)
+
+//// ─────────────────────────────────────────────────────────────────────
+//// ─────────────────────────────────────────────────────────────────────
+//// ─────────────────────────────────────────────────────────────────────
+
+/// ╔═══════════════════════════════════════╗
+/// ║	Adx Histogram						║
+/// ║	@	Allen.							║
+/// ╚═══════════════════════════════════════╝
+
+//// ─────────────────────────────────────────────────────────────────────
+
+colorxAdxDiHi_Buy						= AllenMint60
+colorxAdxDiHi_Short						= AllenSky10
+colorxAdxDiHi_Mid						= BrLiYel30
+colorxAdxDiHi_Extra						= BrLiYel10
+
+//// ───────────────────────
+/// ─── Vars ───
+//// ───────────────────────
+
+adxDiHi_Length							= input.int(defval = 14,		title = "Longitud Adx")
+adxDiHi_Th								= input.int(defval = 25,		title = "Umbral")
+
+//// ───────────────────────
+/// ─── Functions ───
+//// ───────────────────────
+xAdxDiHi_TrueRange						= math.max(math.max(high - low, math.abs(high - nz(close[1]))), math.abs(low - nz(close[1])))
+xAdxDiHi_DirectMovePlus					= high - nz(high[1]) > nz(low[1]) - low ? math.max(high - nz(high[1]), 0) : 0
+xAdxDiHi_DirectMoveMinus				= nz(low[1]) - low > high - nz(high[1]) ? math.max(nz(low[1]) - low, 0) : 0
+
+var float xAdxDiHi_SmoothTrueRange		= na
+var float xAdxDiHi_SmoothDirectMovePlus	= na
+var float xAdxDiHi_SmoothDirectMoveMinus= na
+
+xAdxDiHi_SmoothTrueRange				:= na(xAdxDiHi_SmoothTrueRange) ? xAdxDiHi_TrueRange : xAdxDiHi_SmoothTrueRange - (xAdxDiHi_SmoothTrueRange / adxDiHi_Length) + xAdxDiHi_TrueRange
+xAdxDiHi_SmoothDirectMovePlus			:= na(xAdxDiHi_SmoothDirectMovePlus) ? xAdxDiHi_DirectMovePlus : xAdxDiHi_SmoothDirectMovePlus - (xAdxDiHi_SmoothDirectMovePlus / adxDiHi_Length) + xAdxDiHi_DirectMovePlus
+xAdxDiHi_SmoothDirectMoveMinus			:= na(xAdxDiHi_SmoothDirectMoveMinus) ? xAdxDiHi_DirectMoveMinus : xAdxDiHi_SmoothDirectMoveMinus - (xAdxDiHi_SmoothDirectMoveMinus / adxDiHi_Length) + xAdxDiHi_DirectMoveMinus
+
+//// ───────────────────────
+/// ─── Maths ───
+//// ───────────────────────
+
+xAdxDiHi_DIPlus							= xAdxDiHi_SmoothDirectMovePlus / xAdxDiHi_SmoothTrueRange * 100
+xAdxDiHi_DIMinus						= xAdxDiHi_SmoothDirectMoveMinus / xAdxDiHi_SmoothTrueRange * 100
+xAdxDiHi_DX								= math.abs(xAdxDiHi_DIPlus - xAdxDiHi_DIMinus) / (xAdxDiHi_DIPlus + xAdxDiHi_DIMinus) * 100
+xAdxDiHi_ADX							= ta.sma(xAdxDiHi_DX, adxDiHi_Length)
+
+xAdxDiHi_Didi							= 25 + (xAdxDiHi_DIPlus - xAdxDiHi_DIMinus)
+
+xAdxDiHi_CR								= xAdxDiHi_ADX <= 22 ? color.new(colorxAdxDiHi_Buy, 80) : xAdxDiHi_ADX <= 34 ? color.new(colorxAdxDiHi_Buy, 60) : xAdxDiHi_ADX <= 46 ? color.new(colorxAdxDiHi_Buy, 40) : xAdxDiHi_ADX <= 58 ? color.new(colorxAdxDiHi_Buy, 25) : xAdxDiHi_ADX <= 70 ? color.new(colorxAdxDiHi_Buy, 10) : color.new(colorxAdxDiHi_Buy, 0)
+xAdxDiHi_CG								= xAdxDiHi_ADX <= 22 ? color.new(colorxAdxDiHi_Short, 80) : xAdxDiHi_ADX <= 34 ? color.new(colorxAdxDiHi_Short, 60) : xAdxDiHi_ADX <= 46 ? color.new(colorxAdxDiHi_Short, 40) : xAdxDiHi_ADX <= 58 ? color.new(colorxAdxDiHi_Short, 25) : xAdxDiHi_ADX <= 70 ? color.new(colorxAdxDiHi_Short, 10) : color.new(colorxAdxDiHi_Short, 0)
+
+//// ───────────────────────
+/// ─── Visual ───
+//// ───────────────────────
+
+plot(xAdxDiHi_Didi,		style = plot.style_columns,		linewidth = 4,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		transp = 50,		histbase = adxDiHi_Th ,		title = "DI")
+plot(xAdxDiHi_Didi,		style = plot.style_line,		linewidth = 2,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		transp = 50,		histbase = adxDiHi_Th ,		title = "Linea DI")
+// plot(xAdxDiHi_ADX,										linewidth = 1,		color = color.new(colorxAdxDiHi_Extra, 10),																title = "ADX")
 
 //// ─────────────────────────────────────────────────────────────────────
 //// ─────────────────────────────────────────────────────────────────────
@@ -593,6 +656,7 @@ showTsiObsPnlSignalTsi					= input.bool	(true,				title = "Tsi  ",				group = 
 showTsiObsPnlSignalMtf					= input.bool	(true,				title = "Mtf  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 showTsiObsPnlSignalRsi					= input.bool	(true,				title = "Rsi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 showTsiObsPnlSignalMfi					= input.bool	(true,				title = "Mfi  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
+showTsiObsPnlSignalAdx					= input.bool	(true,				title = "Adx  ",				group = tsiObsPnlGroupSignal,			inline = "signal")
 
 tsiObsPnl_PosiVert						= input.string	(defval = "abajo",	title = " Y: ",					group = tsiObsPnlGroupTimeframes,		inline = "ubic",
 		  options						=				["arriba", "medio","abajo"])
@@ -620,8 +684,9 @@ tsiObsPnlRSI							= ta.rsi(globalOHL.C, vTsiObsPnl_RsiLength)
 /// ─── TSI invoke
 tsiObsPnlTSI							= iTsiMuDiCalculateMultiTfTSI
 tsiObsPnlMTFRange						= FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, timeframe.period)
-tsiDbsPnlEma							= iTsiMuDiCalculateMultiTfEMA
-tsiDbsPnlMFI							= adapMonVarOSC
+tsiObsPnlEma							= iTsiMuDiCalculateMultiTfEMA
+tsiObsPnlMFI							= adapMonIfVAL
+tsiObsPnlADX							= xAdxDiHi_Didi
 
 /// instance function global timeframe
 iTsiObsPnlCalcSignal					= timeframe.period
@@ -636,10 +701,11 @@ vTsiObsPnlTF4h							= request.security(syminfo.tickerid,		"240",		tsiObsPnlTSI)
 
 /// ─── TSI timeframes signal
 [vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTFSignalEma,	vTsiObsPnlTFSignalEma_2,	vTsiObsPnlTFSignalEma_3,	vTsiObsPnlTFSignalEma_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiDbsPnlEma,	tsiDbsPnlEma[1],	tsiDbsPnlEma[2],	tsiDbsPnlEma[3]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalEma,	vTsiObsPnlTFSignalEma_2,	vTsiObsPnlTFSignalEma_3,	vTsiObsPnlTFSignalEma_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlEma,	tsiObsPnlEma[1],	tsiObsPnlEma[2],	tsiObsPnlEma[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4]	= request.security(syminfo.tickerid,	tsiObsPnlMTFRange,		[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlADX,	tsiObsPnlADX[1],	tsiObsPnlADX[2],	tsiObsPnlADX[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlRSI,	tsiObsPnlRSI[1],	tsiObsPnlRSI[2],	tsiObsPnlRSI[3]],	lookahead = barmerge.lookahead_on)
-[vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiDbsPnlMFI,	tsiDbsPnlMFI[1],	tsiDbsPnlMFI[2],	tsiDbsPnlMFI[3]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlMFI,	tsiObsPnlMFI[1],	tsiObsPnlMFI[2],	tsiObsPnlMFI[3]],	lookahead = barmerge.lookahead_on)
 
 /// ─── New table
 var vTsiPnlNewTable						= table.new(
@@ -693,8 +759,14 @@ FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _
 
 	/// ─── signal 
 	// _signal_color						= _cond_buy ? colorTsiObsPnl_Buy : _cond_sell ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
+	
+	_fract_max							= _max - (_max / 6)
+	_fract_min							= _min + (_max / 6)
+	// _fract_min							= _min + (_min / 5)
+
 	_cell_color							= _var >= _max ? colorTsiObsPnl_Sell : _var <= _min ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
-	_signal_opacity						= _var >= 100 or _var <= 0 ? 30 : _var >= 80 or _var <= 20 ? 40 : 65
+	_signal_opacity						= _var >= _max or _var <= _min ? 30 : _var >= _fract_max or _var <= _fract_min ? 40 : 65
+	// _signal_opacity						= _var >= 100 or _var <= 0 ? 30 : _var >= 80 or _var <= 20 ? 40 : 65
 	_cell_text							= _title + "\n" + str.tostring(_var, "#.00") + "\n" +_if_condition
 
 	/// ─── table
@@ -729,12 +801,14 @@ if showTsiObsPnlTimeframesPanel
 /// ─── Table Signal
 if showTsiObsPnlSignalPanel
 	if showTsiObsPnlSignalTsi
-		FunTsiObsPnlCalculateCellSignal		(0,	0,	"Tsi",	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4,	20,		80)
+		FunTsiObsPnlCalculateCellSignal		(0,	0,	"Tsi",	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4,	0,		100)
 	if showTsiObsPnlSignalMtf
 		FunTsiObsPnlCalculateCellSignal		(0,	1,	"Mtf",	vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4,	20,		80)
+	if showTsiObsPnlSignalAdx
+		FunTsiObsPnlCalculateCellSignal		(0,	2,	"Adx",	vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4,	10,		40)
 	if showTsiObsPnlSignalRsi
-		FunTsiObsPnlCalculateCellSignal		(0,	2,	"Rsi",	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4,	30,		70)
+		FunTsiObsPnlCalculateCellSignal		(0,	3,	"Rsi",	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4,	25,		75)
 	if showTsiObsPnlSignalMfi
-		FunTsiObsPnlCalculateCellSignal		(0,	3,	"Mfi",	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4,	30,		70)
+		FunTsiObsPnlCalculateCellSignal		(0, 4,	"Mfi",	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4,	-10,	110)
 
 //// ─────────────────────────────────────────────────────────────────────
