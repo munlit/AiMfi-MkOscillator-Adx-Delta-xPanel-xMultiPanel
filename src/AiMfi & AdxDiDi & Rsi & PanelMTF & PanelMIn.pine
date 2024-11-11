@@ -4,18 +4,24 @@
 /// ╔═══════════════════════════════════╗
 /// ║	AI Adaptive Money Flow Index	║
 /// ╔═══════════════════════════════════╗
+/// ║	Adx Di Di						║
+/// ╔═══════════════════════════════════╗
 /// ║	Tsi & Divergences				║
+/// ╚═══════════════════════════════════╝
+/// ╔═══════════════════════════════════╗
+/// ║	Panel Tsi MultiTimeframes		║
+/// ║	@	Allen.						║
+/// ╚═══════════════════════════════════╝
+/// ╔═══════════════════════════════════╗
+/// ║	Panel Multi Indicators			║
 /// ║	@	Allen.						║
 /// ╚═══════════════════════════════════╝
 
 //@version=5
-indicator(title							= 'AI Mfi & Multi Tsi & Panel Mtf [🎱 Allen 㔬]',
-		  shorttitle					= 'Mfi & MTsi & Panel',
-		//   overlay						= false,
-		// //   precision					= 2,
+indicator(title							= 'AI Mfi & AdxDiDi & Tsi Div & Panel Tsi Mtf & Panel MIn [🎱 Allen 㔬]',
+		  shorttitle					= 'AiMfi & AdxDi & MTsi & PTsi & PMIn',
 		  format						= format.price,
 		  precision						= 4
-		//   explicit_plot_zorder			= true
 		  )
 
 //// ─────────────────────────────────────────────────────────────────────
