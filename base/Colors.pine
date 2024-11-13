@@ -81,8 +81,6 @@
 
 /// ─── GrayScale ───
 	// GraySFocus								= #2D7AED								// GrayScaleFocus
-	// GraySWhite								= #FFF									// GrayScaleWhite
-	// GraySBlack								= #000									// GrayScaleBlack
 	// GraySPrimaryBlackberry					= #2E234B								// GrayScalePrimaryBlackberry
 	// GraySPrimaryBlackberry40					= rgba(46, 35, 75, .4))					// GrayScalePrimaryBlackberry40
 	// GraySPrimaryBlackberry65					= rgba(46, 35, 75, .65))				// GrayScalePrimaryBlackberry65
@@ -104,12 +102,12 @@
 	// GraySgrayCharcoal70						= rgba(40, 37, 37, .7))					// GrayScalegrayCharcoal70
 	// GraySgrayCharcoal80						= rgba(40, 37, 37, .8))					// GrayScalegrayCharcoal80
 	// GraySgrayLight							= #F5F5F5								// GrayScalegrayLight
-	// GraySgrayMedium							= #EEE									// GrayScalegrayMedium
+	// GraySgrayMedium							= #EEEEEE								// GrayScalegrayMedium
 	// GraySgray70								= #696666								// GrayScalegray70
 	// GraySgrayDark							= #C1C1C1								// GrayScalegrayDark
 	// GraySwebSeasalt		    				= #FAFAFC								// GrayScalewebSeasalt
-	// GraySwebDivider							= #e9e7f1								// GrayScalewebDivider
-	// GraySwebBackground						= #f3f2fa								// GrayScalewebBackground
+	// GraySwebDivider							= #E9E7F1								// GrayScalewebDivider
+	// GraySwebBackground						= #F3F2FA								// GrayScalewebBackground
 	// GraySwebSecondaryText					= #77708A								// GrayScalewebSecondaryText
 	// GraySwebStroke							= #D3CEEB								// GrayScalewebStroke
 	// GraySwebErrors							= #E00000								// GrayScalewebErrors
@@ -182,6 +180,94 @@
 	// VisTertiary2								= #EEEEEE								// VisaBrandTertiary2									/// ap|1→↓6|1→5|!|_7_|
 	// VisTertiary1								= #F7F7F7								// VisaBrandTertiary1		/// @|1→↑12|.-|_741_|		/// gt|1→↑10|.-|_6_|
 
+/// ─── Bank of America ───
+
+	// BofA_Sky_50								= #E5EDF8
+	// BofA_Sky_100								= #E0F0F6
+	// BofA_Sky_200								= #CCE3F5
+	// BofA_Sky_300								= #CCEBF8
+	// BofA_Sky_400								= #8090B4
+	// BofA_Sky_500								= #80CDEE
+	// BofA_Sky_600								= #80B9E7
+	// BofA_Sky_700								= #33B0E5
+	// BofA_Sky_800								= #009CDE
+	// BofA_Sky_900								= #338FD9
+	// BofA_Sky_950								= #007DC3
+	// BofA_Blue_50								= #0077BE
+	// BofA_Blue_100							= #0073CF
+	// BofA_Blue_200							= #0067B1
+	// BofA_Blue_300							= #0064B4
+	// BofA_Blue_400							= #005395
+	// BofA_Blue_500							= #0053C2
+	// BofA_Blue_600							= #124E89
+	// BofA_Blue_700							= #344E87
+	// BofA_Blue_800							= #0C2169
+	// BofA_Blue_900							= #012169
+	// BofA_Blue_950							= #0000FF
+	// BofA_Cyan_500							= #00FFFFFF
+	// BofA_Rose_100							= #FCF3F4
+	// BofA_Rose_200							= #FDF3F5
+	// BofA_Rose_300							= #F1E5EA
+	// BofA_Rose_400							= #F9E7EA
+	// BofA_Rose_500							= #FCE7EB
+	// BofA_Rose_600							= #E4CCD6
+	// BofA_Rose_700							= #F3D0D6
+	// BofA_Rose_800							= #F9D1D7
+	// BofA_Red_100								= #F18B9B
+	// BofA_Red_200								= #E28897
+	// BofA_Red_300								= #BB8099
+	// BofA_Red_400								= #E9465F
+	// BofA_Red_500								= #D14159
+	// BofA_Red_600								= #E31837
+	// BofA_Red_700								= #C41230
+	// BofA_Red_800								= #A50E28
+	// BofA_Red_900								= #780032
+	// BofA_Red_950								= #93335B
+	// BofA_Green_200							= #AADDAA
+	// BofA_Green_600							= #207804
+	// BofA_Yellow_500							= #FFFF00
+	// BofA_Yellow_900							= #B05705
+	// BofA_Stone_50							= #E5E8F0
+	// BofA_Stone_100							= #FDFCFB
+	// BofA_Stone_200							= #F8F2F5
+	// BofA_Stone_300							= #E0D9D3
+	// BofA_Stone_400							= #BCB2A4
+	// BofA_Stone_500							= #A39382
+	// BofA_Stone_600							= #9D8E80
+	// BofA_Stone_700							= #857B70
+	// BofA_Stone_800							= #6B5E51
+	// BofA_Stone_900							= #5D4709
+	// BofA_Gray_50								= #EDEDED
+	// BofA_Gray_100							= #DFDFDF
+	// BofA_Gray_200							= #DDDDDD
+	// BofA_Gray_300							= #D5D5D5
+	// BofA_Gray_400							= #D3D3D3
+	// BofA_Gray_500							= #CCCCCC
+	// BofA_Gray_600							= #BABABA
+	// BofA_Gray_700							= #999999
+	// BofA_Gray_800							= #919191
+	// BofA_Gray_900							= #787878
+	// BofA_Light_50							= #E5F1FA
+	// BofA_Light_100							= #F2FAFD
+	// BofA_Light_200							= #F2F8FC
+	// BofA_Light_300							= #F2F4F7
+	// BofA_Light_400							= #F0F0F0
+	// BofA_Light_500							= #F1EFEC
+	// BofA_Light_600							= #F2F2F2
+	// BofA_Light_700							= #F3F3F3
+	// BofA_Light_800							= #F9F7F4
+	// BofA_Light_900							= #F5F5F5
+	// BofA_Light_950							= #F6F6F6
+	// BofA_Dark_100							= #6F6F6F
+	// BofA_Dark_200							= #646464
+	// BofA_Dark_300							= #555555
+	// BofA_Dark_400							= #524940
+	// BofA_Dark_500							= #4A4A4A
+	// BofA_Dark_600							= #222222
+	// BofA_Dark_700							= #333333
+	// BofA_Dark_800							= #000A23
+
+
 /// ─── Latam ───
 	// LatRedBackground							= rgb(232, 17, 75)						// Latam Red Background
 
@@ -203,7 +289,6 @@
 	// SurfeHorizonLight						= #FFF2FC
 	// SurfeHorizon100							= #FFDEF7
 	// SurfeHorizon200							= #FFBCF0
-	// SurfeHorizon300							= #FFA2EA
 	// SurfePink100								= #FFF1FC
 	// SurfePink500								= #FC84E1
 	// SurfePink600								= #D160B7
@@ -322,7 +407,6 @@
 /// ─── Victoria Secret ───
 	// VictSecPink20							= #EDB3DD								// VictSecPink20
 	// VictSecPink50							= #E651CD								// VictSecPink50
-	// VictSecFucsia50							= #EA1889								// VictSecFucsia50
 	// VictSecWine30							= #C2329F								// VictSecWine30
 	// VictSecWine50							= #7D1250								// VictSecWine50
 	// VictSecWine60							= #7C2558								// VictSecWine60
@@ -351,12 +435,6 @@
 /// ─── Ultr ───
 	// UltrBlueSky10							= #59F2E9								// UltrBlueSky10
 	// UltrBlueSky20							= #39F0EA								// UltrBlueSky20
-	// UltrMenta10								= #E0F9EF								// UltrMenta10
-	// UltrMenta20								= #80F3EC								// UtlrMenta20
-	// UltrMenta30								= #7FFFD4								// UltrMenta30
-	// UltrMenta40								= #73FFCA								// UltrMenta40
-	// UltrMenta50								= #9CFFD7								// UtlrMenta50
-	// UltrMenta60								= #4FFFC0								// UtlrMenta60
 	// UltrGreen50								= #95BD5F								// UltrGreen50
 	// UltrRose20								= #FFA3E3								// UltrRose
 	// UltrFucsia30								= #FF6FD3								// UltrFucsia
