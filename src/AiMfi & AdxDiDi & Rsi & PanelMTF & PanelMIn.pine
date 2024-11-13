@@ -237,8 +237,8 @@ adapMonColorDark						= 				SurfeGray600
 
 adapMonVarSRC							= input.source	(defval = hlc3,				title = "Fuente MFI",										group = adapMonGrpSet)
 adapMonVarLENGTH						= input.int		(defval = 14,				title = "Longitud MFI",							minval = 1,	group = adapMonGrpSet)
-adapMonVarDataLength					= input.int		(defval = 300,				title = "Tamaño de datos de entrenamiento",		minval = 1,	group = adapMonGrpLim)
-adapMonVarIterations					= input.int		(defval = 5,				title = "Cantidad de iteraciones por barra",	minval = 1,	group = adapMonGrpLim)
+adapMonVarDataLength					= input.int		(defval = 300,				title = "Nº de datos de entrenamiento",			minval = 1,	group = adapMonGrpLim)
+adapMonVarIterations					= input.int		(defval = 5,				title = "Nº de iteraciones por barra",			minval = 1,	group = adapMonGrpLim)
 
 float adapMonVarOverbought				= 75.0			// 80.0
 float adapMonVarNeutral					= 50.0
@@ -618,12 +618,15 @@ colorTsiObsPnl_TiPnBg					= BrLiYel30
 /// ─── Inputs
 tsiObsPnlGroupTimeframes				=				"Timeframe Panel"
 showTsiObsPnlTimeframesPanel			= input.bool	(true,				title = "Panel TSI",			group = tsiObsPnlGroupTimeframes)
+showTsiObsPnlTF05m						= input.bool	(false,				title = "5m   ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
 showTsiObsPnlTF15m						= input.bool	(true,				title = "15m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
 showTsiObsPnlTF30m						= input.bool	(false,				title = "30m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
-showTsiObsPnlTF1h						= input.bool	(true,				title = "1 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
-showTsiObsPnlTF2h						= input.bool	(true,				title = "2 H   ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
-showTsiObsPnlTF3h						= input.bool	(true,				title = "3 H   ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
-showTsiObsPnlTF4h						= input.bool	(false,				title = "4 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
+showTsiObsPnlTF1h						= input.bool	(true,				title = "1 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
+showTsiObsPnlTF2h						= input.bool	(true,				title = "2 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
+showTsiObsPnlTF3h						= input.bool	(true,				title = "3 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
+showTsiObsPnlTF4h						= input.bool	(false,				title = "4 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr3")
+showTsiObsPnlTF1d						= input.bool	(true,				title = "1 D  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr3")
+showTsiObsPnlTF1w						= input.bool	(false,				title = "1 S  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr3")
 
 tsiObsPnlGroupSignal					=				"Signal Panel"
 showTsiObsPnlSignalPanel				= input.bool	(true,				title = "Panel TSI Signal",		group = tsiObsPnlGroupSignal)
@@ -669,12 +672,15 @@ tsiObsPnlADX							= xAdxDiHi_Didi
 iTsiObsPnlCalcSignal					= timeframe.period
 
 /// ─── TSI timeframes
+vTsiObsPnlTF05m							= request.security(syminfo.tickerid,		"5",		tsiObsPnlTSI)
 vTsiObsPnlTF15m							= request.security(syminfo.tickerid,		"15",		tsiObsPnlTSI)
 vTsiObsPnlTF30m							= request.security(syminfo.tickerid,		"30",		tsiObsPnlTSI)
 vTsiObsPnlTF1h							= request.security(syminfo.tickerid,		"60",		tsiObsPnlTSI)
 vTsiObsPnlTF2h							= request.security(syminfo.tickerid,		"120",		tsiObsPnlTSI)
 vTsiObsPnlTF3h							= request.security(syminfo.tickerid,		"180",		tsiObsPnlTSI)
 vTsiObsPnlTF4h							= request.security(syminfo.tickerid,		"240",		tsiObsPnlTSI)
+vTsiObsPnlTF1d							= request.security(syminfo.tickerid,		"D",		tsiObsPnlTSI)
+vTsiObsPnlTF1w							= request.security(syminfo.tickerid,		"W",		tsiObsPnlTSI)
 
 /// ─── TSI timeframes signal
 [vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
@@ -687,7 +693,7 @@ vTsiObsPnlTF4h							= request.security(syminfo.tickerid,		"240",		tsiObsPnlTSI)
 /// ─── New table
 var vTsiPnlNewTable						= table.new(
 	  position							= FunGlobalVertical(tsiObsPnl_PosiVert) + "_" + FunGlobalHorizontal(tsiObsPnl_PosiHoriz),
-	  columns							= 8,
+	  columns							= 11,
 	  rows								= 1,
 	  border_width						= 2,
 	  frame_color						= color.new(colorTsiObsPnl_Black, 15),
@@ -695,7 +701,7 @@ var vTsiPnlNewTable						= table.new(
 
 /// ─── New table signal
 var vTsiPnlNewTableSignal				= table.new(
-		  position						= "middle" + "_" + FunGlobalHorizontal(tsiObsPnl_LocatSignalHoriz),
+		  position						= FunGlobalVertical(tsiObsPnl_LocatSignalVert) + "_" + FunGlobalHorizontal(tsiObsPnl_LocatSignalHoriz),
 		  columns						= 1,
 		  rows							= 5,
 		  border_width					= 2,
@@ -756,18 +762,24 @@ if showTsiObsPnlTimeframesPanel
 	FunTsiObsPnlCalculateCellNow		(0,	0)
 	FunTsiObsPnlCalculateCell			(1,	0,		"Actual",	tsiObsPnlTSI)
 
+	if showTsiObsPnlTF05m
+		FunTsiObsPnlCalculateCell		(2,	0,		"05m",		vTsiObsPnlTF05m)
 	if showTsiObsPnlTF15m
-		FunTsiObsPnlCalculateCell		(2,	0,		"15m",		vTsiObsPnlTF15m)
+		FunTsiObsPnlCalculateCell		(3,	0,		"15m",		vTsiObsPnlTF15m)
 	if showTsiObsPnlTF30m
-		FunTsiObsPnlCalculateCell		(3,	0,		"30m",		vTsiObsPnlTF30m)
+		FunTsiObsPnlCalculateCell		(4,	0,		"30m",		vTsiObsPnlTF30m)
 	if showTsiObsPnlTF1h
-		FunTsiObsPnlCalculateCell		(4,	0,		"1 H",		vTsiObsPnlTF1h)
+		FunTsiObsPnlCalculateCell		(5,	0,		"1 H",		vTsiObsPnlTF1h)
 	if showTsiObsPnlTF2h
-		FunTsiObsPnlCalculateCell		(5,	0,		"2 H",		vTsiObsPnlTF2h)
+		FunTsiObsPnlCalculateCell		(6,	0,		"2 H",		vTsiObsPnlTF2h)
 	if showTsiObsPnlTF3h
-		FunTsiObsPnlCalculateCell		(6,	0,		"3 H",		vTsiObsPnlTF3h)
+		FunTsiObsPnlCalculateCell		(7,	0,		"3 H",		vTsiObsPnlTF3h)
 	if showTsiObsPnlTF4h
-		FunTsiObsPnlCalculateCell		(7,	0,		"4 H",		vTsiObsPnlTF4h)
+		FunTsiObsPnlCalculateCell		(8,	0,		"4 H",		vTsiObsPnlTF4h)
+	if showTsiObsPnlTF1d
+		FunTsiObsPnlCalculateCell		(9,	0,		"1 D",		vTsiObsPnlTF1d)
+	if showTsiObsPnlTF1w
+		FunTsiObsPnlCalculateCell		(10, 0,		"1 S",		vTsiObsPnlTF1w)
 
 /// ─── Table Signal
 if showTsiObsPnlSignalPanel
