@@ -10,6 +10,7 @@
 /// ╚═══════════════════════════════════╝
 /// ╔═══════════════════════════════════╗
 /// ║	Panel Tsi MultiTimeframes		║
+/// ║	Panel Tsi Multi Trend			║
 /// ║	@	Allen.						║
 /// ╚═══════════════════════════════════╝
 /// ╔═══════════════════════════════════╗
@@ -23,31 +24,6 @@ indicator(title							= 'AI Mfi & AdxDiDi & Tsi Div & Panels Tsi Mtf - MIn [🎱
 		  format						= format.price,
 		  precision						= 4
 		  )
-
-//// ─────────────────────────────────────────────────────────────────────
-
-/// ─── Colors
-	// Axi7a46f22								= #D11C36
-	// AllenFucsia50							= #EA1889
-	// AllenMint60								= #33FFAC
-	// AllenSky10								= #CCF8FF
-	// PlatziGreen30							= #ADEB42
-	// MongoLime50								= #B1FF05
-
-	// TvBuy									= #2962FF
-	// TvSell									= #F23645
-	// EEGFucsia50								= #FE0CB6
-	// EEGSkyBlue40								= #00E7FD
-
-	// CitiAccentUltraLightBlue					= #E6F7FF
-	// MongoSky10								= #E3FCF7
-	// SurfeSunrise300							= #FCFF8F
-	// BrLiYel10								= #FBFD73
-	// BrLiYel30								= #FDF43C
-	// MongoBlack50								= #231F20
-	// PlatziBlue70								= #121F3D
-	// PlatziBlue80								= #0C1633
-	// SurfeSeaweed100							= #073742
 
 //// ─────────────────────────────────────────────────────────────────────
 
@@ -610,10 +586,12 @@ plotshape(showTsiMuDiTSIDivergs			and tsiDiInsHiddenBearCond			? iTsiMuDiCalcula
 //// ─────────────────────────────────────────────────────────────────────
 //// ─────────────────────────────────────────────────────────────────────
 
-/// ╔═══════════════════════════════════════╗
-/// ║	TSI Panel Multi Timeframe			║
-/// ║	@	Allen.							║
-/// ╚═══════════════════════════════════════╝
+/// ╔═══════════════════════════════════╗
+/// ║	Panel TSI Multi Timeframe		║
+/// ║	Panel Tsi MultiTrend			║
+/// ║	Panel Multi Indicator			║
+/// ║	@	Allen.						║
+/// ╚═══════════════════════════════════╝
 
 //// ─────────────────────────────────────────────────────────────────────
 
