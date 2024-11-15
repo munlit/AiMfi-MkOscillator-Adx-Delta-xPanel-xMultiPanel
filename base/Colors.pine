@@ -181,7 +181,6 @@
 	// VisTertiary1								= #F7F7F7								// VisaBrandTertiary1		/// @|1→↑12|.-|_741_|		/// gt|1→↑10|.-|_6_|
 
 /// ─── Bank of America ───
-
 	// BofA_Sky_50								= #E5EDF8
 	// BofA_Sky_100								= #E0F0F6
 	// BofA_Sky_200								= #CCE3F5
@@ -266,7 +265,6 @@
 	// BofA_Dark_600							= #222222
 	// BofA_Dark_700							= #333333
 	// BofA_Dark_800							= #000A23
-
 
 /// ─── Latam ───
 	// LatRedBackground							= rgb(232, 17, 75)						// Latam Red Background

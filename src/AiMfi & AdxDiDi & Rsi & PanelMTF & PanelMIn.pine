@@ -27,54 +27,27 @@ indicator(title							= 'AI Mfi & AdxDiDi & Tsi Div & Panels Tsi Mtf - MIn [🎱
 //// ─────────────────────────────────────────────────────────────────────
 
 /// ─── Colors
-	// AmeTrBlueFrost							= #E1EEF9
-	// CitiAccentUltraLightBlue					= #E6F7FF
-	// MongoSky10								= #E3FCF7
-	// BrLiYel10								= #FBFD73
-	// BrLiYel30								= #FDF43C
-	// PlatziGreen30							= #ADEB42
-	// SurfeGray600								= #49575B
-	// SurfeSeaweed100							= #073742
-	// PlatziBlue70								= #121F3D
-	// PlatziBlue80								= #0C1633
-	// AllenSky10								= #CCF8FF
-	// AllenMint60								= #33FFAC
-	// AllenFucsia50							= #EA1889
-
-	// GraySwebSeasalt		    				= #FAFAFC
-	// SurfeGray100								= #F4F5F6
-	// SurfeSunrise100							= #FEFFD6
-	// SurfeSunrise300							= #FCFF8F
-	// SurfeHorizon200							= #FFBCF0
-	// SurfeSecondary							= #FFA2EA
-	// SurfeSky300								= #BDEDFC
-	// SurfeSky400								= #88D7F0
-	// SurfeGray450								= #5C818A
-	// SurfeSeaweed100							= #073742
-	// MongoBlack50								= #231F20
-
-	// MongoLime50								= #B1FF05
-	// PlatziGreen50							= #95CA3E
-	// AllenWine60								= #E8114B
-
 	// Axi7a46f22								= #D11C36
-	// AxiPrimary								= #FC404D
-	// ARoPrimary								= #0035FF
-	// ARoSecondary		    					= #04EBFF
+	// AllenFucsia50							= #EA1889
+	// AllenMint60								= #33FFAC
+	// AllenSky10								= #CCF8FF
+	// PlatziGreen30							= #ADEB42
+	// MongoLime50								= #B1FF05
 
 	// TvBuy									= #2962FF
 	// TvSell									= #F23645
 	// EEGFucsia50								= #FE0CB6
 	// EEGSkyBlue40								= #00E7FD
 
-	// PandaVeryLightgray						= #E6E6E6
-	// PandaLighterGray							= #CDCDCD
-	// PandaLightGray							= #757575
-	// PandaGray								= #373B41
-	// PandaDarkGray							= #2E2F30
-	// PandaVeryDarkGray						= #292A2B
-	// PandaWhite								= #F3F3F3
-	// PandaLightmidight						= #676B79
+	// CitiAccentUltraLightBlue					= #E6F7FF
+	// MongoSky10								= #E3FCF7
+	// SurfeSunrise300							= #FCFF8F
+	// BrLiYel10								= #FBFD73
+	// BrLiYel30								= #FDF43C
+	// MongoBlack50								= #231F20
+	// PlatziBlue70								= #121F3D
+	// PlatziBlue80								= #0C1633
+	// SurfeSeaweed100							= #073742
 
 //// ─────────────────────────────────────────────────────────────────────
 
@@ -95,8 +68,9 @@ strGlobalMultiTimeFrame					= input.string 	(defval = "Grafico",	title = "Multi 
 strGlobalMultiHistogram					= input.string 	(defval = "Mfi",		title = "Histograma",					group = globalTSIGroupTimeframe,
 			  options					=				["Mfi", "Adx"])
 strGlobalColorSelector					= input.string 	(defval = "Allen",		title = "Color Selector",				group = globalTSIGroupTimeframe,
-			  options					=				["Allen", "Ultr", "Inverse", "Classic", "Light", "Mono"])
-insGlobalTFCoefficient					= 				2
+			  options					=				["Allen", "Ultr", "Mono"])
+			//   options					=				["Allen", "Ultr", "Inverse", "Classic", "Light", "Mono"])
+float insGlobalTFCoefficient			= 				2.3
 
 /// ───────────────────────
 /// ─── Types
@@ -114,13 +88,13 @@ type globalTypeOHL
 /// ─── Switch
 /// ───────────────────────
 
-[color_gbl_buy, color_gbl_sell, color_gbl_long, color_gbl_short, color_gbl_neutral, color_gbl_extra, color_gbl_white, color_gbl_black, color_gbl_text]		= switch		strGlobalColorSelector
-	"Allen"								=> [#33FFAC,		#CCF8FF,		#ADEB42,		#EA1889,		#E1EEF9,		#FDF43C,		#E6F7FF,		#121F3D,		#121F3D]
-	"Ultr"								=> [#00E7FD,		#FE0CB6,		#00E7FD,		#FE0CB6,		#121F3D,		#FDF43C,		#E6F7FF,		#0C1633,		#F3F3F3]
-	"Light"								=> [#2962FF,		#F23645,		#2962FF,		#F23645,		#FCFF8F,		#5C818A,		#E1EEF9,		#073742,		#073742]
-	"Inverse"							=> [#ADEB42,		#EA1889,		#33FFAC,		#CCF8FF,		#E6F7FF,		#FDF43C,		#E6F7FF,		#073742,		#073742]
-	"Classic"							=> [#B1FF05,		#D11C36,		#B1FF05,		#D11C36,		#5C818A,		#FCFF8F,		#F4F5F6,		#0C1633,		#F3F3F3]
-	"Mono"								=> [#E6E6E6,		#292A2B,		#FEFFD6,		#231F20,		#676B79,		#FCFF8F,		#F3F3F3,		#292A2B,		#F3F3F3]
+[_co_gbl_buy, _co_gbl_sell, _co_gbl_long, _co_gbl_short, _co_gbl_neutral, _co_gbl_extra, _co_gbl_white, _co_gbl_black, _co_gbl_txt_light, _co_gbl_txt_dark]	= switch	strGlobalColorSelector
+	"Allen"								=> [#33FFAC,		#CCF8FF,		#ADEB42,		#EA1889,		#CCF8FF,		#FDF43C,		#E6F7FF,		#121F3D,		#FBFD73,		#121F3D]
+	"Ultr"								=> [#00E7FD,		#FE0CB6,		#00E7FD,		#FE0CB6,		#121F3D,		#FDF43C,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+	// "Light"								=> [#2962FF,		#F23645,		#2962FF,		#F23645,		#FCFF8F,		#5C818A,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+	// "Inverse"							=> [#ADEB42,		#EA1889,		#33FFAC,		#CCF8FF,		#CCF8FF,		#FDF43C,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+	// "Classic"							=> [#B1FF05,		#D11C36,		#B1FF05,		#D11C36,		#5C818A,		#FCFF8F,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+	"Mono"								=> [#CCF8FF,		#0C1633,		#CCF8FF,		#0C1633,		#676B79,		#FCFF8F,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
 
 /// ───────────────────────
 /// ─── Functions
@@ -227,7 +201,7 @@ FunGlobalCalculateMA(_source, _length, _type) =>
 
 /// ─── Function calculate timeframe range
 FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
-	_x									= 3
+	_x									= 4
 	_mayor								= 480
 	_minor								= 15
 	_tonumber							= str.tonumber(_timeframe)
@@ -235,6 +209,14 @@ FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 	_operat_minor						= _tonumber * _x
 	_toresult							= str.tonumber(_timeframe)
 	_conditional						= _tonumber >= _mayor ? _toresult : _tonumber <= _minor ? _operat_minor : _operat_coeff
+	str.tostring(_conditional)
+
+FunGlobalCalculateTimeframeVariant(_timeframe) =>
+	_tonumber							= str.tonumber(_timeframe)
+	_operat_minor						= 30
+	_operat_medium						= 60
+	_operat_mayor						= _tonumber * 2
+	_conditional						= _tonumber >= 60 ? _operat_mayor : _tonumber <= 14 ? _operat_minor : _operat_medium
 	str.tostring(_conditional)
 
 /// ───────────────────────
@@ -265,10 +247,10 @@ adapMonGrpApar							= "Apariencia"
 showadapMonGroup						= input.bool	(defval = true,				title = 'Mostrar Ai Adaptative MFI',						group = adapMonGrpSet)
 
 adapMonVarADJ							= input.bool	(defval = true,				title = "Usar MFI ajustado",								group = adapMonGrpApar,		tooltip = adapMonToolAdj)
-adapMonColorLong						= 				color_gbl_buy
-adapMonColorShort						= 				color_gbl_sell
-adapMonColorAux							= 				color_gbl_white
-adapMonColorDark						= 				color_gbl_black
+adapMonColorLong						= 				_co_gbl_buy
+adapMonColorShort						= 				_co_gbl_sell
+adapMonColorAux							= 				_co_gbl_white
+adapMonColorDark						= 				_co_gbl_black
 
 adapMonVarSRC							= input.source	(defval = hlc3,				title = "Fuente MFI",										group = adapMonGrpSet)
 adapMonVarLENGTH						= input.int		(defval = 14,				title = "Longitud MFI",							minval = 1,	group = adapMonGrpSet)
@@ -330,10 +312,10 @@ fill									(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 
 
 //// ─────────────────────────────────────────────────────────────────────
 
-colorxAdxDiHi_Buy						= color_gbl_buy
-colorxAdxDiHi_Short						= color_gbl_sell
-colorxAdxDiHi_Mid						= color_gbl_extra
-colorxAdxDiHi_Extra						= color_gbl_extra
+colorxAdxDiHi_Buy						= _co_gbl_buy
+colorxAdxDiHi_Short						= _co_gbl_sell
+colorxAdxDiHi_Mid						= _co_gbl_extra
+colorxAdxDiHi_Extra						= _co_gbl_extra
 
 //// ───────────────────────
 /// ─── Vars ───
@@ -395,17 +377,17 @@ plot(strGlobalMultiHistogram == "Adx" ? xAdxDiHi_Didi : na,		style = plot.style_
 //// ───────────────────────
 
 /// ─── Colors ───
-colorTsiMuDiBaseLong					= color_gbl_long
-colorTsiMuDiBaseShort					= color_gbl_short
+colorTsiMuDiBaseLong					= _co_gbl_long
+colorTsiMuDiBaseShort					= _co_gbl_short
 
-colorTsiMuDiTendency					= color_gbl_neutral
-colorTsiMuDiMultitimeframe				= color_gbl_neutral
-colorTsiMuDiDivergBg					= color_gbl_black
+colorTsiMuDiTendency					= _co_gbl_neutral
+colorTsiMuDiMultitimeframe				= _co_gbl_extra
+colorTsiMuDiDivergBg					= _co_gbl_black
 
-colorTsiMuDiDivergLong					= color_gbl_buy
-colorTsiMuDiDivergShort					= color_gbl_sell
-colorTsiMuDiDivergNone					= color.new(color_gbl_black,		100)
-colorTsiMuDiText						= color.new(color_gbl_text,			0)
+colorTsiMuDiDivergLong					= _co_gbl_buy
+colorTsiMuDiDivergShort					= _co_gbl_sell
+colorTsiMuDiDivergNone					= color.new(_co_gbl_black,			100)
+colorTsiMuDiText						= color.new(_co_gbl_txt_dark,		0)
 
 /// ─── Inputs ───
 groupTsiMuDiTSIVars						= 'TSI & Divergences'
@@ -447,9 +429,9 @@ FunTsiMuDiCalculateDoubleSmooth(_source, _long, _short) =>
 	fist_smooth							= ta.ema(_source, _long)
 	ta.ema(fist_smooth, _short)
 
-FunTsiMuDiCalculateTSI(_source, _long, _short) =>
+FunTsiMuDiCalculateTSI(_source, _long, _short, _x) =>
 	_change								= ta.change(_source)
-	_x									= 125
+	// _x									= 125
 	_plus								= 50
 	_smooth								= FunTsiMuDiCalculateDoubleSmooth(_change, _long, _short)
 	_smooth_abs							= FunTsiMuDiCalculateDoubleSmooth(math.abs(_change), _long, _short)
@@ -461,11 +443,11 @@ FunTsiMuDiCalculateTSI(_source, _long, _short) =>
 
 /// Multitimeframe
 /// instance function calculate multitimeframe Tsi
-iTsiMuDiCalculateMultiTfTSI				= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
+iTsiMuDiCalculateMultiTfTSI				= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort, 170)
 iTsiMuDiCalculateMultiTfEMA				= ta.ema(iTsiMuDiCalculateMultiTfTSI, vTsiMuDiSignal)
 
 /// instance function global timeframe
-iTsiMuDiCalculateMultiTfTSIRange		= FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, FunGlobalTimeFrame(strGlobalMultiTimeFrame))
+iTsiMuDiCalculateMultiTfTSIRange		= str.tonumber(FunGlobalTimeFrame(strGlobalMultiTimeFrame)) > 500 ? FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, FunGlobalTimeFrame(strGlobalMultiTimeFrame)) : timeframe.period
 
 /// ─── Timeframe multitimeframe Tsi
 arrTsiMuDiMultiTimeframeTicker			= request.security(syminfo.tickerid,	iTsiMuDiCalculateMultiTfTSIRange,	iTsiMuDiCalculateMultiTfTSI,	barmerge.gaps_on)
@@ -483,7 +465,7 @@ insTsiMuDiCloudTendencyColor			= iTsiMuDiCalculateTendencyTSI	> iTsiMuDiCalculat
 
 /// PRESENT
 /// instance function calculate present Tsi
-iTsiMuDiCalculateTSI					= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
+iTsiMuDiCalculateTSI					= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort, 125)
 iTsiMuDiCalculateEma					= ta.ema(iTsiMuDiCalculateTSI, vTsiMuDiSignal)
 
 /// ─── plot color
@@ -498,24 +480,24 @@ insTsiMuDiCloudColor					= iTsiMuDiCalculateTSI			> iTsiMuDiCalculateEma			? col
 /// ─── Plot
 
  /// plot multi timeframe
-insTsiMuDiMultitimefTsiPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? arrTsiMuDiMultiTimeframeTicker : na,							color = color.new(colorTsiMuDiMultitimeframe, 40),		linewidth = 2)
-insTsiMuDiMultitimefEmaPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? ta.ema(arrTsiMuDiMultiTimeframeTicker, vTsiMuDiSignal) : na,	color = color.new(colorTsiMuDiMultitimeframe, 50),		linewidth = 1)
+insTsiMuDiMultitimefTsiPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? arrTsiMuDiMultiTimeframeTicker : na,							color = color.new(colorTsiMuDiMultitimeframe, 65),		linewidth = 2)
+insTsiMuDiMultitimefEmaPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? ta.ema(arrTsiMuDiMultiTimeframeTicker, vTsiMuDiSignal) : na,	color = color.new(colorTsiMuDiMultitimeframe, 60),		linewidth = 1)
 
 /// plot tendency TSI
 insTsiMuDiTendencyTsiPlotLine			= plot(showTsiMuDiTSITendency ? iTsiMuDiCalculateTendencyTSI : na,									color = color.new(colorTsiMuDiTendency, 77),			linewidth = 2)
 insTsiMuDiTendencyEmaPlotLine			= plot(showTsiMuDiTSITendency ? ta.ema(iTsiMuDiCalculateTendencyTSI,	vTsiMuDiSignal) : na,		color = color.new(colorTsiMuDiTendency, 77),			linewidth = 2)
 
 /// fill tendency
-fill(insTsiMuDiTendencyTsiPlotLine, insTsiMuDiTendencyEmaPlotLine,																		color = color.new(insTsiMuDiCloudTendencyColor, 85))
+fill(insTsiMuDiTendencyTsiPlotLine, insTsiMuDiTendencyEmaPlotLine,																			color = color.new(insTsiMuDiCloudTendencyColor, 85))
 
 /// plot present TSI
-plot(showTsiMuDiTSIDivergs				? iTsiMuDiCalculateTSI	: na,																		color = color.new(colorTsiMuDiDivergBg, 60),					linewidth = 6)		//	plot TSI blue
-plot(showTsiMuDiTSIDivergs				? ta.ema(iTsiMuDiCalculateTSI,	vTsiMuDiSignal)	: na,												color = color.new(colorTsiMuDiDivergBg, 60),					linewidth = 6)		//	plot EMA blue
+plot(showTsiMuDiTSIDivergs				? iTsiMuDiCalculateTSI	: na,																		color = color.new(colorTsiMuDiDivergBg, 60),			linewidth = 6)		//	plot TSI blue
+plot(showTsiMuDiTSIDivergs				? ta.ema(iTsiMuDiCalculateTSI,	vTsiMuDiSignal)	: na,												color = color.new(colorTsiMuDiDivergBg, 60),			linewidth = 6)		//	plot EMA blue
 insTsiMuDiTsiPlotLine					= plot(showTsiMuDiTSIDivergs ? iTsiMuDiCalculateTSI	: na,											color = color.new(insTsiMuDiPlotColor, 30),				linewidth = 2)		//	plot TsiSI
 insTsiMuDiEmaPlotLine					= plot(showTsiMuDiTSIDivergs ? ta.ema(iTsiMuDiCalculateTSI,	vTsiMuDiSignal)	: na,					color = color.new(insTsiMuDiPlotColor, 30),				linewidth = 2)		//	plot EMA
 
 /// fill present
-fill(insTsiMuDiTsiPlotLine, insTsiMuDiEmaPlotLine,																						color = showTsiMuDiCloudOn ? color.new(insTsiMuDiCloudColor, 70) : na)						//	fill
+fill(insTsiMuDiTsiPlotLine, insTsiMuDiEmaPlotLine,																							color = showTsiMuDiCloudOn ? color.new(insTsiMuDiCloudColor, 70) : na)						//	fill
 
 //// ───────────────────────
 /// ─── Divergences ───
@@ -563,14 +545,14 @@ tsiDiInsHiddenBullCond					= showTsiMuDiPlotDivergScalp		and tsiDiInsPRICEHL	and
 
 plot(showTsiMuDiTSIDivergs				and insTsiMuDiPLFound				? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset					= -vTsiMuDiLBR,
-			  title						= 'Confirmación de Compra scalp',
+			  title						= 'Confirmación de Compra trend',
 			  linewidth					= 2,
 			  color						= tsiDiInsHiddenBullCond ? color.new(colorTsiMuDiDivergLong, 40) : colorTsiMuDiDivergNone)
 
 plotshape(showTsiMuDiTSIDivergs			and tsiDiInsHiddenBullCond			? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset					= -vTsiMuDiLBR,
-			  title						= 'Etiqueta de Compra scalp',
-			  text						= ' △ scalp ',
+			  title						= 'Etiqueta de Compra trend',
+			  text						= ' △ trend ',
 			  style						= shape.labelup,
 			  location					= location.absolute,
 			  color						= color.new(colorTsiMuDiDivergLong, 40),
@@ -611,14 +593,14 @@ tsiDiInsHiddenBearCond					= showTsiMuDiPlotDivergScalp		and tsiDiInsPRICELH	and
 
 plot(showTsiMuDiTSIDivergs				and insTsiMuDiPHFound				? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset					= -vTsiMuDiLBR,
-			  title						= 'Confirmación de Venta scalp',
+			  title						= 'Confirmación de Venta trend',
 			  linewidth					= 2,
 			  color						= tsiDiInsHiddenBearCond ? color.new(colorTsiMuDiDivergShort, 40) : colorTsiMuDiDivergNone)
 
 plotshape(showTsiMuDiTSIDivergs			and tsiDiInsHiddenBearCond			? iTsiMuDiCalculateTSI[vTsiMuDiLBR] : na,
 			  offset					= -vTsiMuDiLBR,
-			  title						= 'Etiqueta de Venta scalp',
-			  text						= ' ▽ scalp ',
+			  title						= 'Etiqueta de Venta trend',
+			  text						= ' ▽ trend ',
 			  style						= shape.labeldown,
 			  location					= location.absolute,
 			  color						= color.new(colorTsiMuDiDivergShort, 40),
@@ -640,25 +622,27 @@ plotshape(showTsiMuDiTSIDivergs			and tsiDiInsHiddenBearCond			? iTsiMuDiCalcula
 /// ─── TSI Box ───
 //// ───────────────────────
 
-colorTsiObsPnl_Buy						= color_gbl_long
-colorTsiObsPnl_Sell						= color_gbl_short
-colorTsiObsPnl_Neutral					= color_gbl_neutral
-colorTsiObsPnl_White					= color_gbl_white
-colorTsiObsPnl_Black					= color_gbl_black
-colorTsiObsPnl_Text						= color_gbl_text
-colorTsiObsPnl_TiPnBg					= color_gbl_extra
+colorTsiObsPnl_Buy						= _co_gbl_long
+colorTsiObsPnl_Sell						= _co_gbl_short
+colorTsiObsPnl_Neutral					= _co_gbl_neutral
+colorTsiObsPnl_White					= _co_gbl_white
+colorTsiObsPnl_Black					= _co_gbl_black
+colorTsiObsPnl_TextDark					= _co_gbl_txt_dark
+colorTsiObsPnl_TextLight				= _co_gbl_txt_light
+colorTsiObsPnl_TiPnBg					= _co_gbl_extra
 
 /// ─── Inputs
 tsiObsPnlGroupTimeframes				=				"Timeframe Panel"
-showTsiObsPnlTimeframesPanel			= input.bool	(true,				title = "Panel TSI",			group = tsiObsPnlGroupTimeframes)
+showTsiObsPnlTimeframesPanel			= input.bool	(true,				title = "Panel TSI",			group = tsiObsPnlGroupTimeframes,		inline = "show p")
+showTsiObsPnlPanelExt					= input.bool	(true,				title = "Ampliado",				group = tsiObsPnlGroupTimeframes,		inline = "show p")
 showTsiObsPnlTF05m						= input.bool	(false,				title = "5m   ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
 showTsiObsPnlTF15m						= input.bool	(true,				title = "15m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
 showTsiObsPnlTF30m						= input.bool	(false,				title = "30m  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr")
 showTsiObsPnlTF1h						= input.bool	(true,				title = "1 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
 showTsiObsPnlTF2h						= input.bool	(true,				title = "2 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
-showTsiObsPnlTF3h						= input.bool	(true,				title = "3 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
+showTsiObsPnlTF3h						= input.bool	(false,				title = "3 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr2")
 showTsiObsPnlTF4h						= input.bool	(false,				title = "4 H  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr3")
-showTsiObsPnlTF1d						= input.bool	(true,				title = "1 D  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr3")
+showTsiObsPnlTF1d						= input.bool	(false,				title = "1 D  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr3")
 showTsiObsPnlTF1w						= input.bool	(false,				title = "1 S  ",				group = tsiObsPnlGroupTimeframes,		inline = "timefr3")
 
 tsiObsPnlGroupSignal					=				"Signal Panel"
@@ -701,6 +685,18 @@ tsiObsPnlEma							= iTsiMuDiCalculateMultiTfEMA
 tsiObsPnlMFI							= adapMonIfVAL
 tsiObsPnlADX							= xAdxDiHi_Didi
 
+/// ─── TSI invoke multitimeframe
+fTsiObsPnlExtNow						= FunGlobalCalculateTimeframeVariant(timeframe.period)
+fTsiObsPnlExt05m						= FunGlobalCalculateTimeframeVariant("5")
+fTsiObsPnlExt15m						= FunGlobalCalculateTimeframeVariant("15")
+fTsiObsPnlExt30m						= FunGlobalCalculateTimeframeVariant("30")
+fTsiObsPnlExt1h							= FunGlobalCalculateTimeframeVariant("60")
+fTsiObsPnlExt2h							= FunGlobalCalculateTimeframeVariant("120")
+fTsiObsPnlExt3h							= FunGlobalCalculateTimeframeVariant("180")
+fTsiObsPnlExt4h							= FunGlobalCalculateTimeframeVariant("240")
+fTsiObsPnlExt1d							= "1D"
+fTsiObsPnlExt1w							= "1W"
+
 /// instance function global timeframe
 iTsiObsPnlCalcSignal					= timeframe.period
 
@@ -715,6 +711,17 @@ vTsiObsPnlTF4h							= request.security(syminfo.tickerid,		"240",		tsiObsPnlTSI)
 vTsiObsPnlTF1d							= request.security(syminfo.tickerid,		"D",		tsiObsPnlTSI)
 vTsiObsPnlTF1w							= request.security(syminfo.tickerid,		"W",		tsiObsPnlTSI)
 
+/// ─── TSI timeframes extend
+[vTsiObsPnlTFExtMtfW,		vTsiObsPnlTFExtMtfW_2,			vTsiObsPnlTFExtMtfW_3]							= request.security(syminfo.tickerid,	fTsiObsPnlExtNow,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFExtMtf05m,		vTsiObsPnlTFExtMtf05m_2,		vTsiObsPnlTFExtMtf05m_3]						= request.security(syminfo.tickerid,	fTsiObsPnlExt05m,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFExtMtf15m,		vTsiObsPnlTFExtMtf15m_2,		vTsiObsPnlTFExtMtf15m_3]						= request.security(syminfo.tickerid,	fTsiObsPnlExt15m,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFExtMtf30m,		vTsiObsPnlTFExtMtf30m_2,		vTsiObsPnlTFExtMtf30m_3]						= request.security(syminfo.tickerid,	fTsiObsPnlExt30m,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFExtMtf1h,		vTsiObsPnlTFExtMtf1h_2,			vTsiObsPnlTFExtMtf1h_3]							= request.security(syminfo.tickerid,	fTsiObsPnlExt1h,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFExtMtf2h,		vTsiObsPnlTFExtMtf2h_2,			vTsiObsPnlTFExtMtf2h_3]							= request.security(syminfo.tickerid,	fTsiObsPnlExt2h,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFExtMtf3h,		vTsiObsPnlTFExtMtf3h_2,			vTsiObsPnlTFExtMtf3h_3]							= request.security(syminfo.tickerid,	fTsiObsPnlExt3h,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFExtMtf4h,		vTsiObsPnlTFExtMtf4h_2,			vTsiObsPnlTFExtMtf4h_3]							= request.security(syminfo.tickerid,	fTsiObsPnlExt4h,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+[vTsiObsPnlTFExtMtf1d,		vTsiObsPnlTFExtMtf1d_2,			vTsiObsPnlTFExtMtf1d_3]							= request.security(syminfo.tickerid,	fTsiObsPnlExt1d,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2]],	lookahead = barmerge.lookahead_on)
+
 /// ─── TSI timeframes signal
 [vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlTSI,	tsiObsPnlTSI[1],	tsiObsPnlTSI[2],	tsiObsPnlTSI[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalEma,	vTsiObsPnlTFSignalEma_2,	vTsiObsPnlTFSignalEma_3,	vTsiObsPnlTFSignalEma_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlEma,	tsiObsPnlEma[1],	tsiObsPnlEma[2],	tsiObsPnlEma[3]],	lookahead = barmerge.lookahead_on)
@@ -727,7 +734,7 @@ vTsiObsPnlTF1w							= request.security(syminfo.tickerid,		"W",		tsiObsPnlTSI)
 var vTsiPnlNewTable						= table.new(
 	  position							= FunGlobalVertical(tsiObsPnl_PosiVert) + "_" + FunGlobalHorizontal(tsiObsPnl_PosiHoriz),
 	  columns							= 11,
-	  rows								= 1,
+	  rows								= 3,
 	  border_width						= 2,
 	  frame_color						= color.new(colorTsiObsPnl_Black, 15),
 	  force_overlay						= true)
@@ -750,21 +757,75 @@ FunTsiObsPnlCalculateCell(_col, _row, _timeframe, _value) =>
 	table.cell							(vTsiPnlNewTable, _col, _row, _cell_text,
 		  bgcolor						= color.new(_cell_color, _opacity),
 		  text_size						= _txtsize,
-		  text_color					= colorTsiObsPnl_Text,
+		  text_color					= colorTsiObsPnl_TextDark,
 		  width							= 5)
 
 /// ─── Function table name
-FunTsiObsPnlCalculateCellNow(_col, _row) =>
-	_cell_text							= "TSI"
+FunTsiObsPnlCalculateCellName(_col, _row, _text) =>
+	_cell_text							= _text
 
 	table.cell							(vTsiPnlNewTable, _col, _row, _cell_text,
 		  bgcolor						= color.new(colorTsiObsPnl_TiPnBg, 10),
   		  text_size						= stTsiObsPnl_TextSize,
-		  text_color					= color.new(colorTsiObsPnl_Text, 10),
+		  text_color					= color.new(colorTsiObsPnl_TextDark, 10),
 		  width							= 3)
 
+/// ─── Function table time
+FunTsiObsPnlCalculateCellTime(_col, _row, _time) =>
+	_bgcolor							= _co_gbl_black
+	_opacity							= 40
+	_cell_text							= _time
+	_txtcolor							= colorTsiObsPnl_TextLight
+	_txtsize							= stTsiObsPnl_TextSize
+
+	table.cell							(vTsiPnlNewTable, _col, _row, _cell_text,
+		  bgcolor						= color.new(_bgcolor, _opacity),
+		  text_size						= _txtsize,
+		  text_color					= colorTsiObsPnl_TextLight,
+		  width							= 5)
+
+/// ─── Function table value
+FunTsiObsPnlCalculateCellValue(_col, _row, _value) =>
+	_cell_color							= _value >= 100 ? colorTsiObsPnl_Buy : _value <= 0 ? colorTsiObsPnl_Sell : colorTsiObsPnl_Neutral
+	_opacity							= _value >= 100 or _value <= 0 ? 20 : _value >= 85 or _value <= 15 ? 40 : 65
+	_cell_text							= str.tostring(_value, "#.00")
+	_txtsize							= stTsiObsPnl_TextSize
+
+	table.cell							(vTsiPnlNewTable, _col, _row, _cell_text,
+		  bgcolor						= color.new(_cell_color, _opacity),
+		  text_size						= _txtsize,
+		  text_color					= colorTsiObsPnl_TextDark,
+		  width							= 5)
+
+/// ─── Function table cells
+FunTsiObsPnlCalculateCellExtend(_col, _row, _var, _var2, _var3) =>
+	/// ─── signal buy/sell
+	_min								= 0
+	_max								= 100
+	_if_buy								= _var	> _var2	and _var	> _var3	and	_var < _min
+	_if_sell							= _var	< _var2	and _var	< _var3	and	_var > _max
+	_trend_buy							= _var	> _var2	and _var	> _var3
+	_trend_sell							= _var	< _var2	and _var	< _var3
+	_if_condition						= _if_sell		?	"⬊ ⬊"	:	_if_buy		?	"⬈ ⬈"	:	" "
+	_trend_condition					= _trend_sell	?	"⬊ "	:	_trend_buy	?	"⬈ "	:	" "
+
+	_div								= 6
+	_fract_max							= math.round(_max - (_max / _div))
+	_fract_min							= math.ceil(_min + (_max / _div))
+
+	_cell_color							= _var >= _max and _trend_sell ? colorTsiObsPnl_Sell : _var <= _min and _trend_buy ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
+	_ext_opacity						= _var >= _max or _var <= _min ? 30 : _var >= _fract_max or _var <= _fract_min ? 40 : 65
+	_cell_text							= _if_condition + _trend_condition
+	// _cell_text							= str.tostring(_var, "#.00") + _if_condition + _trend_condition
+
+	table.cell							(vTsiPnlNewTable, _col, _row, _cell_text,
+		  bgcolor						= color.new(_cell_color, _ext_opacity),
+		  text_size						= stTsiObsPnl_TextSize,
+		  text_color					= colorTsiObsPnl_TextDark,
+		  width							= 4)
+
 /// ─── Function table signal
-FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _min, _max) =>
+FunTsiObsPnlCalculateSignal(_col, _row, _title, _var, _var2, _var3, _var4, _min, _max) =>
 	/// ─── signal buy/sell
 	_if_buy								= _var		> _var3		and _var2		> _var4		and	_var > vTsiObsPnlTFSignalEma	and	_var < _min
 	_if_sell							= _var		< _var3		and _var2		< _var4		and _var < vTsiObsPnlTFSignalEma	and	_var > _max
@@ -782,9 +843,8 @@ FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _
 	table.cell							(vTsiPnlNewTableSignal, _col, _row, _cell_text,
 		  bgcolor						= color.new(_cell_color, _signal_opacity),
 		  text_size						= stTsiObsPnl_TextSize,
-		  text_color					= colorTsiObsPnl_Text,
-		  width							= 4,
-		  height						= 23)
+		  text_color					= colorTsiObsPnl_TextDark,
+		  width							= 4)
 
 /// ───────────────────────
 /// ─── Visual
@@ -792,40 +852,78 @@ FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _
 
 /// ─── Table TSI
 if showTsiObsPnlTimeframesPanel
-	FunTsiObsPnlCalculateCellNow		(0,	0)
+	FunTsiObsPnlCalculateCellName				(0,	0,		"  ")
+	FunTsiObsPnlCalculateCellName				(0,	1,		"Tsi")
+	if showTsiObsPnlPanelExt
+		FunTsiObsPnlCalculateCellName			(0,	2,		"Plus")
 
-	FunTsiObsPnlCalculateCell			(1,	0,		"Actual",	tsiObsPnlTSI)
+	FunTsiObsPnlCalculateCellTime				(1,	0,		"Ahora")
+	FunTsiObsPnlCalculateCellValue				(1,	1,		tsiObsPnlTSI)
+	if showTsiObsPnlPanelExt
+		FunTsiObsPnlCalculateCellExtend			(1,	2,		vTsiObsPnlTFExtMtfW,	vTsiObsPnlTFExtMtfW_2,		vTsiObsPnlTFExtMtfW_3)
+
+
+
 
 	if showTsiObsPnlTF05m
-		FunTsiObsPnlCalculateCell		(2,	0,		"5 m",		vTsiObsPnlTF05m)
+		FunTsiObsPnlCalculateCellTime			(2,	0,		"5 m")
+		FunTsiObsPnlCalculateCellValue			(2,	1,		vTsiObsPnlTF05m)
+		if showTsiObsPnlPanelExt
+			FunTsiObsPnlCalculateCellExtend		(2,	2,		vTsiObsPnlTFExtMtf05m,	vTsiObsPnlTFExtMtf05m_2,	vTsiObsPnlTFExtMtf05m_3)
+
 	if showTsiObsPnlTF15m
-		FunTsiObsPnlCalculateCell		(3,	0,		"15 m",		vTsiObsPnlTF15m)
+		FunTsiObsPnlCalculateCellTime			(3,	0,		"15 m")
+		FunTsiObsPnlCalculateCellValue			(3,	1,		vTsiObsPnlTF15m)
+		if showTsiObsPnlPanelExt
+			FunTsiObsPnlCalculateCellExtend		(3,	2,		vTsiObsPnlTFExtMtf15m,	vTsiObsPnlTFExtMtf15m_2,	vTsiObsPnlTFExtMtf15m_3)
+
 	if showTsiObsPnlTF30m
-		FunTsiObsPnlCalculateCell		(4,	0,		"30 m",		vTsiObsPnlTF30m)
+		FunTsiObsPnlCalculateCellTime			(4,	0,		"30 m")
+		FunTsiObsPnlCalculateCellValue			(4,	1,		vTsiObsPnlTF30m)
+		if showTsiObsPnlPanelExt
+			FunTsiObsPnlCalculateCellExtend		(4,	2,		vTsiObsPnlTFExtMtf30m,	vTsiObsPnlTFExtMtf30m_2,	vTsiObsPnlTFExtMtf30m_3)
+
 	if showTsiObsPnlTF1h
-		FunTsiObsPnlCalculateCell		(5,	0,		"1 H",		vTsiObsPnlTF1h)
+		FunTsiObsPnlCalculateCellTime			(5,	0,		"1 H")
+		FunTsiObsPnlCalculateCellValue			(5,	1,		vTsiObsPnlTF1h)
+		if showTsiObsPnlPanelExt
+			FunTsiObsPnlCalculateCellExtend		(5,	2,		vTsiObsPnlTFExtMtf1h,	vTsiObsPnlTFExtMtf1h_2,		vTsiObsPnlTFExtMtf1h_3)
+
 	if showTsiObsPnlTF2h
-		FunTsiObsPnlCalculateCell		(6,	0,		"2 H",		vTsiObsPnlTF2h)
+		FunTsiObsPnlCalculateCellTime			(6,	0,		"2 H")
+		FunTsiObsPnlCalculateCellValue			(6,	1,		vTsiObsPnlTF2h)
+		if showTsiObsPnlPanelExt
+			FunTsiObsPnlCalculateCellExtend		(6,	2,		vTsiObsPnlTFExtMtf2h,	vTsiObsPnlTFExtMtf2h_2,		vTsiObsPnlTFExtMtf2h_3)
+
 	if showTsiObsPnlTF3h
-		FunTsiObsPnlCalculateCell		(7,	0,		"3 H",		vTsiObsPnlTF3h)
+		FunTsiObsPnlCalculateCellTime			(7,	0,		"3 H")
+		FunTsiObsPnlCalculateCellValue			(7,	1,		vTsiObsPnlTF3h)
+		if showTsiObsPnlPanelExt
+			FunTsiObsPnlCalculateCellExtend		(7,	2,		vTsiObsPnlTFExtMtf3h,	vTsiObsPnlTFExtMtf3h_2,		vTsiObsPnlTFExtMtf3h_3)
+
 	if showTsiObsPnlTF4h
-		FunTsiObsPnlCalculateCell		(8,	0,		"4 H",		vTsiObsPnlTF4h)
+		FunTsiObsPnlCalculateCellTime			(8,	0,		"4 H")
+		FunTsiObsPnlCalculateCellValue			(8,	1,		vTsiObsPnlTF4h)
+		if showTsiObsPnlPanelExt
+			FunTsiObsPnlCalculateCellExtend		(8,	2,		vTsiObsPnlTFExtMtf4h,	vTsiObsPnlTFExtMtf4h_2,		vTsiObsPnlTFExtMtf4h_3)
+
 	if showTsiObsPnlTF1d
-		FunTsiObsPnlCalculateCell		(9,	0,		"1 D",		vTsiObsPnlTF1d)
-	if showTsiObsPnlTF1w
-		FunTsiObsPnlCalculateCell		(10, 0,		"1 S",		vTsiObsPnlTF1w)
+		FunTsiObsPnlCalculateCellTime			(9,	0,		"1 D")
+		FunTsiObsPnlCalculateCellValue			(9,	1,		vTsiObsPnlTF1d)
+		if showTsiObsPnlPanelExt
+			FunTsiObsPnlCalculateCellExtend		(9,	2,		vTsiObsPnlTFExtMtf1d,	vTsiObsPnlTFExtMtf1d_2,		vTsiObsPnlTFExtMtf1d_3)
 
 /// ─── Table Signal
 if showTsiObsPnlSignalPanel
 	if showTsiObsPnlSignalTsi
-		FunTsiObsPnlCalculateCellSignal		(0,	0,	"Tsi",	vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4,	0,		100)
+		FunTsiObsPnlCalculateSignal		(0,	0,	"Tsi",		vTsiObsPnlTFSignalTsi,	vTsiObsPnlTFSignalTsi_2,	vTsiObsPnlTFSignalTsi_3,	vTsiObsPnlTFSignalTsi_4,	0,		100)
 	if showTsiObsPnlSignalMtf
-		FunTsiObsPnlCalculateCellSignal		(0,	1,	"Mtf",	vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4,	20,		80)
+		FunTsiObsPnlCalculateSignal		(0,	1,	"Mtf",		vTsiObsPnlTFSignalMtf,	vTsiObsPnlTFSignalMtf_2,	vTsiObsPnlTFSignalMtf_3,	vTsiObsPnlTFSignalMtf_4,	20,		80)
 	if showTsiObsPnlSignalRsi
-		FunTsiObsPnlCalculateCellSignal		(0,	3,	"Rsi",	vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4,	25,		75)
+		FunTsiObsPnlCalculateSignal		(0,	3,	"Rsi",		vTsiObsPnlTFSignalRsi,	vTsiObsPnlTFSignalRsi_2,	vTsiObsPnlTFSignalRsi_3,	vTsiObsPnlTFSignalRsi_4,	25,		75)
 	if showTsiObsPnlSignalMfi
-		FunTsiObsPnlCalculateCellSignal		(0, 4,	"Mfi",	vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4,	-10,	110)
+		FunTsiObsPnlCalculateSignal		(0, 4,	"Mfi",		vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4,	-10,	110)
 	if showTsiObsPnlSignalAdx
-		FunTsiObsPnlCalculateCellSignal		(0,	2,	"Adx",	vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4,	10,		40)
+		FunTsiObsPnlCalculateSignal		(0,	2,	"Adx",		vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4,	10,		40)
 
 //// ─────────────────────────────────────────────────────────────────────
