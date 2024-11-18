@@ -16,13 +16,70 @@ insGlobalTFCoefficient					= input.int		(defval = "2",			title = "Coef",			group
 /// ─── Types
 /// ───────────────────────
 
-type globalTypeOHL
+type globalSource
 		float O							= open
 		float H							= high
 		float L							= low
 		float C							= close
 		float V							= volume
 		int   I							= bar_index
+
+/// ───────────────────────
+/// ─── Switch
+/// ───────────────────────
+
+/// ─── switch option colors
+[_co_gbl_buy, _co_gbl_sell, _co_gbl_long, _co_gbl_short, _co_gbl_neutral, _co_gbl_extra, _co_gbl_white, _co_gbl_black, _co_gbl_txt_light, _co_gbl_txt_dark]	= switch	strGlobalColorSelector
+	"Allen"								=> [#33FFAC,		#CCF8FF,		#ADEB42,		#EA1889,		#CCF8FF,		#FDF43C,		#E6F7FF,		#121F3D,		#FBFD73,		#121F3D]
+	"Ultr"								=> [#00E7FD,		#FE0CB6,		#00E7FD,		#FE0CB6,		#121F3D,		#FDF43C,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+	"Light"								=> [#2962FF,		#F23645,		#2962FF,		#F23645,		#FCFF8F,		#5C818A,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+	"Inverse"							=> [#ADEB42,		#EA1889,		#33FFAC,		#CCF8FF,		#CCF8FF,		#FDF43C,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+	"Classic"							=> [#B1FF05,		#D11C36,		#B1FF05,		#D11C36,		#5C818A,		#FCFF8F,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+	"Mono"								=> [#CCF8FF,		#0C1633,		#CCF8FF,		#0C1633,		#676B79,		#FCFF8F,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+
+/// ─── switch line style
+string	_line_style					= switch _option_line_style
+	"───"								=> line.style_solid
+	"---"								=> line.style_dashed
+	"···"								=> line.style_dotted
+
+/// ─── switch position vertical
+string	_position_vertical			= switch _option_position_y
+	"Arriba"							=> "top"
+	"Medio"								=> "middle"
+	"Abajo"								=> "bottom"
+
+/// ─── switch position horizontal
+string	_position_horizontal		= switch _option_position_x
+
+	"Izquierda"							=> "left"
+	"Centro"							=> "center"
+	"Derecha"							=> "right"
+
+/// ─── switch position in/out
+string	_position_in				= switch _option_position_in
+	"Externo"							=> "outside"
+	"Interno"							=> "inside"
+
+/// ─── switch label size
+string	_label_size					= switch _option_label_size
+	"Auto"								=> size.auto
+	"Mini"								=> size.tiny
+	"Pequeño"							=> size.small
+	"Normal"							=> size.normal
+	"Grande"							=> size.large
+	"Enorme"							=> size.huge
+
+/// ─── switch session timezone
+string	_session					= switch _option_timezone
+	"NYSE"								=> "UTC-5"
+	"New York"							=> "America/New_York"
+	"Chicago"							=> "America/Chicago"
+	"Londres"							=> "Europe/London"
+	"Tokyo"								=> "Asia/Tokyo"
+	"Shanghai"							=> "Asia/Shanghai"
+	"Sydney"							=> "Australia/Sydney"
+	"Argentina"							=> "America/Argentina/Buenos_Aires"
 
 /// ───────────────────────
 /// ─── Functions
@@ -237,7 +294,7 @@ FunTsiObsPnlCalculateCellSignal(_col, _row, _title, _var, _var2, _var3, _var4, _
 /// ─── Instances
 /// ───────────────────────
 
-globalOHL								= globalTypeOHL.new()
+globalOHL								= globalSource.new()
 
 /// Instance function timeframe
 // FunGlobalTimeFrame(strGlobalTimeFrame)
