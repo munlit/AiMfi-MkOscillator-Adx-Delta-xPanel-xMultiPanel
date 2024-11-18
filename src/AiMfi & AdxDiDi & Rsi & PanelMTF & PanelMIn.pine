@@ -187,7 +187,7 @@ FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 FunGlobalCalculateTimeframeVariant(_timeframe) =>
 	_tonumber							= str.tonumber(_timeframe)
 	_operat_minor						= 30
-	_operat_medium						= 60
+	_operat_medium						= _tonumber * 3
 	_operat_mayor						= _tonumber * 2
 	_conditional						= _tonumber >= 60 ? _operat_mayor : _tonumber <= 14 ? _operat_minor : _operat_medium
 	str.tostring(_conditional)
@@ -454,12 +454,12 @@ insTsiMuDiCloudColor					= iTsiMuDiCalculateTSI			> iTsiMuDiCalculateEma			? col
 /// ─── Plot
 
  /// plot multi timeframe
-insTsiMuDiMultitimefTsiPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? arrTsiMuDiMultiTimeframeTicker : na,							color = color.new(colorTsiMuDiMultitimeframe, 65),		linewidth = 2)
+insTsiMuDiMultitimefTsiPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? arrTsiMuDiMultiTimeframeTicker : na,							color = color.new(colorTsiMuDiMultitimeframe, 60),		linewidth = 2)
 insTsiMuDiMultitimefEmaPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? ta.ema(arrTsiMuDiMultiTimeframeTicker, vTsiMuDiSignal) : na,	color = color.new(colorTsiMuDiMultitimeframe, 60),		linewidth = 1)
 
 /// plot tendency TSI
-insTsiMuDiTendencyTsiPlotLine			= plot(showTsiMuDiTSITendency ? iTsiMuDiCalculateTendencyTSI : na,									color = color.new(colorTsiMuDiTendency, 77),			linewidth = 2)
-insTsiMuDiTendencyEmaPlotLine			= plot(showTsiMuDiTSITendency ? ta.ema(iTsiMuDiCalculateTendencyTSI,	vTsiMuDiSignal) : na,		color = color.new(colorTsiMuDiTendency, 77),			linewidth = 2)
+insTsiMuDiTendencyTsiPlotLine			= plot(showTsiMuDiTSITendency ? iTsiMuDiCalculateTendencyTSI : na,									color = color.new(colorTsiMuDiTendency, 75),			linewidth = 1)
+insTsiMuDiTendencyEmaPlotLine			= plot(showTsiMuDiTSITendency ? ta.ema(iTsiMuDiCalculateTendencyTSI,	vTsiMuDiSignal) : na,		color = color.new(colorTsiMuDiTendency, 50),			linewidth = 1)
 
 /// fill tendency
 fill(insTsiMuDiTendencyTsiPlotLine, insTsiMuDiTendencyEmaPlotLine,																			color = color.new(insTsiMuDiCloudTendencyColor, 85))
