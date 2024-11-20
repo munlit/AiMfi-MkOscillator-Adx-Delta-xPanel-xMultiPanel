@@ -81,6 +81,17 @@ string	_session					= switch _option_timezone
 	"Sydney"							=> "Australia/Sydney"
 	"Argentina"							=> "America/Argentina/Buenos_Aires"
 
+
+    switch ma_type
+        'ALMA' => ta.alma(x, ma_period, alma_offset, alma_sigma)
+        'HMA' => ta.hma(x, ma_period)
+        'SMA' => ta.sma(x, ma_period)
+        'SWMA' => ta.swma(x)
+        'VWMA' => ta.vwma(x, ma_period)
+        'WMA' => ta.vwma(x, ma_period)
+        'ZLEMA' => ta.ema(x + x - x[math.floor((ma_period - 1) / 2)], ma_period)
+        => ta.ema(x, ma_period)
+
 /// ───────────────────────
 /// ─── Functions
 /// ───────────────────────
@@ -199,6 +210,8 @@ FunGlobalTimeZone(_timezone) =>
 
 /// ─── function calculate MA
 FunGlobalCalculateMA(_source, _length, _type) =>
+	_offset								=
+	_sigma								=
 	switch _type
 		"SMA"							=> ta.sma	(_source, _length)
 		"HMA"							=> ta.hma	(_source, _length)
@@ -207,6 +220,10 @@ FunGlobalCalculateMA(_source, _length, _type) =>
 		"WMA"							=> ta.wma	(_source, _length)
 		"VWMA"							=> ta.vwma	(_source, _length)
 		"MFI"							=> ta.mfi	(_source, _length)
+
+        'ALMA'							=> ta.alma	(_source, _length, _offset, _sigma)
+        'SWMA'							=> ta.swma	(_source)
+        'ZLEMA'							=> ta.ema	(_source + _source - _source[math.floor((_length - 1) / 2)], _length)
 
 /// ─── Function calculate timeframe range
 FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>

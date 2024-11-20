@@ -29,6 +29,7 @@ indicator(title							= 'AI Mfi & AdxDiDi & Tsi Div & Panels Tsi Mtf - MIn [🎱
 
 strGlobalExtendTooltip					= 'Indicador TSI basado en tendencia'
 strGlobalOptionalTooltip				= 'Configuración de temporalidad adicional'
+strGlobalKeikinAshiTooltip				= 'Establecido para uso en gráficos diferentes a Heikin Ashi, de lo contrario genera distorsión.'
 
 /// ───────────────────────
 /// ─── Variables
@@ -47,6 +48,24 @@ strGlobalColorSelector					= input.string 	(defval = 'Allen',		title = 'Color Se
 			  options					=				['Allen', 'Ultr', 'Mono'])
 			//   options					=				['Allen', 'Ultr', 'Inverse', 'Classic', 'Light', 'Mono'])
 float insGlobalTFCoefficient			= 				2.3
+
+/// ───────────────────────
+/// ─── Heikin Ashi
+/// ───────────────────────
+
+showGlobal_HknAshi						= input.bool	(defval = true,		title = 'Activar Heikin Ashi',			group = 'Heikin Ashi mode',				tooltip = strGlobalKeikinAshiTooltip)
+
+vGlobalHeiAsTicker						= ticker.heikinashi(syminfo.tickerid)
+[heAsGblO, heAsGblH, heAsGblL, heAsGblC]= request.security(vGlobalHeiAsTicker, timeframe.period, [open, high, low, close])
+
+gbl_Source_O							= showGlobal_HknAshi ? heAsGblO : open
+gbl_Source_H							= showGlobal_HknAshi ? heAsGblH : high
+gbl_Source_L							= showGlobal_HknAshi ? heAsGblL : low
+gbl_Source_C							= showGlobal_HknAshi ? heAsGblC : close
+
+// gbl_Source_2							= showGlobal_HknAshi ? (heAsGblH + heAsGblL) / 2 : hl2
+gbl_Source_3							= showGlobal_HknAshi ? (heAsGblH + heAsGblL + heAsGblC) / 3 : hlc3
+// gbl_Source_4							= showGlobal_HknAshi ? (heAsGblO + heAsGblH + heAsGblL + heAsGblC) / 4 : ohlc4
 
 /// ───────────────────────
 /// ─── Types
@@ -225,14 +244,15 @@ adapMonColorShort						= 				_co_gbl_sell
 adapMonColorAux							= 				_co_gbl_white
 adapMonColorDark						= 				_co_gbl_black
 
-adapMonVarSRC							= input.source	(defval = hlc3,				title = 'Fuente MFI',										group = adapMonGrpSet)
+adapMonVarSRC							=				gbl_Source_3
+// adapMonVarSRC							= input.source	(defval = hlc3,				title = 'Fuente MFI',										group = adapMonGrpSet)
 adapMonVarLENGTH						= input.int		(defval = 14,				title = 'Longitud MFI',							minval = 1,	group = adapMonGrpSet)
 adapMonVarDataLength					= input.int		(defval = 300,				title = 'Nº de datos de entrenamiento',			minval = 1,	group = adapMonGrpLim)
 adapMonVarIterations					= input.int		(defval = 5,				title = 'Nº de iteraciones por barra',			minval = 1,	group = adapMonGrpLim)
 
-float adapMonVarOverbought				= 75.0			// 80.0
-float adapMonVarNeutral					= 50.0
-float adapMonVarOversold				= 25.0			// 20.0
+float adapMonVarOverbought				=				75.0			// 80.0
+float adapMonVarNeutral					=				50.0
+float adapMonVarOversold				=				25.0			// 20.0
 
 //// ───────────────────────
 /// ─── Adaptive MFI
@@ -301,9 +321,9 @@ adxDiHi_Th								= input.int(defval = 25,		title = 'Umbral',				group = AdxDiHi
 //// ───────────────────────
 /// ─── Functions ───
 //// ───────────────────────
-xAdxDiHi_TrueRange						= math.max(math.max(high - low, math.abs(high - nz(close[1]))), math.abs(low - nz(close[1])))
-xAdxDiHi_DirectMovePlus					= high - nz(high[1]) > nz(low[1]) - low ? math.max(high - nz(high[1]), 0) : 0
-xAdxDiHi_DirectMoveMinus				= nz(low[1]) - low > high - nz(high[1]) ? math.max(nz(low[1]) - low, 0) : 0
+xAdxDiHi_TrueRange						= math.max(math.max(gbl_Source_H - gbl_Source_L, math.abs(gbl_Source_H - nz(gbl_Source_C[1]))), math.abs(gbl_Source_L - nz(gbl_Source_C[1])))
+xAdxDiHi_DirectMovePlus					= gbl_Source_H - nz(gbl_Source_H[1]) > nz(gbl_Source_L[1]) - gbl_Source_L ? math.max(gbl_Source_H - nz(gbl_Source_H[1]), 0) : 0
+xAdxDiHi_DirectMoveMinus				= nz(gbl_Source_L[1]) - gbl_Source_L > gbl_Source_H - nz(gbl_Source_H[1]) ? math.max(nz(gbl_Source_L[1]) - gbl_Source_L, 0) : 0
 
 var float xAdxDiHi_SmoothTrueRange		= na
 var float xAdxDiHi_SmoothDirectMovePlus	= na
@@ -378,8 +398,8 @@ showTsiMuDiPlotDiverg					= input.bool	(defval = true,		title = 'Divergencias',	
 showTsiMuDiPlotDivergScalp				= input.bool	(defval = true,		title = 'Scalp',						group = globalTSIGroupTimeframe,		inline = 'diverg show')
 showTsiMuDiCloudOn						= input.bool	(defval = true,		title = 'TSI Cloud',					group = globalTSIGroupTimeframe)
 
-vTsiMuDiSource							= globalOHL.C
-// vTsiMuDiSource							= globalOHL.C[0]
+vTsiMuDiSource							= gbl_Source_C
+// vTsiMuDiSource							= gbl_Source_C[0]
 
 //// ───────────────────────
 /// ─── Functions ───
@@ -649,7 +669,7 @@ vTsiObsPnl_RsiLength					= 14
 /// ───────────────────────
 
 /// ─── RSI
-tsiObsPnlRSI							= ta.rsi(globalOHL.C, vTsiObsPnl_RsiLength)
+tsiObsPnlRSI							= ta.rsi(gbl_Source_C, vTsiObsPnl_RsiLength)
 
 /// ─── TSI invoke
 tsiObsPnlTSI							= iTsiMuDiCalculateMultiTfTSI
