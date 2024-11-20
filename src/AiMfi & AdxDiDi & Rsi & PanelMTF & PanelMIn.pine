@@ -208,8 +208,8 @@ FunGlobalCalculateTimeframeVariant(_timeframe) =>
 	_operat_minor						= 30
 	_operat_medium						= _tonumber * 3
 	_operat_mayor						= _tonumber * 2
-	_conditional						= _tonumber >= 60 ? _operat_mayor : _tonumber <= 14 ? _operat_minor : _operat_medium
-	str.tostring(_conditional)
+	_conditional						= _tonumber >= 45 ? _operat_mayor : _tonumber <= 14 ? _operat_minor : _operat_medium
+	str.tostring(math.round(_conditional))
 
 /// ───────────────────────
 /// ─── Instances
@@ -441,7 +441,8 @@ iTsiMuDiCalculateMultiTfTSI				= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDi
 iTsiMuDiCalculateMultiTfEMA				= ta.ema(iTsiMuDiCalculateMultiTfTSI, vTsiMuDiSignal)
 
 /// instance function global timeframe
-iTsiMuDiCalculateMultiTfTSIRange		= str.tonumber(FunGlobalTimeFrame(strGlobalMultiTimeFrame)) > 500 ? FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, FunGlobalTimeFrame(strGlobalMultiTimeFrame)) : timeframe.period
+iTsiMuDiCalculateMultiTfTSIRange		= str.tonumber(FunGlobalTimeFrame(strGlobalMultiTimeFrame)) > 500 ? FunGlobalCalculateTimeframeVariant(FunGlobalTimeFrame(strGlobalMultiTimeFrame)) : timeframe.period
+// iTsiMuDiCalculateMultiTfTSIRange		= str.tonumber(FunGlobalTimeFrame(strGlobalMultiTimeFrame)) > 500 ? FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, FunGlobalTimeFrame(strGlobalMultiTimeFrame)) : timeframe.period
 
 /// ─── Timeframe multitimeframe Tsi
 arrTsiMuDiMultiTimeframeTicker			= request.security(syminfo.tickerid,	iTsiMuDiCalculateMultiTfTSIRange,	iTsiMuDiCalculateMultiTfTSI,	barmerge.gaps_on)
@@ -673,7 +674,8 @@ tsiObsPnlRSI							= ta.rsi(gbl_Source_C, vTsiObsPnl_RsiLength)
 
 /// ─── TSI invoke
 tsiObsPnlTSI							= iTsiMuDiCalculateMultiTfTSI
-tsiObsPnlMTFRange						= FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, timeframe.period)
+tsiObsPnlMTFRange						= FunGlobalCalculateTimeframeVariant(timeframe.period)
+// tsiObsPnlMTFRange						= FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, timeframe.period)
 tsiObsPnlEma							= iTsiMuDiCalculateMultiTfEMA
 tsiObsPnlMFI							= adapMonIfVAL
 tsiObsPnlADX							= xAdxDiHi_Didi
