@@ -46,9 +46,9 @@ globalGroupTimeframe					= 'Configuración Global'
 
 strGlobalKeikinAshiTooltip				= 'Establecido para uso en gráficos diferentes a Heikin Ashi, de lo contrario genera distorsión.'
 
-/// Title Global ――――――――――――――――――――
+/// Title Global ―――――――――――――――――――――――
 
-/// Visual Global ―――――――――――――――――――
+/// Visual Global ――――――――――――――――――――――
 display_xTsiMu_TSI						= input.bool	(defval = true,			title = 'Mostrar xTSI',				group = globalGroupIndicat)
 
 display_zeLagTrend						= input.bool	(defval = true,			title = 'Mostrar ZeroLag Trend',	group = globalGroupIndicat)
@@ -83,7 +83,7 @@ strGlobalColorSelector					= input.string 	(defval = 'Allen',		title = 'Color Se
 			  options					=				['Allen', 'Ultr', 'Light'])
 
 
-/// Heikin Ashi ───────────────────────
+/// Heikin Ashi ────────────────────────
 
 
 showGlobal_HknAshi						= input.bool	(defval = true,			title = 'Activar Heikin Ashi',		group = 'Heikin Ashi mode',			tooltip = strGlobalKeikinAshiTooltip)
@@ -109,7 +109,7 @@ gbl_Source_3							= showGlobal_HknAshi ? (heAsGblH + heAsGblL + heAsGblC) / 3 :
 	'Light'								=> [#0061FE,	#FF4054,	#E6F7FF,	#121F3D,	#121F3D,	#FFF87C]
 
 
-/// Colors ───────────────────────────
+/// Colors ────────────────────────────
 
 _co_gbl_long							= #30D453							// AllenGreen50
 _co_gbl_short							= #EA1889							// AllenFucsia50
@@ -144,7 +144,7 @@ _co_gbl_txt_light						= #FFF87C							//	SalesforceYellow
 // OsomeRed									= #FF4054
 
 
-/// ＴＰＳ ―――――――――――――――――――――――――――――――――
+/// ＴＰＳ ―――――――――――――――――――――――――――――
 
 
 type globalTypeOHL
@@ -156,7 +156,7 @@ type globalTypeOHL
 	int   I				    			= bar_index
 
 
-/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――――――
+/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――
 
 
 /// ─── function timeframe
@@ -287,7 +287,7 @@ FunGlobalCalculateTimeframeIf(_timeframe) =>
 gblSource								= globalTypeOHL.new()
 
 
-/// ＰＬＯＴ ――――――――――――――――――――――――――――――
+/// ＰＬＯＴ ―――――――――――――――――――――――――――
 
 
 _plot_gbl_midline						= plot(50,			title = 'Equilibrio',		display = display.none,			editable = false)
@@ -295,43 +295,45 @@ _plot_gbl_midline						= plot(50,			title = 'Equilibrio',		display = display.non
 
 /// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-/// ╔═══════════════════════════════════╗
-/// ║	AI Adaptative MFI				║
-/// ╚═══════════════════════════════════╝
+
+/// ╔═══════════════════════════════╗
+/// ║	AI Adaptive Money Flow Index║
+/// ║	 @	Allen.					║
+/// ╚═══════════════════════════════╝
+
 
 //// ─────────────────────────────────────────────────────────────────────
 
-adapMonToolAdj							= 'Ajusta el MFI en su lugar para que los niveles de Sobrecompra, Sobreventa y Neutral permanezcan fijos'
 
-adapMonGrpSet							= 'Adaptative MFI'
+/// ＩＮＰＵＴＳ ――――――――――――――――――――――――
+
+/// Title Indicator ――――――――――――――――――――
+adapMonGrpSet							= 'ADAPTATIVE MFI'
+
+adapMonToolAdj							= 'Ajusta el MFI en su lugar para que los niveles de Sobrecompra, Sobreventa y Neutral permanezcan fijos'
 adapMonGrpLim							= 'Clustering Setting'
 adapMonGrpApar							= 'Apariencia'
 
-//// ───────────────────────
-/// ─── Adaptive MFI
-/// ─── Vars ─────────
-//// ───────────────────────
-
-showadapMonGroup						= input.bool	(defval = true,				title = 'Mostrar Ai Adaptative MFI',						group = adapMonGrpSet)
-
-adapMonVarADJ							= input.bool	(defval = true,				title = 'Usar MFI ajustado',								group = adapMonGrpApar,		tooltip = adapMonToolAdj)
 adapMonColorLong						= 				_co_gbl_buy
 adapMonColorShort						= 				_co_gbl_sell
 adapMonColorAux							= 				_co_gbl_white
 adapMonColorDark						= 				_co_gbl_black
 
-adapMonVarSRC							=				gbl_Source_3
-// adapMonVarSRC							= input.source	(defval = hlc3,				title = 'Fuente MFI',										group = adapMonGrpSet)
-adapMonVarLENGTH						= input.int		(defval = 14,				title = 'Longitud MFI',							minval = 1,	group = adapMonGrpSet)
-adapMonVarDataLength					= input.int		(defval = 300,				title = 'Nº de datos de entrenamiento',			minval = 1,	group = adapMonGrpLim)
-adapMonVarIterations					= input.int		(defval = 5,				title = 'Nº de iteraciones por barra',			minval = 1,	group = adapMonGrpLim)
+showadapMonVarADJ						= input.bool	(defval = true,				title = 'Mostrar MFI ajustado',								group = adapMonGrpApar,		tooltip = adapMonToolAdj)
+showadapMonStDev						= input.bool	(defval = false,			title = 'Mostrar Desviación Estándar',						group = adapMonGrpApar,		tooltip = adapMonToolAdj)
 
-float adapMonVarOverbought				=				75.0			// 80.0
-float adapMonVarNeutral					=				50.0
-float adapMonVarOversold				=				25.0			// 20.0
+adapMonVarLENGTH						= input.int		(defval = 10,				title = 'Longitud MFI',						minval = 1,		group = adapMonGrpSet)	// 14
+adapMonVarDataLength					= input.int		(defval = 300,				title = 'Nº de datos de entrenamiento',		minval = 1,		group = adapMonGrpLim)
+adapMonVarIterations					= input.int		(defval = 5,				title = 'Nº de iteraciones por barra',		minval = 1,		group = adapMonGrpLim)
+
+float adapMonVarOverbought				= 				75.0			// 80.0
+float adapMonVarNeutral					= 				50.0
+float adapMonVarOversold				= 				25.0			// 20.0
+
+adapMonVarSRC							=				gbl_Source_3	// Fuente MFI
 
 
-/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――
+/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――――――
 
 
 adapMonVarOSC							= ta.mfi(adapMonVarSRC, adapMonVarLENGTH)
@@ -346,34 +348,33 @@ adapMonArrOS_NEW						= array.avg(adapMonArrOS)
 
 positionBetweenBands					= 100 * ((adapMonVarOSC - adapMonArrOS_NEW)/(adapMonArrOB_NEW - adapMonArrOS_NEW))
 
-adapMonIfVAL							= adapMonVarADJ ? positionBetweenBands : adapMonVarOSC
+adapMonIfVAL							= showadapMonVarADJ ? positionBetweenBands : adapMonVarOSC
 
-adapMonFuncST							= ta.stdev(adapMonIfVAL, adapMonVarLENGTH)
+adapMonFuncStD							= ta.stdev(adapMonIfVAL, adapMonVarLENGTH)
 
-adapMonIfCOLOR100						= adapMonVarOSC > adapMonArrNE_NEW		? color.new(adapMonColorLong, 90)		: color.new(adapMonColorShort, 90)
-adapMonIfCOLOR0							= adapMonVarOSC > adapMonArrNE_NEW		? color.new(adapMonColorLong, 0)		: color.new(adapMonColorShort, 0)
+ifAdapMonDesvStd						= showadapMonStDev ? adapMonFuncStD	: adapMonIfVAL
 
-
-/// ＰＬＯＴ ―――――――――――――――――――――――――――
+adapMonIfCOLOR100						= adapMonVarOSC > adapMonArrNE_NEW		? color.new(adapMonColorLong, 75)		: color.new(adapMonColorShort, 75)
 
 
-adapMonPlotMAIN							= plot	(strGlobalMultiHistogram == 'Mfi' and showadapMonGroup ? adapMonIfVAL : na,						color = adapMonIfCOLOR100)
-adapMonPlotMID							= plot	(strGlobalMultiHistogram == 'Mfi' and showadapMonGroup and adapMonVarADJ ? adapMonVarNeutral : adapMonArrNE_NEW, color = adapMonIfCOLOR100)
+/// ＰＬＯＴ ――――――――――――――――――――――――――
 
-adapMonPlotStDev						= plot	(strGlobalMultiHistogram == 'Mfi' and showadapMonGroup ? adapMonFuncST : na,					color = adapMonIfCOLOR100)
 
-/// ─── plot marcas de sobrecompra y sobreventa
-plot									(showadapMonGroup ? adapMonVarADJ ? 110 : adapMonArrOB_NEW : na,										color = color.from_gradient(adapMonVarOSC, adapMonArrNE_NEW, adapMonVarADJ ? 100 : adapMonArrOB_NEW, color.new(adapMonColorDark, 70), color.new(adapMonColorShort, 0)),	linewidth = 6)
-plot									(showadapMonGroup ? adapMonVarADJ ? -10 : adapMonArrOS_NEW : na,										color = color.from_gradient(adapMonVarOSC, adapMonVarADJ ? 0 : adapMonArrOS_NEW, adapMonArrNE_NEW, color.new(adapMonColorLong, 0), color.new(adapMonColorDark, 70)),	linewidth = 6)
+adapMonPlotIf							= strGlobalMultiHistogram  == 'Mfi' or strGlobalMultiHistogram == 'Dual' ? 'True' : 'False'
 
+adapMonPlotMAIN							= plot	(adapMonPlotIf == 'True' and display_adapMon_MFI ? ifAdapMonDesvStd : na,						color = adapMonIfCOLOR100)
+adapMonPlotMID							= plot	(adapMonPlotIf == 'True' and display_adapMon_MFI and showadapMonVarADJ ? adapMonVarNeutral	:	adapMonArrNE_NEW, color = adapMonIfCOLOR100)
+
+// adapMonPlotStDev						= plot	(strGlobalMultiHistogram == 'Mfi' and display_adapMon_MFI ? adapMonFuncST : na,					color = adapMonIfCOLOR100)
 
 /// ─── fill areas de tendencia
 fill									(adapMonPlotMID, adapMonPlotMAIN,																		color = adapMonIfCOLOR100, title = 'Area de Tendencia')
-fill									(adapMonPlotMID, adapMonPlotMAIN, adapMonIfVAL, adapMonVarADJ ? 50 : adapMonArrNE_NEW,					color.new(chart.bg_color, 1000), adapMonVarOSC > adapMonArrNE_NEW ? adapMonColorLong : adapMonColorShort)
+fill									(adapMonPlotMID, adapMonPlotMAIN, ifAdapMonDesvStd, showadapMonVarADJ ? 50 : adapMonArrNE_NEW,			color.new(chart.bg_color, 1000), adapMonVarOSC > adapMonArrNE_NEW ? adapMonColorLong : adapMonColorShort)
+// fill									(adapMonPlotMID, adapMonPlotMAIN, ifAdapMonDesvStd, _plot_gbl_midline,									color.new(chart.bg_color, 1000), adapMonVarOSC > adapMonArrNE_NEW ? adapMonColorLong : adapMonColorShort)
 
-//// ─────────────────────────────────────────────────────────────────────
-//// ─────────────────────────────────────────────────────────────────────
-//// ─────────────────────────────────────────────────────────────────────
+
+/// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
 
 /// ╔═══════════════════════════════════════╗
 /// ║	Adx Histogram						║
