@@ -20,42 +20,73 @@
 /// ╚═══════════════════════════════╝
 
 
-//@version=6
-indicator(title							= 'AI Mfi & AdxDiDi & Tsi Div & Panels Tsi Mtf - MIn [🎱 Allen 㔬]',
-		  shorttitle					= 'AiMfi & AdxDi & MTsi & PTsi MIn',
+//@version=5
+indicator(title							= 'AiMfi & MkOsc & Adx & allTsi & xMtPanel & xPanelIn [🎱 Allen 㔬]',
+		  shorttitle					= 'MkOsc MfiAdx allTsi xPnlx [🎱 Allen 㔬]',
+		//   shorttitle					= 'MkS MSOsc ZLag vidya Mfi Adx xTsiM xPanels [🎱 Allen 㔬]',
+		  overlay						= true,
+		  max_boxes_count				= 500,
+		  max_labels_count				= 500,
+		  max_lines_count				= 500,
+		  max_bars_back					= 1000,
 		  format						= format.price,
-		  precision						= 4
-		  )
+		//   timeframe_gaps				= true,
+		  precision						= 1,
+		  explicit_plot_zorder			= true)
 
-//// ─────────────────────────────────────────────────────────────────────
 
-strGlobalExtendTooltip					= 'Indicador TSI basado en tendencia'
-strGlobalOptionalTooltip				= 'Configuración de temporalidad adicional'
-strGlobalKeikinAshiTooltip				= 'Establecido para uso en gráficos diferentes a Heikin Ashi, de lo contrario genera distorsión.'
+/// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 
 /// ＩＮＰＵＴＳ ――――――――――――――――――――――――
 
 
-globalTSIGroupTimeframe					= 'Tsi & Divergences'
-// globalTSIGroupTimeframe					= 'Temporalidad Global'
-showTsiMuDiTSIDivergs					= input.bool	(defval = true,			title = 'TSI & Divergences',			group = globalTSIGroupTimeframe)
-showTsiMuDiTSITendency					= input.bool	(defval = true,			title = 'Tsi de Tendencia',				group = globalTSIGroupTimeframe,		tooltip = strGlobalOptionalTooltip)
-showTsiMuDiTSIMultitimeframe			= input.bool	(defval = false,		title = 'Tsi Multitimeframe',			group = globalTSIGroupTimeframe,		tooltip = strGlobalOptionalTooltip)
-strGlobalMultiTimeFrame					= input.string 	(defval = 'Grafico',	title = 'Multi Timeframe',				group = globalTSIGroupTimeframe,
-			  options					=				['Grafico', '15 min', '30 min', '1 Hora', '2 Horas', '3 Horas', '4 Horas', '1 Dia', '1 Semana', '1 Mes'])
-strGlobalMultiHistogram					= input.string 	(defval = 'Mfi',		title = 'Histograma',					group = globalTSIGroupTimeframe,
-			  options					=				['Mfi', 'Adx'])
-strGlobalColorSelector					= input.string 	(defval = 'Allen',		title = 'Color Selector',				group = globalTSIGroupTimeframe,
-			  options					=				['Allen', 'Ultr', 'Mono'])
-			//   options					=				['Allen', 'Ultr', 'Inverse', 'Classic', 'Light', 'Mono'])
-float insGlobalTFCoefficient			= 				2
+globalGroupIndicat						= 'Visualización Global'
+globalGroupTimeframe					= 'Configuración Global'
 
-/// ───────────────────────
-/// ─── Heikin Ashi
-/// ───────────────────────
+strGlobalKeikinAshiTooltip				= 'Establecido para uso en gráficos diferentes a Heikin Ashi, de lo contrario genera distorsión.'
 
-showGlobal_HknAshi						= input.bool	(defval = true,		title = 'Activar Heikin Ashi',			group = 'Heikin Ashi mode',				tooltip = strGlobalKeikinAshiTooltip)
+/// Title Global ――――――――――――――――――――
+
+/// Visual Global ―――――――――――――――――――
+display_xTsiMu_TSI						= input.bool	(defval = true,			title = 'Mostrar xTSI',				group = globalGroupIndicat)
+
+display_zeLagTrend						= input.bool	(defval = true,			title = 'Mostrar ZeroLag Trend',	group = globalGroupIndicat)
+
+display_vVidya_VoVidya					= input.bool	(defval = true,			title = "Mostrar Vidya",			group = globalGroupIndicat)
+
+display_FxMkSs__Sessions				= input.bool	(defval = true,			title = 'Fx Market Sessions',		group = globalGroupIndicat)
+
+display_msOsc_MarketOSC					= input.bool	(defval = true,			title = 'Market Oscillator',		group = globalGroupIndicat)
+
+display_adapMon_MFI						= input.bool	(defval = true,			title = 'Mostrar Ai Adaptative MFI', group = globalGroupIndicat)
+
+display_DmiAdx_AdxHisto					= input.bool	(defval = false,		title = 'Mostrar ADX Histograma',	group = globalGroupIndicat)
+
+display_MltObsPnlTimeFrPanel			= input.bool	(defval = true,			title = 'Mostrar Panel Tsi',		group = globalGroupIndicat)
+
+display_MltObsPnlIndicatPanel			= input.bool	(defval = true,			title = 'Mostrar Panel Multi Inc',	group = globalGroupIndicat)
+
+showxTsiMuTSIDivSpeed					= input.string 	(defval = 'Slow',		title = 'Diverg Speed',				group = globalGroupTimeframe,
+			  options					=				['Fast', 'Slow'])
+
+strGlobalAreasTimeFrame					= input.string 	(defval = '30 min',		title = 'Mostrar Sessions x TimeF',	group = globalGroupTimeframe,
+			  options					=				['All', '2 Horas', '1 Hora', '45 min', '30 min'])
+
+strGlobalMultiTimeFrame					= input.string 	(defval = 'Grafico',	title = 'Multi Timeframe',			group = globalGroupTimeframe,
+			  options					=				['Grafico', '15 min', '30 min', '1 Hora', '2 Horas', '3 Horas', '4 Horas', '1 Dia', '1 Semana'])
+
+strGlobalMultiHistogram					= input.string 	(defval = 'Dual',		title = 'Histograma',				group = globalGroupTimeframe,
+			  options					=				['Mfi', 'Adx', 'Dual'])
+
+strGlobalColorSelector					= input.string 	(defval = 'Allen',		title = 'Color Selector',			group = globalGroupTimeframe,
+			  options					=				['Allen', 'Ultr', 'Light'])
+
+
+/// Heikin Ashi ───────────────────────
+
+
+showGlobal_HknAshi						= input.bool	(defval = true,			title = 'Activar Heikin Ashi',		group = 'Heikin Ashi mode',			tooltip = strGlobalKeikinAshiTooltip)
 
 vGlobalHeiAsTicker						= ticker.heikinashi(syminfo.tickerid)
 [heAsGblO, heAsGblH, heAsGblL, heAsGblC]= request.security(vGlobalHeiAsTicker, timeframe.period, [open, high, low, close])
@@ -64,34 +95,68 @@ gbl_Source_O							= showGlobal_HknAshi ? heAsGblO : open
 gbl_Source_H							= showGlobal_HknAshi ? heAsGblH : high
 gbl_Source_L							= showGlobal_HknAshi ? heAsGblL : low
 gbl_Source_C							= showGlobal_HknAshi ? heAsGblC : close
-
-// gbl_Source_2							= showGlobal_HknAshi ? (heAsGblH + heAsGblL) / 2 : hl2
+gbl_Source_2							= showGlobal_HknAshi ? (heAsGblH + heAsGblL) / 2 : hl2
 gbl_Source_3							= showGlobal_HknAshi ? (heAsGblH + heAsGblL + heAsGblC) / 3 : hlc3
-// gbl_Source_4							= showGlobal_HknAshi ? (heAsGblO + heAsGblH + heAsGblL + heAsGblC) / 4 : ohlc4
+// gbl_Source_4							= showGlobal_HknAshi ? (heAsGblH + heAsGblL + heAsGblC + heAsGblO) / 4 : ohlc4
 
 
-/// ＴＰＳ ―――――――――――――――――――――――――――――
+/// Switch ────────────────────────────
 
 
-type globalSource
-	float O								= open
-	float H								= high
-	float L								= low
-	float C								= close
-	float V								= volume
-	int   I								= bar_index
-
-/// ───────────────────────
-/// ─── Switch
-/// ───────────────────────
-
-[_co_gbl_buy, _co_gbl_sell, _co_gbl_long, _co_gbl_short, _co_gbl_neutral, _co_gbl_extra, _co_gbl_white, _co_gbl_black, _co_gbl_txt_light, _co_gbl_txt_dark]	= switch	strGlobalColorSelector
-	'Allen'								=> [#33FFAC,		#CCF8FF,		#ADEB42,		#EA1889,		#CCF8FF,		#FDF43C,		#E6F7FF,		#121F3D,		#FBFD73,		#121F3D]
-	'Ultr'								=> [#00E7FD,		#FE0CB6,		#00E7FD,		#FE0CB6,		#121F3D,		#FDF43C,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
-	'Mono'								=> [#CCF8FF,		#0C1633,		#CCF8FF,		#0C1633,		#676B79,		#FCFF8F,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
+[_co_gbl_buy,	_co_gbl_sell,	_co_gbl_up,	_co_gbl_dn,	_co_gbl_extra,	_co_gbl_neutral]				= switch	strGlobalColorSelector
+	'Allen'								=> [#33FFAC,	#CCF8FF,	#30D453,	#0061FE,	#E3FF53,	#CCF8FF]
+	'Ultr'								=> [#98F1F4,	#E0D8CA,	#E3FF53,	#E0D8CA,	#CCF657,	#121F3D]
+	'Light'								=> [#0061FE,	#FF4054,	#E6F7FF,	#121F3D,	#121F3D,	#FFF87C]
 
 
-/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――
+/// Colors ───────────────────────────
+
+_co_gbl_long							= #30D453							// AllenGreen50
+_co_gbl_short							= #EA1889							// AllenFucsia50
+
+_co_gbl_white							= #E6F7FF							//	CitiAccentUltraLightBlue
+_co_gbl_pink							= #FFB7FF							//	WavBehPink20
+_co_gbl_sky								= #98F1F4							//	NexusSky
+_co_gbl_mint							= #7AFFA1							//	SalesforceMint
+_co_gbl_yellow							= #FDF43C							//	BrLiYel30
+_co_gbl_lime							= #E3FF53							//	Ex1Lime
+_co_gbl_blue							= #0035FF							//	ARoPrimary
+_co_gbl_cocoa							= #E0D8CA							//	NetsuiteCocoa
+_co_gbl_black							= #0C1633							//	PlatziBlue80
+_co_gbl_light							= #FBFD73							//	BrLiYel10
+_co_gbl_txt_dark						= #121F3D							//	PlatziBlue70
+_co_gbl_txt_light						= #FFF87C							//	SalesforceYellow
+
+
+// WiskAeroYellow							= #F9F940
+// SalesforceLime							= #CCF657
+// SalesforceLile							= #D5BEF2
+// SalesforceOrange							= #FF8C7D
+// SalesforceRed							= #FF4B4B
+// SalesforceBlue							= #3F73F7
+// Ex1Orange600								= #D93D04
+// Ex1Red									= #A60303
+// Ex1Wine									= #730202
+// Ex1Teal									= #1CD8E1
+// Ex1Ocean									= #00315e
+// TaxusRed									= #F20505
+// OsomeBlue								= #0061FE
+// OsomeRed									= #FF4054
+
+
+/// ＴＰＳ ―――――――――――――――――――――――――――――――――
+
+
+type globalTypeOHL
+	float O						    	= open
+	float H				    			= high
+	float L				    			= low
+	float C				    			= close
+	float V				    			= volume
+	int   I				    			= bar_index
+
+
+/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――――――
 
 
 /// ─── function timeframe
@@ -123,20 +188,20 @@ FunGlobalTimeFrame(_timeframe) =>
 /// ─── function location vertical
 FunGlobalVertical(_vertical) =>
 	switch _vertical
-		'arriba'						=> 'top'
-		'medio'							=> 'middle'
-		'abajo'							=> 'bottom'
+		'Arriba'						=> 'top'
+		'Medio'							=> 'middle'
+		'Abajo'							=> 'bottom'
 
 /// ─── function location horizontal
 FunGlobalHorizontal(_horizontal) =>
 	switch _horizontal
 
-		'izquierda'						=> 'left'
-		'centro'						=> 'center'
-		'derecha'						=> 'right'
+		'Izquierda'						=> 'left'
+		'Centro'						=> 'center'
+		'Derecha'						=> 'right'
 
 /// ─── function position
-FunGlobalPosition(_position) =>
+FunGlobalPositionIn(_position) =>
 	switch _position
 		'Externo'						=> 'outside'
 		'Interno'						=> 'inside'
@@ -182,30 +247,31 @@ FunGlobalTimeZone(_timezone) =>
 		'Argentina'						=> 'America/Argentina/Buenos_Aires'
 
 
-/// ─── function calculate MA
-FunGlobalCalculateMA(_source, _length, _type) =>
-	switch _type
-		'SMA'							=> ta.sma	(_source, _length)
-		'HMA'							=> ta.hma	(_source, _length)
-		'EMA'							=> ta.ema	(_source, _length)
-		'SMMA'							=> ta.rma	(_source, _length)
-		'WMA'							=> ta.wma	(_source, _length)
-		'VWMA'							=> ta.vwma	(_source, _length)
-		'MFI'							=> ta.mfi	(_source, _length)
+/// ─── function tsi
+FunGlobalCalcTSI(_speed, _x) =>
+	_plus								= 50
+	_source								= gbl_Source_C
 
-/// ─── Function calculate timeframe range
-FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
-	_x									= 4
-	_mayor								= 480
-	_minor								= 15
-	_tonumber							= str.tonumber(_timeframe)
-	_operat_coeff						= _tonumber * _coefficient
-	_operat_minor						= _tonumber * _x
-	_toresult							= str.tonumber(_timeframe)
-	_conditional						= _tonumber >= _mayor ? _toresult : _tonumber <= _minor ? _operat_minor : _operat_coeff
-	str.tostring(_conditional)
+	_long								= 25		// gbl_speed_long			= 6			// _smooth
+	_short								= 0			// gbl_speed_short			= 13		// _smooth
+	_signal								= 0			// gbl_speed_signal			= 5			// _smooth
 
-FunGlobalCalculateTimeframeVariant(_timeframe) =>
+	switch _speed
+		'Fast' =>
+			_short						:= 5
+			_signal						:= 14
+
+		'Slow' =>
+			_short						:= 13
+			_signal						:= 13
+
+	_tsi								= _x * ta.tsi(_source, _short, _long) + _plus
+	_tsi_ema							= ta.ema(_tsi, _signal)
+
+	[_tsi, _tsi_ema]
+
+/// ─── function timeframe conditional
+FunGlobalCalculateTimeframeIf(_timeframe) =>
 	_tonumber							= str.tonumber(_timeframe)
 	_minor_dayly						= _tonumber < 500
 	_operat_minor						= 30
@@ -218,9 +284,16 @@ FunGlobalCalculateTimeframeVariant(_timeframe) =>
 /// ＩＮＳＴＡＮＣＳ ――――――――――――――――――――
 
 
-globalOHL.								= globalSource.new()
+gblSource								= globalTypeOHL.new()
 
-//// ─────────────────────────────────────────────────────────────────────
+
+/// ＰＬＯＴ ――――――――――――――――――――――――――――――
+
+
+_plot_gbl_midline						= plot(50,			title = 'Equilibrio',		display = display.none,			editable = false)
+
+
+/// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 /// ╔═══════════════════════════════════╗
 /// ║	AI Adaptative MFI				║
