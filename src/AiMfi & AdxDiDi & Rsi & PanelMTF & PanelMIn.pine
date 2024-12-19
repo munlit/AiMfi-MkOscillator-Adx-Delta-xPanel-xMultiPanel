@@ -31,9 +31,9 @@ strGlobalExtendTooltip					= 'Indicador TSI basado en tendencia'
 strGlobalOptionalTooltip				= 'Configuración de temporalidad adicional'
 strGlobalKeikinAshiTooltip				= 'Establecido para uso en gráficos diferentes a Heikin Ashi, de lo contrario genera distorsión.'
 
-/// ───────────────────────
-/// ─── Variables
-/// ───────────────────────
+
+/// ＩＮＰＵＴＳ ――――――――――――――――――――――――
+
 
 globalTSIGroupTimeframe					= 'Tsi & Divergences'
 // globalTSIGroupTimeframe					= 'Temporalidad Global'
@@ -47,7 +47,7 @@ strGlobalMultiHistogram					= input.string 	(defval = 'Mfi',		title = 'Histogram
 strGlobalColorSelector					= input.string 	(defval = 'Allen',		title = 'Color Selector',				group = globalTSIGroupTimeframe,
 			  options					=				['Allen', 'Ultr', 'Mono'])
 			//   options					=				['Allen', 'Ultr', 'Inverse', 'Classic', 'Light', 'Mono'])
-float insGlobalTFCoefficient			= 				2.3
+float insGlobalTFCoefficient			= 				2
 
 /// ───────────────────────
 /// ─── Heikin Ashi
@@ -67,9 +67,9 @@ gbl_Source_C							= showGlobal_HknAshi ? heAsGblC : close
 gbl_Source_3							= showGlobal_HknAshi ? (heAsGblH + heAsGblL + heAsGblC) / 3 : hlc3
 // gbl_Source_4							= showGlobal_HknAshi ? (heAsGblO + heAsGblH + heAsGblL + heAsGblC) / 4 : ohlc4
 
-/// ───────────────────────
-/// ─── Types
-/// ───────────────────────
+
+/// ＴＰＳ ―――――――――――――――――――――――――――――
+
 
 type globalSource
 	float O								= open
@@ -88,9 +88,9 @@ type globalSource
 	'Ultr'								=> [#00E7FD,		#FE0CB6,		#00E7FD,		#FE0CB6,		#121F3D,		#FDF43C,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
 	'Mono'								=> [#CCF8FF,		#0C1633,		#CCF8FF,		#0C1633,		#676B79,		#FCFF8F,		#E6F7FF,		#0C1633,		#E6F7FF,		#121F3D]
 
-/// ───────────────────────
-/// ─── Functions
-/// ───────────────────────
+
+/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――
+
 
 /// ─── function timeframe
 FunGlobalTimeFrame(_timeframe) =>
@@ -205,17 +205,18 @@ FunGlobalCalculateTimeframeRange(_coefficient, _timeframe) =>
 
 FunGlobalCalculateTimeframeVariant(_timeframe) =>
 	_tonumber							= str.tonumber(_timeframe)
+	_minor_dayly						= _tonumber < 500
 	_operat_minor						= 30
 	_operat_medium						= _tonumber * 3
 	_operat_mayor						= _tonumber * 2
 	_conditional						= _tonumber >= 45 ? _operat_mayor : _tonumber <= 14 ? _operat_minor : _operat_medium
-	str.tostring(math.round(_conditional))
+	_result								= _minor_dayly ? str.tostring(math.round(_conditional)) : timeframe.period
 
-/// ───────────────────────
-/// ─── Instances
-/// ───────────────────────
 
-globalOHL								= globalSource.new()
+/// ＩＮＳＴＡＮＣＳ ――――――――――――――――――――
+
+
+globalOHL.								= globalSource.new()
 
 //// ─────────────────────────────────────────────────────────────────────
 
@@ -254,10 +255,9 @@ float adapMonVarOverbought				=				75.0			// 80.0
 float adapMonVarNeutral					=				50.0
 float adapMonVarOversold				=				25.0			// 20.0
 
-//// ───────────────────────
-/// ─── Adaptive MFI
-/// ─── Functions ────
-//// ───────────────────────
+
+/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――
+
 
 adapMonVarOSC							= ta.mfi(adapMonVarSRC, adapMonVarLENGTH)
 
@@ -278,17 +278,19 @@ adapMonFuncST							= ta.stdev(adapMonIfVAL, adapMonVarLENGTH)
 adapMonIfCOLOR100						= adapMonVarOSC > adapMonArrNE_NEW		? color.new(adapMonColorLong, 90)		: color.new(adapMonColorShort, 90)
 adapMonIfCOLOR0							= adapMonVarOSC > adapMonArrNE_NEW		? color.new(adapMonColorLong, 0)		: color.new(adapMonColorShort, 0)
 
-//// ───────────────────────
-/// ─── Adaptive MFI
-/// ─── Display ──────
-//// ───────────────────────
+
+/// ＰＬＯＴ ―――――――――――――――――――――――――――
+
 
 adapMonPlotMAIN							= plot	(strGlobalMultiHistogram == 'Mfi' and showadapMonGroup ? adapMonIfVAL : na,						color = adapMonIfCOLOR100)
 adapMonPlotMID							= plot	(strGlobalMultiHistogram == 'Mfi' and showadapMonGroup and adapMonVarADJ ? adapMonVarNeutral : adapMonArrNE_NEW, color = adapMonIfCOLOR100)
 
+adapMonPlotStDev						= plot	(strGlobalMultiHistogram == 'Mfi' and showadapMonGroup ? adapMonFuncST : na,					color = adapMonIfCOLOR100)
+
 /// ─── plot marcas de sobrecompra y sobreventa
 plot									(showadapMonGroup ? adapMonVarADJ ? 110 : adapMonArrOB_NEW : na,										color = color.from_gradient(adapMonVarOSC, adapMonArrNE_NEW, adapMonVarADJ ? 100 : adapMonArrOB_NEW, color.new(adapMonColorDark, 70), color.new(adapMonColorShort, 0)),	linewidth = 6)
 plot									(showadapMonGroup ? adapMonVarADJ ? -10 : adapMonArrOS_NEW : na,										color = color.from_gradient(adapMonVarOSC, adapMonVarADJ ? 0 : adapMonArrOS_NEW, adapMonArrNE_NEW, color.new(adapMonColorLong, 0), color.new(adapMonColorDark, 70)),	linewidth = 6)
+
 
 /// ─── fill areas de tendencia
 fill									(adapMonPlotMID, adapMonPlotMAIN,																		color = adapMonIfCOLOR100, title = 'Area de Tendencia')
@@ -318,9 +320,10 @@ AdxDiHiGroupVars						= 'Adx Setting'
 adxDiHi_Length							= input.int(defval = 14,		title = 'Longitud Adx',			group = AdxDiHiGroupVars)
 adxDiHi_Th								= input.int(defval = 25,		title = 'Umbral',				group = AdxDiHiGroupVars)
 
-//// ───────────────────────
-/// ─── Functions ───
-//// ───────────────────────
+
+/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――
+
+
 xAdxDiHi_TrueRange						= math.max(math.max(gbl_Source_H - gbl_Source_L, math.abs(gbl_Source_H - nz(gbl_Source_C[1]))), math.abs(gbl_Source_L - nz(gbl_Source_C[1])))
 xAdxDiHi_DirectMovePlus					= gbl_Source_H - nz(gbl_Source_H[1]) > nz(gbl_Source_L[1]) - gbl_Source_L ? math.max(gbl_Source_H - nz(gbl_Source_H[1]), 0) : 0
 xAdxDiHi_DirectMoveMinus				= nz(gbl_Source_L[1]) - gbl_Source_L > gbl_Source_H - nz(gbl_Source_H[1]) ? math.max(nz(gbl_Source_L[1]) - gbl_Source_L, 0) : 0
@@ -333,9 +336,9 @@ xAdxDiHi_SmoothTrueRange				:= na(xAdxDiHi_SmoothTrueRange) ? xAdxDiHi_TrueRange
 xAdxDiHi_SmoothDirectMovePlus			:= na(xAdxDiHi_SmoothDirectMovePlus) ? xAdxDiHi_DirectMovePlus : xAdxDiHi_SmoothDirectMovePlus - (xAdxDiHi_SmoothDirectMovePlus / adxDiHi_Length) + xAdxDiHi_DirectMovePlus
 xAdxDiHi_SmoothDirectMoveMinus			:= na(xAdxDiHi_SmoothDirectMoveMinus) ? xAdxDiHi_DirectMoveMinus : xAdxDiHi_SmoothDirectMoveMinus - (xAdxDiHi_SmoothDirectMoveMinus / adxDiHi_Length) + xAdxDiHi_DirectMoveMinus
 
-//// ───────────────────────
-/// ─── Maths ───
-//// ───────────────────────
+
+/// ＣＡＬＣＵＬＡＴＩＯＮＳ ―――――――――――――
+
 
 xAdxDiHi_DIPlus							= xAdxDiHi_SmoothDirectMovePlus / xAdxDiHi_SmoothTrueRange * 100
 xAdxDiHi_DIMinus						= xAdxDiHi_SmoothDirectMoveMinus / xAdxDiHi_SmoothTrueRange * 100
@@ -347,9 +350,9 @@ xAdxDiHi_Didi							= 25 + (xAdxDiHi_DIPlus - xAdxDiHi_DIMinus)
 xAdxDiHi_CR								= xAdxDiHi_ADX <= 22 ? color.new(colorxAdxDiHi_Buy, 80) : xAdxDiHi_ADX <= 34 ? color.new(colorxAdxDiHi_Buy, 60) : xAdxDiHi_ADX <= 46 ? color.new(colorxAdxDiHi_Buy, 40) : xAdxDiHi_ADX <= 58 ? color.new(colorxAdxDiHi_Buy, 25) : xAdxDiHi_ADX <= 70 ? color.new(colorxAdxDiHi_Buy, 10) : color.new(colorxAdxDiHi_Buy, 0)
 xAdxDiHi_CG								= xAdxDiHi_ADX <= 22 ? color.new(colorxAdxDiHi_Short, 80) : xAdxDiHi_ADX <= 34 ? color.new(colorxAdxDiHi_Short, 60) : xAdxDiHi_ADX <= 46 ? color.new(colorxAdxDiHi_Short, 40) : xAdxDiHi_ADX <= 58 ? color.new(colorxAdxDiHi_Short, 25) : xAdxDiHi_ADX <= 70 ? color.new(colorxAdxDiHi_Short, 10) : color.new(colorxAdxDiHi_Short, 0)
 
-//// ───────────────────────
-/// ─── Visual ───
-//// ───────────────────────
+
+/// ＰＬＯＴ ―――――――――――――――――――――――――――
+
 
 plot(strGlobalMultiHistogram == 'Adx' ? xAdxDiHi_Didi : na,		style = plot.style_columns,		linewidth = 4,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		histbase = adxDiHi_Th ,		title = 'DI')
 plot(strGlobalMultiHistogram == 'Adx' ? xAdxDiHi_Didi : na,		style = plot.style_line,		linewidth = 2,		color = xAdxDiHi_Didi >= 25 ? xAdxDiHi_CR : xAdxDiHi_CG,		histbase = adxDiHi_Th ,		title = 'Linea DI')
@@ -401,9 +404,9 @@ showTsiMuDiCloudOn						= input.bool	(defval = true,		title = 'TSI Cloud',					g
 vTsiMuDiSource							= gbl_Source_C
 // vTsiMuDiSource							= gbl_Source_C[0]
 
-//// ───────────────────────
-/// ─── Functions ───
-//// ───────────────────────
+
+/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――
+
 
 /// function tendency (smooth & tsi calculate)
 FunTsiMuDiCalculateTendencyTSI(_source, _long, _short) =>
@@ -431,9 +434,9 @@ FunTsiMuDiCalculateTSI(_source, _long, _short, _x) =>
 	_smooth_abs							= FunTsiMuDiCalculateDoubleSmooth(math.abs(_change), _long, _short)
 	_x * (_smooth / _smooth_abs) + _plus
 
-//// ───────────────────────
-/// ─── Instances ───
-//// ───────────────────────
+
+/// ＩＮＳＴＡＮＣＳ ――――――――――――――――――――
+
 
 /// Multitimeframe
 /// instance function calculate multitimeframe Tsi
@@ -442,37 +445,36 @@ iTsiMuDiCalculateMultiTfEMA				= ta.ema(iTsiMuDiCalculateMultiTfTSI, vTsiMuDiSig
 
 /// instance function global timeframe
 iTsiMuDiCalculateMultiTfTSIRange		= str.tonumber(FunGlobalTimeFrame(strGlobalMultiTimeFrame)) > 500 ? FunGlobalCalculateTimeframeVariant(FunGlobalTimeFrame(strGlobalMultiTimeFrame)) : timeframe.period
-// iTsiMuDiCalculateMultiTfTSIRange		= str.tonumber(FunGlobalTimeFrame(strGlobalMultiTimeFrame)) > 500 ? FunGlobalCalculateTimeframeRange(insGlobalTFCoefficient, FunGlobalTimeFrame(strGlobalMultiTimeFrame)) : timeframe.period
 
 /// ─── Timeframe multitimeframe Tsi
 arrTsiMuDiMultiTimeframeTicker			= request.security(syminfo.tickerid,	iTsiMuDiCalculateMultiTfTSIRange,	iTsiMuDiCalculateMultiTfTSI,	barmerge.gaps_on)
-
-/// ─── plot color
-insTsiMuDiMultiTimefPlotColor			= iTsiMuDiCalculateMultiTfTSI	> iTsiMuDiCalculateMultiTfEMA	? colorTsiMuDiBaseLong	: iTsiMuDiCalculateMultiTfTSI	<= iTsiMuDiCalculateMultiTfEMA	? colorTsiMuDiBaseShort	: na
 
 /// Tendency
 /// instances function calculate tendency  Tsi
 iTsiMuDiCalculateTendencyTSI			= FunTsiMuDiCalculateTendencyTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort)
 iTsiMuDiCalculateTendencyEma			= ta.ema(iTsiMuDiCalculateTendencyTSI, vTsiMuDiSignal)
 
-/// fill color tendency
-insTsiMuDiCloudTendencyColor			= iTsiMuDiCalculateTendencyTSI	> iTsiMuDiCalculateTendencyEma	? colorTsiMuDiBaseLong	: iTsiMuDiCalculateTendencyTSI	<= iTsiMuDiCalculateTendencyEma	? colorTsiMuDiBaseShort		: na
-
 /// PRESENT
 /// instance function calculate present Tsi
 iTsiMuDiCalculateTSI					= FunTsiMuDiCalculateTSI(vTsiMuDiSource, vTsiMuDiLong, vTsiMuDiShort, 125)
 iTsiMuDiCalculateEma					= ta.ema(iTsiMuDiCalculateTSI, vTsiMuDiSignal)
+
+
+/// ＣＡＬＣＵＬＡＴＩＯＮＳ ――――――――――――
+/// ─── plot color multitimeframe
+insTsiMuDiMultiTimefPlotColor			= iTsiMuDiCalculateMultiTfTSI	> iTsiMuDiCalculateMultiTfEMA	? colorTsiMuDiBaseLong	: iTsiMuDiCalculateMultiTfTSI	<= iTsiMuDiCalculateMultiTfEMA	? colorTsiMuDiBaseShort	: na
+
+/// fill color tendency
+insTsiMuDiCloudTendencyColor			= iTsiMuDiCalculateTendencyTSI	> iTsiMuDiCalculateTendencyEma	? colorTsiMuDiBaseLong	: iTsiMuDiCalculateTendencyTSI	<= iTsiMuDiCalculateTendencyEma	? colorTsiMuDiBaseShort		: na
 
 /// ─── plot color
 insTsiMuDiPlotColor						= iTsiMuDiCalculateTSI			> iTsiMuDiCalculateEma			? colorTsiMuDiBaseLong	: iTsiMuDiCalculateTSI			<= iTsiMuDiCalculateEma			? colorTsiMuDiBaseShort	: na
 /// ─── fill cloud color
 insTsiMuDiCloudColor					= iTsiMuDiCalculateTSI			> iTsiMuDiCalculateEma			? colorTsiMuDiBaseLong	: iTsiMuDiCalculateTSI			<= iTsiMuDiCalculateEma			? colorTsiMuDiBaseShort	: na
 
-//// ───────────────────────
-/// ─── Display ───
-//// ───────────────────────
 
-/// ─── Plot
+/// ＰＬＯＴ ―――――――――――――――――――――――――――
+
 
  /// plot multi timeframe
 insTsiMuDiMultitimefTsiPlotLine			= plot(showTsiMuDiTSIMultitimeframe	? arrTsiMuDiMultiTimeframeTicker : na,							color = color.new(colorTsiMuDiMultitimeframe, 60),		linewidth = 2)
@@ -725,9 +727,9 @@ vTsiObsPnlTF1w							= request.security(syminfo.tickerid,		'W',		tsiObsPnlTSI)
 [vTsiObsPnlTFSignalMfi,	vTsiObsPnlTFSignalMfi_2,	vTsiObsPnlTFSignalMfi_3,	vTsiObsPnlTFSignalMfi_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlMFI,	tsiObsPnlMFI[1],	tsiObsPnlMFI[2],	tsiObsPnlMFI[3]],	lookahead = barmerge.lookahead_on)
 [vTsiObsPnlTFSignalAdx,	vTsiObsPnlTFSignalAdx_2,	vTsiObsPnlTFSignalAdx_3,	vTsiObsPnlTFSignalAdx_4]	= request.security(syminfo.tickerid,	iTsiObsPnlCalcSignal,	[tsiObsPnlADX,	tsiObsPnlADX[1],	tsiObsPnlADX[2],	tsiObsPnlADX[3]],	lookahead = barmerge.lookahead_on)
 
-/// ───────────────────────
-/// ─── Functions
-/// ───────────────────────
+
+/// ＦＵＮＣＴＩＯＮＳ ――――――――――――――――――
+
 
 /// ─── New table
 var vTsiPnlNewTable						= table.new(
@@ -836,7 +838,7 @@ FunTsiObsPnlCalculateSignal(_col, _row, _title, _var, _var2, _var3, _var4, _min,
 
 	_cell_color							= _var >= _max ? colorTsiObsPnl_Sell : _var <= _min ? colorTsiObsPnl_Buy : colorTsiObsPnl_Neutral
 	_signal_opacity						= _var >= _max or _var <= _min ? 30 : _var >= _fract_max or _var <= _fract_min ? 40 : 65
-	_cell_text							= _title + '\n' + str.tostring(_var, '#.00') + '\n' +_if_condition
+	_cell_text							= _title + '\n' + str.tostring(_var, '#.00') + '\n' + _if_condition
 
 	/// ─── table
 	table.cell							(vTsiPnlNewTableSignal, _col, _row, _cell_text,
@@ -845,9 +847,9 @@ FunTsiObsPnlCalculateSignal(_col, _row, _title, _var, _var2, _var3, _var4, _min,
 		  text_color					= colorTsiObsPnl_TextDark,
 		  width							= 4)
 
-/// ───────────────────────
-/// ─── Visual
-/// ───────────────────────
+
+/// ＰＬＯＴ ―――――――――――――――――――――――――――
+
 
 /// ─── Table TSI
 if showTsiObsPnlTimeframesPanel
