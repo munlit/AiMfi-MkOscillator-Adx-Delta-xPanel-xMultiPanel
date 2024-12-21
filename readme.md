@@ -16,7 +16,7 @@
 
 #### Archivo principal
 
-[.Pine: 🎱 AiMfi & MKOscilator & Adx & Delta & xPanel & xMultiPanel](https://github.com/munlit/AiMfi-MkOscillator-Adx-Delta-xPanel-xMultiPanel/blob/master/src/AiMfi%20%26%20MKOscilator%20%26%20Adx%20%26%20Delta%20%26%20xPanel%20%26%20xMultiPanel.pine)
+[.Pine: 🎱 AiMfi & MKOscilator & Adx & Delta & xPanel & xMultiPanel](https://github.com/munlit/AiMfi-MkOscillator-Adx-Delta-xPanel-xMultiPanel/blob/master/src/AiMfi%20%26%20MKOscillator%20%26%20Adx%20%26%20Delta%20%26%20xPanel%20%26%20xMultiPanel.pine)
 
 *  Solo es necesario copiar el codigo visualizado en RAW
 *  Pegar en el editor Pine de TradingView
