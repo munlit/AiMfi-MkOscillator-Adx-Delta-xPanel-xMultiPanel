@@ -2,19 +2,21 @@
 
 ### GUIA
 
-*Repositorio* — (https://github.com/munlit/AiMFI-TSI-MultiTSI-PanelTF.git)
+*Repositorio* — (https://github.com/munlit/AiMfi-MkOscillator-Adx-Delta-xPanel-xMultiPanel.git)
 
 -  Indicadores Integrados:
 
-      -  Super Tsi & histograms
-      -  Panel Multi timeframes
+      -  All Tsi
+      -  All Oscillator
+      -  Histograms
+      -  Panel Multi Trends
       -  Panel Multi indicator
   
 <img align="right" src="https://github.com/2LV/Tradingview-Indicators/assets/70970973/74846972-8cdd-491e-9d35-272fe0a8167d" alt="Pinescript Logo" width="200" height="130.31" />
 
 #### Archivo principal
 
-[.Pine: 🎱AiMfi & AdxDiDi & Rsi & PanelMTF & PanelMIn](https://github.com/munlit/AiMFI-TSI-MultiTSI-PanelTF/blob/master/src/AiMfi%20MultiTSI%20PanelTF.pine)
+[.Pine: 🎱 AiMfi & MKOscilator & Adx & Delta & xPanel & xMultiPanel](https://github.com/munlit/AiMfi-MkOscillator-Adx-Delta-xPanel-xMultiPanel/blob/master/src/AiMfi%20%26%20MKOscilator%20%26%20Adx%20%26%20Delta%20%26%20xPanel%20%26%20xMultiPanel.pine)
 
 *  Solo es necesario copiar el codigo visualizado en RAW
 *  Pegar en el editor Pine de TradingView
@@ -23,10 +25,12 @@
 
 #### Secciones
 
--  Tsi Divergences
+-  All Tsi
+-  Mk Oscillator
 -  Adaptative Mfi
+-  Adx Dmi
 -  Adx DiDi
--  Tsi Panel Multi Timeframes
+-  Panel Multi Trends
 -  Panel Multi Indicators
 
 #### Contribuciones 
