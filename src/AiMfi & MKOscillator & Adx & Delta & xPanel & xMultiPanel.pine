@@ -853,7 +853,7 @@ FunTsiMuDiCalc2SmoothTsiDiv(_source) =>
 
 FunTsiMuDiCalcTSIdiv(_source) =>
 	_change								= ta.change(_source)
-	_x									= 125
+	_x									= 110
 	_plus								= 50
 
 	_smooth								= FunTsiMuDiCalc2SmoothTsiDiv(_change)
@@ -871,7 +871,7 @@ ixTsiMu_RSI								= ta.rsi(gbl_Source_C, ixTsiMu_RSILength)
 /// TSI
 
 /// instance function Tsi fast
-[ixTsiMuCalcTsiFast, ixTsiMuCalcEmaFast]= FunGlobalCalcTSI('Fast', 125)
+[ixTsiMuCalcTsiFast, ixTsiMuCalcEmaFast]= FunGlobalCalcTSI('Fast', 160)
 
 /// instance function Tsi slow
 [ixTsiMuCalcTsiSlow, ixTsiMuCalcEmaSlow]= FunGlobalCalcTSI('Slow', 180)
@@ -956,16 +956,16 @@ xTsiMuTsi_crossunder_div				= display_xTsiMu_TSI and ta.crossunder(ixTsiMuCalcTs
 
 plotchar(showxTsiMuTSIDivSpeed	== 'Fast' ? xTsiMuTsi_crossover_fast : showxTsiMuTSIDivSpeed	== 'Slow' ? xTsiMuTsi_crossover_slow : xTsiMuTsi_crossover_div,
 		  title							= "cross ▲",
-		  char							= "▲", 
-		  location						= location.belowbar, 
+		  char							= "✪", 
+		  location						= location.absolute, 
 		  color							= color.new(co_xTsiMuTSIMainLong, 10),
 		  size							= size.tiny, 
 		  offset						= -1)
 
 plotchar(showxTsiMuTSIDivSpeed	== 'Fast' ? xTsiMuTsi_crossunder_fast : showxTsiMuTSIDivSpeed	== 'Slow' ? xTsiMuTsi_crossunder_slow : xTsiMuTsi_crossunder_div,
 		  title							= "cross ▼",
-		  char							= "▼", 
-		  location						= location.abovebar, 
+		  char							= "✪", 
+		  location						= location.absolute, 
 		  color							= color.new(co_xTsiMuTSIMainShort, 10), 
 		  size							= size.tiny, 
 		  offset						= -1)
