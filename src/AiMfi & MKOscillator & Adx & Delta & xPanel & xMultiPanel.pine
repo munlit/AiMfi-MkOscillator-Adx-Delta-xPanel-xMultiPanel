@@ -67,7 +67,7 @@ showxTsiMuTSIDivSpeed					= input.string 	(defval = 'Fast',		title = 'Divergenci
 strGlobalMultixTSISpeed					= input.string 	(defval = 'Dual',		title = 'xTSI Multiples',			group = globalGroupTimeframe,
 			  options					=				['Div', 'Fast','Slow', 'Dual', 'All'])
 
-strGlobalMultixTSIHighlight				= input.string 	(defval = 'Div',		title = 'xTSI Destacado',			group = globalGroupTimeframe,
+strGlobalMultixTSIHighlight				= input.string 	(defval = 'Fast',		title = 'xTSI Destacado',			group = globalGroupTimeframe,
 			  options					=				['Div', 'Fast','Slow'])
 
 strGlobalMultiHistogram					= input.string 	(defval = 'Dual',		title = 'Histograma',				group = globalGroupTimeframe,
@@ -882,14 +882,41 @@ ixTsiMu_RSI								= ta.rsi(gbl_Source_C, ixTsiMu_RSILength)
 ixTsiMuCalcTsiDiv						= FunTsiMuDiCalcTSIdiv(gbl_Source_C)
 ixTsiMuCalcEmaDiv						= ta.ema(ixTsiMuCalcTsiDiv, ixTsiMu_Signal)
 
+/// ─── plot color div
+insxTsiMuShowColorDiv					= ixTsiMuCalcTsiDiv		> ixTsiMuCalcEmaDiv		? co_xTsiMuTSIBaseUp	: ixTsiMuCalcTsiDiv		<= ixTsiMuCalcEmaDiv	? co_xTsiMuTSIBaseDn	: na
+
 /// ─── plot color fast
-insxTsiMuShowColorFast					= ixTsiMuCalcTsiFast	> ixTsiMuCalcEmaFast	? co_xTsiMuTSIFastUp	: ixTsiMuCalcTsiFast	<= ixTsiMuCalcEmaFast	? co_xTsiMuTSIFastDn	: na
+insxTsiMuShowColorFast					= ixTsiMuCalcTsiFast	> ixTsiMuCalcEmaFast	? co_xTsiMuTSIBaseUp	: ixTsiMuCalcTsiFast	<= ixTsiMuCalcEmaFast	? co_xTsiMuTSIBaseDn	: na
 
 /// ─── plot color slow
 insxTsiMuShowColorSlow					= ixTsiMuCalcTsiSlow	> ixTsiMuCalcEmaSlow	? co_xTsiMuTSIBaseUp	: ixTsiMuCalcTsiSlow	<= ixTsiMuCalcEmaSlow	? co_xTsiMuTSIBaseDn	: na
 
-/// ─── plot color div
-insxTsiMuShowColorDiv					= ixTsiMuCalcTsiDiv		> ixTsiMuCalcEmaDiv		? co_xTsiMuTSIBaseUp	: ixTsiMuCalcTsiDiv		<= ixTsiMuCalcEmaDiv	? co_xTsiMuTSIBaseDn	: na
+/// function calculate crossover/crossunder
+FunTsiMuDiCalcCrossView(_speed) =>
+	bool	_over						= false
+	bool	_under						= false
+
+	if _speed == 'Div'
+		_over							:= ta.crossover(ixTsiMuCalcTsiDiv,		ixTsiMuCalcEmaDiv)
+		_under							:= ta.crossunder(ixTsiMuCalcTsiDiv,		ixTsiMuCalcEmaDiv)
+
+	else if _speed == 'Fast'
+		_over							:= ta.crossover(ixTsiMuCalcTsiFast,		ixTsiMuCalcEmaFast)
+		_under							:= ta.crossunder(ixTsiMuCalcTsiFast,	ixTsiMuCalcEmaFast)
+
+	else if _speed == 'Slow'
+		_over							:= ta.crossover(ixTsiMuCalcTsiSlow,		ixTsiMuCalcEmaSlow)
+		_under							:= ta.crossunder(ixTsiMuCalcTsiSlow,	ixTsiMuCalcEmaSlow)
+
+	_crossover							= _over			//	_over[1]
+	_crossunder							= _under		//	_under[1]
+
+	// [_over, _under]
+	[_crossover, _crossunder]
+
+/// instance crossover/crossunder
+[TsiMuTsi_over, TsiMuTsi_under]			= FunTsiMuDiCalcCrossView(showxTsiMuTSIDivSpeed)
+
 
 /// ＰＬＯＴ ―――――――――――――――――――――――――――
 
@@ -903,79 +930,51 @@ insxTsiMuTsiPlotDnLine					= plot(display_xTsiMu_TSI ? -10 : na,		color = color.
 
 
 /// plot TSI show
-tsiMuDiIfTsiMulti						= strGlobalMultixTSISpeed  == 'All'		?	'True' : 'False'
-tsiMuDiIfTsiDual						= strGlobalMultixTSISpeed  == 'Dual'	?	'True' : 'False'
-tsiMuDiIfTsidiv							= strGlobalMultixTSISpeed  == 'Div'		or	tsiMuDiIfTsiMulti == 'True' 	? 'True' : 'False'
-tsiMuDiIfTsislow						= strGlobalMultixTSISpeed  == 'Slow'	or	tsiMuDiIfTsiMulti == 'True' 	? 'True' : 'False'
-tsiMuDiIfTsifast						= strGlobalMultixTSISpeed  == 'Fast'	or	tsiMuDiIfTsiMulti == 'True' 	? 'True' : 'False'
+tsiMuDiIfTsiAll							= strGlobalMultixTSISpeed	== 'All'		?	'True' : 'False'
+tsiMuDiIfTsiDual						= strGlobalMultixTSISpeed	== 'Dual'		?	'True' : 'False'
+tsiMuDiIfTsidiv							= strGlobalMultixTSISpeed	== 'Div'		or	tsiMuDiIfTsiAll	== 'True'	? 'True'	: 'False'
+tsiMuDiIfTsifast						= strGlobalMultixTSISpeed	== 'Fast'		or	tsiMuDiIfTsiAll	== 'True'	? 'True'	: 'False'
+tsiMuDiIfTsislow						= strGlobalMultixTSISpeed	== 'Slow'		or	tsiMuDiIfTsiAll	== 'True'	? 'True'	: 'False'
 
 /// plot TSI line/fill color
 tsiMuDiIfTsiColorDiv					= strGlobalMultixTSIHighlight  == 'Div'		? insxTsiMuShowColorDiv		: _co_gbl_light
-tsiMuDiIfTsiOpacityDiv					= strGlobalMultixTSIHighlight  == 'Div'		? 25	: 50
+tsiMuDiIfTsiOpacityDiv					= strGlobalMultixTSIHighlight  == 'Div'		? 25	: 60
 tsiMuDiIfTsiColorDivline				= strGlobalMultixTSIHighlight  == 'Div'		? color.new(insxTsiMuShowColorDiv, tsiMuDiIfTsiOpacityDiv)						: color.new(_co_gbl_light, tsiMuDiIfTsiOpacityDiv)
 
 tsiMuDiIfTsiColorFast					= strGlobalMultixTSIHighlight  == 'Fast'	? insxTsiMuShowColorFast	: _co_gbl_neutral
-tsiMuDiIfTsiOpacityFast					= strGlobalMultixTSIHighlight  == 'Fast'	? 25	: 50
+tsiMuDiIfTsiOpacityFast					= strGlobalMultixTSIHighlight  == 'Fast'	? 25	: 60
 tsiMuDiIfTsiColorFastline				= strGlobalMultixTSIHighlight  == 'Fast'	? color.new(insxTsiMuShowColorFast, tsiMuDiIfTsiOpacityFast)					: color.new(_co_gbl_neutral, tsiMuDiIfTsiOpacityFast)
 
-tsiMuDiIfTsiColorSlow					= strGlobalMultixTSIHighlight  == 'Slow'	? insxTsiMuShowColorSlow	: _co_gbl_neutral
-tsiMuDiIfTsiOpacitySlow					= strGlobalMultixTSIHighlight  == 'Slow'	? 20	: 50
-tsiMuDiIfTsiColorSlowline				= strGlobalMultixTSIHighlight  == 'Slow'	? color.new(insxTsiMuShowColorSlow, tsiMuDiIfTsiOpacityDiv)						: color.new(_co_gbl_neutral, tsiMuDiIfTsiOpacityDiv)
+tsiMuDiIfTsiColorSlow					= strGlobalMultixTSIHighlight  == 'Slow'	? insxTsiMuShowColorSlow	: _co_gbl_lime
+tsiMuDiIfTsiOpacitySlow					= strGlobalMultixTSIHighlight  == 'Slow'	? 20	: 60
+tsiMuDiIfTsiColorSlowline				= strGlobalMultixTSIHighlight  == 'Slow'	? color.new(insxTsiMuShowColorSlow, tsiMuDiIfTsiOpacitySlow)						: color.new(_co_gbl_lime, tsiMuDiIfTsiOpacitySlow)
 
 ///  ――――――――――――――――――――――――――――――――――
 
 /// plot TSI div
-plot_xTsiMuTsi_div						= plot(display_xTsiMu_TSI and tsiMuDiIfTsidiv == 'True' or tsiMuDiIfTsiDual == 'True' ? ixTsiMuCalcTsiDiv	: na,			color = tsiMuDiIfTsiColorDivline,		linewidth = 2)		//	plot TsiSI
-plot_xTsiMuEma_div						= plot(display_xTsiMu_TSI and tsiMuDiIfTsidiv == 'True' or tsiMuDiIfTsiDual == 'True' ? ixTsiMuCalcEmaDiv	: na,			color = tsiMuDiIfTsiColorDivline,		linewidth = 1)		//	plot EMA
+plot_xTsiMuTsi_div						= plot(display_xTsiMu_TSI and tsiMuDiIfTsidiv == 'True'	? ixTsiMuCalcTsiDiv	: na,			color = tsiMuDiIfTsiColorDivline,		linewidth = 2)		//	plot TsiSI
+plot_xTsiMuEma_div						= plot(display_xTsiMu_TSI and tsiMuDiIfTsidiv == 'True'	? ixTsiMuCalcEmaDiv	: na,			color = tsiMuDiIfTsiColorDivline,		linewidth = 1)		//	plot EMA
 
 /// fill div
-fill(plot_xTsiMuTsi_div, plot_xTsiMuEma_div,					color = color.new(tsiMuDiIfTsiColorDiv, 70))
+fill(plot_xTsiMuTsi_div, plot_xTsiMuEma_div,									color = color.new(tsiMuDiIfTsiColorDiv,				strGlobalMultixTSIHighlight	== 'Div'	? 50	: 80))
 
 ///  ――――――――――――――――――――――――――――――――――
 
 /// plot TSI fast
-plot_xTsiMuTsi_fast						= plot(display_xTsiMu_TSI and tsiMuDiIfTsifast == 'True'  ? ixTsiMuCalcTsiFast	: na,										color = tsiMuDiIfTsiColorFastline,		linewidth = 2)		//	plot TsiSI
-plot_xTsiMuEma_fast						= plot(display_xTsiMu_TSI and tsiMuDiIfTsifast == 'True'  ? ixTsiMuCalcEmaFast	: na,										color = tsiMuDiIfTsiColorFastline,		linewidth = 1)		//	plot EMA
+plot_xTsiMuTsi_fast						= plot(display_xTsiMu_TSI and tsiMuDiIfTsifast == 'True'	or tsiMuDiIfTsiDual == 'True'	? ixTsiMuCalcTsiFast	: na,		color = tsiMuDiIfTsiColorFastline,		linewidth = 2)		//	plot TsiSI
+plot_xTsiMuEma_fast						= plot(display_xTsiMu_TSI and tsiMuDiIfTsifast == 'True'	or tsiMuDiIfTsiDual == 'True'	? ixTsiMuCalcEmaFast	: na,		color = tsiMuDiIfTsiColorFastline,		linewidth = 1)		//	plot EMA
 
 /// fill fast
-fill(plot_xTsiMuTsi_fast, plot_xTsiMuEma_fast,					color = color.new(tsiMuDiIfTsiColorFast, 85))
+fill(plot_xTsiMuTsi_fast, plot_xTsiMuEma_fast,									color = color.new(tsiMuDiIfTsiColorFast,			strGlobalMultixTSIHighlight	== 'Fast'	? 50	: 80))
 
 /// plot TSI slow
-plot_xTsiMuTsi_slow						= plot(display_xTsiMu_TSI and tsiMuDiIfTsislow == 'True'  or tsiMuDiIfTsiDual == 'True'  ? ixTsiMuCalcTsiSlow	: na,		color = tsiMuDiIfTsiColorSlowline,			linewidth = 2)		//	plot TsiSI
-plot_xTsiMuEma_slow						= plot(display_xTsiMu_TSI and tsiMuDiIfTsislow == 'True'  or tsiMuDiIfTsiDual == 'True'  ? ixTsiMuCalcEmaSlow	: na,		color = tsiMuDiIfTsiColorSlowline,			linewidth = 2)		//	plot EMA
+plot_xTsiMuTsi_slow						= plot(display_xTsiMu_TSI and tsiMuDiIfTsislow == 'True'	or tsiMuDiIfTsiDual == 'True'	? ixTsiMuCalcTsiSlow	: na,		color = tsiMuDiIfTsiColorSlowline,		linewidth = 2)		//	plot TsiSI
+plot_xTsiMuEma_slow						= plot(display_xTsiMu_TSI and tsiMuDiIfTsislow == 'True'	or tsiMuDiIfTsiDual == 'True'	? ixTsiMuCalcEmaSlow	: na,		color = tsiMuDiIfTsiColorSlowline,		linewidth = 2)		//	plot EMA
 
 /// fill slow
-fill(plot_xTsiMuTsi_slow, plot_xTsiMuEma_slow,					color = color.new(tsiMuDiIfTsiColorSlow, 50))
+fill(plot_xTsiMuTsi_slow, plot_xTsiMuEma_slow,									color = color.new(tsiMuDiIfTsiColorSlow,			strGlobalMultixTSIHighlight	== 'Slow'	? 50	: 80))
 
 ///  ――――――――――――――――――――――――――――――――――
-
-/// plotchar crossover/crossunder
-xTsiMuTsi_crossover_fast				= display_xTsiMu_TSI and ta.crossover(ixTsiMuCalcTsiFast,		ixTsiMuCalcEmaFast)		? ixTsiMuCalcTsiFast[1]		: na
-xTsiMuTsi_crossover_slow				= display_xTsiMu_TSI and ta.crossover(ixTsiMuCalcTsiSlow,		ixTsiMuCalcEmaSlow)		? ixTsiMuCalcTsiSlow[1]		: na
-xTsiMuTsi_crossover_div					= display_xTsiMu_TSI and ta.crossover(ixTsiMuCalcTsiDiv,		ixTsiMuCalcEmaDiv)		? ixTsiMuCalcTsiDiv[1]		: na
-
-xTsiMuTsi_crossunder_fast				= display_xTsiMu_TSI and ta.crossunder(ixTsiMuCalcTsiFast,		ixTsiMuCalcEmaFast)		? ixTsiMuCalcTsiFast[1]		: na
-xTsiMuTsi_crossunder_slow				= display_xTsiMu_TSI and ta.crossunder(ixTsiMuCalcTsiSlow,		ixTsiMuCalcEmaSlow)		? ixTsiMuCalcTsiSlow[1]		: na
-xTsiMuTsi_crossunder_div				= display_xTsiMu_TSI and ta.crossunder(ixTsiMuCalcTsiDiv,		ixTsiMuCalcEmaDiv)		? ixTsiMuCalcTsiDiv[1]		: na
-
-plotchar(showxTsiMuTSIDivSpeed	== 'Fast' ? xTsiMuTsi_crossover_fast : showxTsiMuTSIDivSpeed	== 'Slow' ? xTsiMuTsi_crossover_slow : xTsiMuTsi_crossover_div,
-		  title							= "cross ▲",
-		  char							= "✪", 
-		  location						= location.absolute, 
-		  color							= color.new(co_xTsiMuTSIMainLong, 10),
-		  size							= size.tiny, 
-		  offset						= -1)
-
-plotchar(showxTsiMuTSIDivSpeed	== 'Fast' ? xTsiMuTsi_crossunder_fast : showxTsiMuTSIDivSpeed	== 'Slow' ? xTsiMuTsi_crossunder_slow : xTsiMuTsi_crossunder_div,
-		  title							= "cross ▼",
-		  char							= "✪", 
-		  location						= location.absolute, 
-		  color							= color.new(co_xTsiMuTSIMainShort, 10), 
-		  size							= size.tiny, 
-		  offset						= -1)
-
-///  ――――――――――――――――――――――――――――――――――
-
 
 vxTsiMuLBR								= 5				//	Corrección a la derecha
 vxTsiMuLBL								= 5				//	Corrección a la izquierda
@@ -1003,7 +1002,7 @@ tsiDiInsOSCHL							= vxTsiMu_speed_back				> ta.valuewhen(insTsiMuDiPLFound, vx
 tsiDiInsPRICELL							= low[vxTsiMuLBR]					< ta.valuewhen(insTsiMuDiPLFound, low[vxTsiMuLBR], 1)
 tsiDiInsBULLCond						= showxTsiMuTSIDiverg				and tsiDiInsPRICELL	and tsiDiInsOSCHL	and insTsiMuDiPLFound
 
-plotshape(showxTsiMuTSIDiverg			and	tsiDiInsBULLCond				? vxTsiMu_speed_back : na,
+plotshape(tsiDiInsBULLCond				? vxTsiMu_speed_back : na,
 			  offset					= -vxTsiMuLBR,
 			  title						= 'Etiqueta de Compra',
 			  text						= ' Buy ',
@@ -1023,7 +1022,7 @@ tsiDiInsOSCLL							= vxTsiMu_speed_back				< ta.valuewhen(insTsiMuDiPLFound, vx
 tsiDiInsPRICEHL							= low[vxTsiMuLBR]					> ta.valuewhen(insTsiMuDiPLFound, low[vxTsiMuLBR], 1)
 tsiDiInsHiddenBullCond					= showxTsiMuTSIDiverg				and tsiDiInsPRICEHL	and tsiDiInsOSCLL	and insTsiMuDiPLFound
 
-plotshape(showxTsiMuTSIDiverg			and tsiDiInsHiddenBullCond			? vxTsiMu_speed_back : na,
+plotshape(tsiDiInsHiddenBullCond		? vxTsiMu_speed_back : na,
 			  offset					= -vxTsiMuLBR,
 			  title						= 'Etiqueta de Compra trend',
 			  text						= ' ▲ ',
@@ -1043,7 +1042,7 @@ tsiDiInsOSCLH							= vxTsiMu_speed_back				< ta.valuewhen(insTsiMuDiPHFound, vx
 tsiDiInsPRICEHH							= high[vxTsiMuLBR]					> ta.valuewhen(insTsiMuDiPHFound, high[vxTsiMuLBR], 1)
 tsiDiInsBEARCond						= showxTsiMuTSIDiverg				and tsiDiInsPRICEHH	and tsiDiInsOSCLH	and insTsiMuDiPHFound
 
-plotshape(showxTsiMuTSIDiverg			and tsiDiInsBEARCond				? vxTsiMu_speed_back : na,
+plotshape(tsiDiInsBEARCond				? vxTsiMu_speed_back : na,
 			  offset					= -vxTsiMuLBR,
 			  title						= 'Etiqueta de Venta',
 			  text						= ' Sell ',
@@ -1063,7 +1062,7 @@ tsiDiInsOSCHH							= vxTsiMu_speed_back				> ta.valuewhen(insTsiMuDiPHFound, vx
 tsiDiInsPRICELH							= high[vxTsiMuLBR]					< ta.valuewhen(insTsiMuDiPHFound, high[vxTsiMuLBR], 1)
 tsiDiInsHiddenBearCond					= showxTsiMuTSIDiverg				and tsiDiInsPRICELH	and tsiDiInsOSCHH	and insTsiMuDiPHFound
 
-plotshape(showxTsiMuTSIDiverg			and tsiDiInsHiddenBearCond			? vxTsiMu_speed_back : na,
+plotshape(tsiDiInsHiddenBearCond		? vxTsiMu_speed_back : na,
 			  offset					= -vxTsiMuLBR,
 			  title						= 'Etiqueta de Venta trend',
 			  text						= ' ▼ ',
@@ -1073,6 +1072,48 @@ plotshape(showxTsiMuTSIDiverg			and tsiDiInsHiddenBearCond			? vxTsiMu_speed_bac
 			  color						= color.new(co_xTsiMuTSIMainShort, 50),
 			  textcolor					= co_xTsiMuText,
 			  force_overlay				= true)
+
+///  ――――――――――――――――――――――――――――――――――
+
+/// plotchar crossover/crossunder
+xTsiMuTsi_crossover_fast				= display_xTsiMu_TSI and ta.crossover(ixTsiMuCalcTsiFast,		ixTsiMuCalcEmaFast)		? ixTsiMuCalcTsiFast[1]		: na
+xTsiMuTsi_crossover_slow				= display_xTsiMu_TSI and ta.crossover(ixTsiMuCalcTsiSlow,		ixTsiMuCalcEmaSlow)		? ixTsiMuCalcTsiSlow[1]		: na
+xTsiMuTsi_crossover_div					= display_xTsiMu_TSI and ta.crossover(ixTsiMuCalcTsiDiv,		ixTsiMuCalcEmaDiv)		? ixTsiMuCalcTsiDiv[1]		: na
+
+xTsiMuTsi_crossunder_fast				= display_xTsiMu_TSI and ta.crossunder(ixTsiMuCalcTsiFast,		ixTsiMuCalcEmaFast)		? ixTsiMuCalcTsiFast[1]		: na
+xTsiMuTsi_crossunder_slow				= display_xTsiMu_TSI and ta.crossunder(ixTsiMuCalcTsiSlow,		ixTsiMuCalcEmaSlow)		? ixTsiMuCalcTsiSlow[1]		: na
+xTsiMuTsi_crossunder_div				= display_xTsiMu_TSI and ta.crossunder(ixTsiMuCalcTsiDiv,		ixTsiMuCalcEmaDiv)		? ixTsiMuCalcTsiDiv[1]		: na
+
+
+plotchar(showxTsiMuTSIDivSpeed	== 'Fast' ? xTsiMuTsi_crossover_fast : showxTsiMuTSIDivSpeed	== 'Slow' ? xTsiMuTsi_crossover_slow : xTsiMuTsi_crossover_div,
+		  title							= "cross ▲",
+		  char							= "◉",
+		  location						= location.absolute,
+		  color							= color.new(_co_gbl_white, 30),
+		  size							= size.tiny,
+		  offset						= -1)
+
+plotchar(showxTsiMuTSIDivSpeed	== 'Fast' ? xTsiMuTsi_crossunder_fast : showxTsiMuTSIDivSpeed	== 'Slow' ? xTsiMuTsi_crossunder_slow : xTsiMuTsi_crossunder_div,
+		  title							= "cross ▼",
+		  char							= "◉",
+		  location						= location.absolute,
+		  color							= color.new(_co_gbl_white, 30),
+  		  size							= size.tiny,
+		  offset						= -1)
+
+///  ――――――――――――――――――――――――――――――――――
+
+// bgcolor(
+// 		  title							= "cross ▲",
+// 		  color							= TsiMuTsi_over == true		? color.new(co_xTsiMuTSIBaseUp, 80) : na,
+// 		//   color							= TsiMuTsi_over == true and tsiDiInsPRICELL or tsiDiInsBULLCond ? color.new(co_xTsiMuTSIBaseUp, 80) : na,
+// 		  offset						= -1)
+
+// bgcolor(
+// 		  title							= "cross ▼",
+// 		  color							= TsiMuTsi_under == true	? color.new(co_xTsiMuTSIBaseDn, 80) : na, 
+// 		//   color							= TsiMuTsi_under == true and tsiDiInsPRICEHH or tsiDiInsBEARCond ? color.new(co_xTsiMuTSIBaseDn, 80) : na, 
+// 		  offset						= -1)
 
 
 /// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
