@@ -55,9 +55,11 @@ display_adapMon_MFI						= input.bool	(defval = true,			title = 'Mostrar Ai Adap
 
 display_DmiAdx_AdxHisto					= input.bool	(defval = true,			title = 'Mostrar ADX Histograma',	group = globalGroupIndicat)
 
-display_MltObsPnlTimeFrPanel			= input.bool	(defval = true,			title = 'Mostrar Panel Trend',		group = globalGroupIndicat)
+display_MltObsPnlMultiTFIndicPanel		= input.bool	(defval = true,			title = 'Mostrar Trend Panel',		group = globalGroupIndicat)
 
-display_MltObsPnlIndicatPanel			= input.bool	(defval = true,			title = 'Mostrar Panel Multi Inc',	group = globalGroupIndicat)
+display_MltObsPnlIndicatPanel			= input.bool	(defval = true,			title = 'Mostrar xIndicators Panel', group = globalGroupIndicat)
+
+display_MltObsPnlCalcTimeTicker			= input.bool	(defval = true,			title = 'Mostrar Ticker Panel',		group = globalGroupIndicat)
 
 showxTsiMuTSIDivSpeed					= input.string 	(defval = 'Fast',		title = 'Divergencia Speed',		group = globalGroupTimeframe,
 			  options					=				['Fast', 'Slow', 'Div'])
@@ -1099,20 +1101,14 @@ co_MltObsPnl_TiPnBg						= _co_gbl_yellow
 /// Title Indicator ――――――――――――――――――――
 MltObsPnlGroupTimeframes				=				'xMULTI TREND PANEL'
 
-display_MltObsPnlMultiTFIndicPanel		= input.bool	(true,				title = 'Mostrar Trend Panel',		group = MltObsPnlGroupTimeframes,		inline = 'showsignals')
-
-display_MltObsPnlCalcTimeTicker			= input.bool	(true,				title = 'Mostrar Ticker Panel',		group = MltObsPnlGroupTimeframes,		inline = 'showsignals')
-
-show_MltObsPnlColumn_Now				= input.bool	(true,				title = 'Timeframe',				group = MltObsPnlGroupTimeframes,		inline = 'tf amplit')
-
 show_MltObsPnlRow_DELTA					= input.bool	(true,				title = 'Delta',					group = MltObsPnlGroupTimeframes,		inline = 'Indicators')
 show_MltObsPnlRow_OSC					= input.bool	(true,				title = 'Oscillator',				group = MltObsPnlGroupTimeframes,		inline = 'Indicators')
-show_MltObsPnlRow_TSIdiv				= input.bool	(true,				title = 'TSI ',						group = MltObsPnlGroupTimeframes,		inline = 'Indicators')
-show_MltObsPnlRow_TSIslow				= input.bool	(true,				title = 'Tsi Slow',					group = MltObsPnlGroupTimeframes,		inline = 'Indicators 2')
-show_MltObsPnlRow_TSIfast				= input.bool	(true,				title = 'Tsi Fast',					group = MltObsPnlGroupTimeframes,		inline = 'Indicators 2')
-show_MltObsPnlRow_RSI					= input.bool	(false,				title = 'Rsi',						group = MltObsPnlGroupTimeframes,		inline = 'Indicators 2')
-show_MltObsPnlRow_MFI					= input.bool	(true,				title = 'Mfi',						group = MltObsPnlGroupTimeframes,		inline = 'Indicators 2')
-show_MltObsPnlRow_ADX					= input.bool	(true,				title = 'Adx',						group = MltObsPnlGroupTimeframes,		inline = 'Indicators 2')
+show_MltObsPnlRow_TSIdiv				= input.bool	(true,				title = 'TSI ',						group = MltObsPnlGroupTimeframes,		inline = 'Indicators tsi')
+show_MltObsPnlRow_TSIslow				= input.bool	(true,				title = 'Tsi Slow',					group = MltObsPnlGroupTimeframes,		inline = 'Indicators tsi')
+show_MltObsPnlRow_TSIfast				= input.bool	(true,				title = 'Tsi Fast',					group = MltObsPnlGroupTimeframes,		inline = 'Indicators tsi')
+show_MltObsPnlRow_RSI					= input.bool	(false,				title = 'Rsi',						group = MltObsPnlGroupTimeframes,		inline = 'Indicators')
+show_MltObsPnlRow_MFI					= input.bool	(true,				title = 'Mfi',						group = MltObsPnlGroupTimeframes,		inline = 'Indicators')
+show_MltObsPnlRow_ADX					= input.bool	(true,				title = 'Adx',						group = MltObsPnlGroupTimeframes,		inline = 'Indicators')
 
 MltObsPnl_PosiVert						= input.string	(defval = 'Abajo',	title = ' Y: ',						group = MltObsPnlGroupTimeframes,		inline = 'ubic',
 		  options						=				['Arriba', 'Abajo'])
@@ -1126,10 +1122,10 @@ show_MltObsPnlIndicatDelta				= input.bool	(true,				title = 'Delta',		 			group
 show_MltObsPnlIndicatTSIdiv				= input.bool	(true,				title = 'TSI  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic')
 show_MltObsPnlIndicatTSIfast			= input.bool	(true,				title = 'Fast ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic')
 show_MltObsPnlIndicatTSIslow			= input.bool	(true,				title = 'Slow ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic')
-show_MltObsPnlIndicatMtf				= input.bool	(true,				title = 'Mtf  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic')
-show_MltObsPnlIndicatRsi				= input.bool	(false,				title = 'Rsi  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic')
-show_MltObsPnlIndicatMfi				= input.bool	(true,				title = 'Mfi  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic')
-show_MltObsPnlIndicatAdx				= input.bool	(true,				title = 'Adx  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic')
+show_MltObsPnlIndicatMtf				= input.bool	(true,				title = 'Mtf  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic 2')
+show_MltObsPnlIndicatRsi				= input.bool	(false,				title = 'Rsi  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic 2')
+show_MltObsPnlIndicatMfi				= input.bool	(true,				title = 'Mfi  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic 2')
+show_MltObsPnlIndicatAdx				= input.bool	(true,				title = 'Adx  ',					group = MltObsPnlGroupIndicat,			inline = 'multi indic 2')
 
 MltObsPnl_LocatMlIndVert				= input.string	(defval = 'Medio',	title = ' Y: ',						group = MltObsPnlGroupIndicat,			inline = 'ubic signal',
 		  options						=				['Arriba', 'Medio','Abajo'])
@@ -1497,23 +1493,22 @@ if display_MltObsPnlMultiTFIndicPanel
 	// if show_MltObsPnlRow_DELTA
 	// 	FunMltObsPnlCalcCellHead			(0,		7,			'Delta ')
 
-	if show_MltObsPnlColumn_Now
-		if show_MltObsPnlRow_TSIdiv
-			FunMltObsPnlCalcDirections		(1,		0,			MltObsPnl_TSI_div,			35)
-		if show_MltObsPnlRow_TSIslow
-			FunMltObsPnlCalcDirections		(1,		1,			MltObsPnl_TSI_fast,			35)
-		if show_MltObsPnlRow_TSIfast
-			FunMltObsPnlCalcDirections		(1,		2,			MltObsPnl_TSI_slow,			40)
-		if show_MltObsPnlRow_RSI
-			FunMltObsPnlCalcDirections		(1,		3,			MltObsPnl_RSI,				30)
-		if show_MltObsPnlRow_OSC
-			FunMltObsPnlCalcTrendMfiOsc		(1,		4,			MltObsPnl_OSC)
-		if show_MltObsPnlRow_MFI
-			FunMltObsPnlCalcTrendMfiOsc		(1,		5,			MltObsPnl_MFI)
-		if show_MltObsPnlRow_ADX
-			FunMltObsPnlCalcTrendAdx		(1,		6,			MltObsPnl_ADX)
-		// if show_MltObsPnlRow_DELTA
-		// 	FunMltObsPnlCalcTrendDelta		(1,		7,			MltObsPnl_DELTA_f)
+	if show_MltObsPnlRow_TSIdiv
+		FunMltObsPnlCalcDirections			(1,		0,			MltObsPnl_TSI_div,			35)
+	if show_MltObsPnlRow_TSIslow
+		FunMltObsPnlCalcDirections			(1,		1,			MltObsPnl_TSI_fast,			35)
+	if show_MltObsPnlRow_TSIfast
+		FunMltObsPnlCalcDirections			(1,		2,			MltObsPnl_TSI_slow,			40)
+	if show_MltObsPnlRow_RSI
+		FunMltObsPnlCalcDirections			(1,		3,			MltObsPnl_RSI,				30)
+	if show_MltObsPnlRow_OSC
+		FunMltObsPnlCalcTrendMfiOsc			(1,		4,			MltObsPnl_OSC)
+	if show_MltObsPnlRow_MFI
+		FunMltObsPnlCalcTrendMfiOsc			(1,		5,			MltObsPnl_MFI)
+	if show_MltObsPnlRow_ADX
+		FunMltObsPnlCalcTrendAdx			(1,		6,			MltObsPnl_ADX)
+	// if show_MltObsPnlRow_DELTA
+	// 	FunMltObsPnlCalcTrendDelta			(1,		7,			MltObsPnl_DELTA_f)
 
 //// ─────────────────────────────────────────────────────────────────────
 
