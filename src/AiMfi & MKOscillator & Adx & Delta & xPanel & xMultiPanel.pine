@@ -911,15 +911,15 @@ tsiMuDiIfTsifast						= strGlobalMultixTSISpeed  == 'Fast'	or	tsiMuDiIfTsiMulti 
 
 /// plot TSI line/fill color
 tsiMuDiIfTsiColorDiv					= strGlobalMultixTSIHighlight  == 'Div'		? insxTsiMuShowColorDiv		: _co_gbl_light
-tsiMuDiIfTsiOpacityDiv					= strGlobalMultixTSIHighlight  == 'Div'		? 20	: 50
+tsiMuDiIfTsiOpacityDiv					= strGlobalMultixTSIHighlight  == 'Div'		? 25	: 50
 tsiMuDiIfTsiColorDivline				= strGlobalMultixTSIHighlight  == 'Div'		? color.new(insxTsiMuShowColorDiv, tsiMuDiIfTsiOpacityDiv)		: color.new(_co_gbl_light, tsiMuDiIfTsiOpacityDiv)
 
 tsiMuDiIfTsiColorSlow					= strGlobalMultixTSIHighlight  == 'Slow'	? insxTsiMuShowColorSlow	: _co_gbl_neutral
-tsiMuDiIfTsiOpacitySlow					= strGlobalMultixTSIHighlight  == 'Slow'	? 20	: 50
+tsiMuDiIfTsiOpacitySlow					= strGlobalMultixTSIHighlight  == 'Slow'	? 25	: 50
 tsiMuDiIfTsiColorSlowline				= strGlobalMultixTSIHighlight  == 'Slow'	? color.new(insxTsiMuShowColorSlow, tsiMuDiIfTsiOpacityDiv)		: color.new(_co_gbl_neutral, tsiMuDiIfTsiOpacityDiv)
 
 tsiMuDiIfTsiColorFast					= strGlobalMultixTSIHighlight  == 'Fast'	? insxTsiMuShowColorFast	: _co_gbl_neutral
-tsiMuDiIfTsiOpacityFast					= strGlobalMultixTSIHighlight  == 'Fast'	? 20	: 50
+tsiMuDiIfTsiOpacityFast					= strGlobalMultixTSIHighlight  == 'Fast'	? 25	: 50
 tsiMuDiIfTsiColorFastline				= strGlobalMultixTSIHighlight  == 'Fast'	? color.new(insxTsiMuShowColorFast, tsiMuDiIfTsiOpacityFast)		: color.new(_co_gbl_neutral, tsiMuDiIfTsiOpacityFast)
 
 
@@ -942,10 +942,10 @@ fill(plot_xTsiMuTsi_slow, plot_xTsiMuEma_slow,					color = color.new(tsiMuDiIfTs
 
 /// plot TSI div
 plot_xTsiMuTsi_div						= plot(display_xTsiMu_TSI and tsiMuDiIfTsidiv == 'True' or tsiMuDiIfTsiDual == 'True' ? ixTsiMuCalcTsiDiv	: na,			color = tsiMuDiIfTsiColorDivline,		linewidth = 2)		//	plot TsiSI
-plot_xTsiMuEma_div						= plot(display_xTsiMu_TSI and tsiMuDiIfTsidiv == 'True' or tsiMuDiIfTsiDual == 'True' ? ixTsiMuCalcEmaDiv	: na,			color = tsiMuDiIfTsiColorDivline,		linewidth = 2)		//	plot EMA
+plot_xTsiMuEma_div						= plot(display_xTsiMu_TSI and tsiMuDiIfTsidiv == 'True' or tsiMuDiIfTsiDual == 'True' ? ixTsiMuCalcEmaDiv	: na,			color = tsiMuDiIfTsiColorDivline,		linewidth = 1)		//	plot EMA
 
 /// fill div
-fill(plot_xTsiMuTsi_div, plot_xTsiMuEma_div,					color = color.new(tsiMuDiIfTsiColorDiv, 50))
+fill(plot_xTsiMuTsi_div, plot_xTsiMuEma_div,					color = color.new(tsiMuDiIfTsiColorDiv, 70))
 
 /// plotchar crossover/crossunder
 xTsiMuTsi_crossover_fast				= display_xTsiMu_TSI and ta.crossover(ixTsiMuCalcTsiFast,		ixTsiMuCalcEmaFast)		? ixTsiMuCalcTsiFast[1]		: na
